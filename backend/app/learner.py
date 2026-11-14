@@ -57,6 +57,7 @@ def intent_score(cos: float, servers_a: set, servers_b: set, given_a: frozenset,
 
 
 W_MIN, W_MAX = 0.0, 5.0
+MAX_INTENTS = 2000
 NEXT_INC, SOLVED_INC, GAP_INC, PENALTY = 0.3, 0.5, 0.25, 0.2
 
 SOLVED_Q = (
@@ -122,7 +123,9 @@ def reset(db: HydraDB | None = None) -> None:
     from .ingest import ingest
 
     global STATE
-    ingest(db, reset=True, extra_ids=list(STATE.intents), quiet=True)
+    # intents from another process are not in STATE: wipe the whole (small) intent id block
+    intent_block = list(range(config.ID_BASE["Intent"], config.ID_BASE["Intent"] + MAX_INTENTS))
+    ingest(db, reset=True, extra_ids=sorted(set(STATE.intents) | set(intent_block)), quiet=True)
     STATE = LearnedState()
 
 

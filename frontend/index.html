@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolGraph</title>
+<meta name="description" content="Graph-native tool routing for AI agents, on HydraDB.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='16' r='5' fill='%233987e5'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%239085e9'/%3E%3Ccircle cx='24' cy='24' r='4' fill='%23199e70'/%3E%3Cpath d='M12 14 21 9M12 18l9 5' stroke='%23c3c2b7' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>
+    <div>
+      <h1>ToolGraph</h1>
+      <p class="tagline">Your agent doesn't need 200 tools in context. It needs the right 6.</p>
+    </div>
+  </div>
+  <div class="status" id="status"><span class="dot"></span><span id="status-text">connecting…</span></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" class="tab active" data-tab="route" aria-selected="true">Route a task</button>
+  <button role="tab" class="tab" data-tab="compare" aria-selected="false">Compare strategies</button>
+  <button role="tab" class="tab" data-tab="results" aria-selected="false">Results</button>
+</nav>
+
+<main>
+  <!-- shared task input -->
+  <section class="card task-card">
+    <div class="examples-head">
+      <h2>Task</h2>
+      <span class="hint">pick an example (held-out test tasks) or write your own</span>
+    </div>
+    <div class="examples" id="examples"></div>
+    <textarea id="task" rows="2" maxlength="600" placeholder="e.g. Post the latest failing CI log for acme/web to the #incidents Slack channel"></textarea>
+    <div class="given-row">
+      <span class="label">The user already supplied:</span>
+      <div id="given" class="chips"></div>
+      <select id="given-add" aria-label="add a supplied input"><option value="">+ add input</option></select>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="btn-retrieve">Retrieve tools</button>
+      <button class="btn" id="btn-run" title="retrieve → plan → simulate, then update the graph from the outcome">Run &amp; learn</button>
+      <button class="btn ghost" id="btn-static" title="same task with learned edges switched off">Run static graph</button>
+      <span class="goal" id="goal"></span>
+    </div>
+  </section>
+
+  <!-- tab: route -->
+  <section class="panel active" id="panel-route">
+    <div class="grid">
+      <div class="card graph-card">
+        <div class="card-head">
+          <h2>Subgraph HydraDB returned</h2>
+          <div class="legend">
+            <span><i class="k-cap"></i>capability</span><span><i class="k-intent"></i>learned intent</span>
+            <span><i class="k-tool"></i>selected tool</span><span><i class="k-type"></i>data type</span>
+          </div>
+        </div>
+        <div id="cy" aria-label="retrieved subgraph"></div>
+        <p class="caption" id="cy-caption">Retrieve a task to see which capabilities, learned intents and prerequisite chains the graph walked.</p>
+      </div>
+      <div class="side">
+        <div class="card tiles">
+          <div class="tile"><span class="tl">tool tokens in prompt</span><span class="tv" id="t-tokens">—</span><span class="ts" id="t-tokens-sub"></span></div>
+          <div class="tile"><span class="tl">retrieval latency</span><span class="tv" id="t-lat">—</span><span class="ts" id="t-lat-sub"></span></div>
+        </div>
+        <div class="card">
+          <h2>Tools handed to the agent</h2>
+          <ol id="tools" class="tools"><li class="muted">—</li></ol>
+        </div>
+        <div class="card" id="run-card" hidden>
+          <h2>Plan &amp; outcome</h2>
+          <div id="outcome"></div>
+          <ol id="plan" class="plan"></ol>
+          <div id="learned"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- tab: compare -->
+  <section class="panel" id="panel-compare">
+    <div class="card">
+      <div class="card-head">
+        <h2>Same task, five retrieval strategies</h2>
+        <button class="btn" id="btn-compare">Compare</button>
+      </div>
+      <div id="compare" class="compare"><p class="muted">Pick a task above and press Compare. Example tasks are also simulated end-to-end.</p></div>
+    </div>
+  </section>
+
+  <!-- tab: results -->
+  <section class="panel" id="panel-results">
+    <p class="source" id="res-source"></p>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="card chart-card"><h2>Learning curve</h2><p class="sub" id="lc-sub"></p><div class="chart"><canvas id="c-learn"></canvas></div></div>
+      <div class="card chart-card"><h2>Ablations</h2><p class="sub" id="ab-sub"></p><div class="chart"><canvas id="c-ablate"></canvas></div></div>
+      <div class="card chart-card"><h2>Recall as the catalog grows</h2><p class="sub">look-alike servers added; tasks still name the real ones</p><div class="chart"><canvas id="c-scale"></canvas></div></div>
+      <div class="card chart-card"><h2>ToolGraph latency at scale</h2><p class="sub">frontier traversal: 1 seed query + 1 hop query per level</p><div class="chart"><canvas id="c-lat"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h2>All numbers</h2>
+      <p class="sub">Read from <code>/api/results</code>, i.e. the <code>results/*.json</code> files written by <code>eval/</code> scripts. Nothing on this page is typed in by hand.</p>
+      <div class="table-wrap"><table id="res-table"></table></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Graph store: <a href="https://github.com/hydra-db/hydradb" target="_blank" rel="noopener">HydraDB</a> v0.3 (AGPL, unmodified image) ·
+  ToolGraph is MIT · <a href="/api/results" target="_blank">raw results</a> · <a href="/docs" target="_blank">API</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js" integrity="sha384-IWROdLKRsN1UuJywMlWl7/blXQ8GEooN2n7dzTxfEPd7ybYIKCUJ2Ol/1Gpf3YV4" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

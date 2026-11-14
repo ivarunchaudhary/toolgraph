@@ -81,8 +81,9 @@ def main() -> None:
             extra = f" train_ok={out['train_log'][-1]['first_try_success']}/{out['train_log'][-1]['n']}" if it else ""
             print(f"  graph it{it}  success={sm['success_rate']:.3f} recall={sm['tool_recall']:.3f} tokens={sm['context_tokens']:.0f}{extra}")
         per_seed_curves.append(curve)
-        if seed == 0 and args.out == "benchmark":
-            learner.save_snapshot()
+        if seed == 0:  # the hosted demo is warmed with seed 0's learned state
+            name = "learned_state.json" if args.out == "benchmark" else f"learned_state_{args.out}.json"
+            learner.save_snapshot(ROOT / "results" / name)
     out["graph_learning"] = per_seed_curves
     its = range(args.iters + 1)
     out["aggregate"] = {

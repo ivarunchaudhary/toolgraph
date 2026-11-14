@@ -62,8 +62,9 @@ def solver_plan(given: list[str], goal: list[str], tool_ids: list[str]) -> dict:
             "cached": True, "raw": ""}
 
 
-def plan(task: str, given: list[str], tool_ids: list[str], goal: list[str] | None = None) -> dict:
-    if os.getenv("PLANNER_BACKEND", "llm") == "solver":
+def plan(task: str, given: list[str], tool_ids: list[str], goal: list[str] | None = None,
+         backend: str | None = None) -> dict:
+    if (backend or os.getenv("PLANNER_BACKEND", "llm")) == "solver":
         return solver_plan(given, goal or [], tool_ids)
     prompt = build_prompt(task, given, tool_ids)
     resp = get_llm().complete(SYSTEM, prompt)
