@@ -1,0 +1,8 @@
+{
+ "method": "cos(masked) + 0.35*jaccard(servers) + 0.25*[same given]",
+ "threshold": 0.825,
+ "same_family_match_rate": 0.803030303030303,
+ "cross_family_match_rate": 0.017578994214508235,
+ "raw_text_same_median": 0.4218662977218628,
+ "raw_text_cross_p99": 0.5988463419675818
+}

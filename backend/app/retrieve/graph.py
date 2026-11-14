@@ -153,7 +153,7 @@ def retrieve(
     servers = mentioned_servers(task) if opts.server_filter else set()
     cap_hits = seed_capabilities(q, servers)
     cap_sim = {m[c]: s for c, s in cap_hits}
-    intents = learner.STATE.match_intents(q, k=2) if opts.learned else []
+    intents = learner.STATE.match(task, given, k=2) if opts.learned else []
     intent_sim = {vid: s for vid, s in intents}
     known = [m[g] for g in given if g in m.key2id]
 

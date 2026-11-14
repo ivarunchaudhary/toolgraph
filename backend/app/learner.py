@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,11 +23,42 @@ from .db import HydraDB, get_db
 from .embed import Index, embed_one
 from .ingest import get_idmap, rid
 
-INTENT_THRESHOLD = float(os.getenv("INTENT_THRESHOLD", "0.75"))
+def _calibrated_threshold() -> float:
+    f = config.RESULTS_DIR / "intent_calibration.json"
+    if os.getenv("INTENT_THRESHOLD"):
+        return float(os.environ["INTENT_THRESHOLD"])
+    if f.exists():
+        return float(json.loads(f.read_text())["threshold"])
+    return 0.825
+
+
+INTENT_THRESHOLD = _calibrated_threshold()
+SIG_SERVER_W, SIG_GIVEN_W = 0.35, 0.25
+
+_MASKS = [
+    (re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.]+\b"), "someone"),
+    (re.compile(r"(?:\./|~/)\S+"), "a file"),
+    (re.compile(r"#[\w-]+"), "the channel"),
+    (re.compile(r"\b[a-z0-9-]+/[a-z0-9-]+\b"), "the repo"),
+    (re.compile(r"'[^']*'"), "something"),
+]
+
+
+def mask_entities(text: str) -> str:
+    """Intent = what is being done, not to which repo/person: replace concrete values with placeholders."""
+    for rx, rep in _MASKS:
+        text = rx.sub(rep, text)
+    return text
+
+
+def intent_score(cos: float, servers_a: set, servers_b: set, given_a: frozenset, given_b: frozenset) -> float:
+    jac = len(servers_a & servers_b) / len(servers_a | servers_b) if servers_a | servers_b else 0.0
+    return cos + SIG_SERVER_W * jac + SIG_GIVEN_W * (given_a == given_b)
+
+
 W_MIN, W_MAX = 0.0, 5.0
 NEXT_INC, SOLVED_INC, GAP_INC, PENALTY = 0.3, 0.5, 0.25, 0.2
 
-INTENT_Q = "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Intent, n.key = row.key, n.centroid_text = row.text"
 SOLVED_Q = (
     "UNWIND $rows AS row MATCH (s:Intent {id: row.src}), (d:Tool {id: row.dst}) "
     "MERGE (s)-[r:SOLVED_WITH {id: row.rid}]->(d) SET r.weight = row.w"
@@ -48,19 +80,35 @@ def clamp(w: float) -> float:
 @dataclass
 class LearnedState:
     intents: dict[int, str] = field(default_factory=dict)  # vid -> centroid text
+    sig: dict[int, tuple[frozenset, frozenset]] = field(default_factory=dict)  # vid -> (servers, given)
     solved: dict[tuple[int, int], float] = field(default_factory=dict)
     next: dict[tuple[int, int], float] = field(default_factory=dict)
     index: Index = field(default_factory=lambda: Index([], []))
     lock: threading.Lock = field(default_factory=threading.Lock)
 
-    def match_intents(self, qvec: np.ndarray, k: int = 2, thr: float | None = None) -> list[tuple[int, float]]:
+    def match(self, text: str, given: list[str], k: int = 2, thr: float | None = None) -> list[tuple[int, float]]:
+        """Intents whose (masked text, servers named, inputs supplied) signature matches this task."""
+        from .retrieve.base import mentioned_servers
+
         thr = INTENT_THRESHOLD if thr is None else thr
-        return [(int(i), s) for i, s in self.index.search(qvec, k) if s >= thr]
+        if not self.intents:
+            return []
+        q = embed_one(mask_entities(text))
+        srv, giv = frozenset(mentioned_servers(text)), frozenset(given)
+        cos = self.index.mat @ q
+        scored = []
+        for i, vid_s in enumerate(self.index.ids):
+            vid = int(vid_s)
+            s_srv, s_giv = self.sig[vid]
+            scored.append((vid, intent_score(float(cos[i]), srv, s_srv, giv, s_giv)))
+        scored.sort(key=lambda x: (-x[1], x[0]))
+        return [(v, sc) for v, sc in scored[:k] if sc >= thr]
 
     def snapshot(self) -> dict:
         m = get_idmap()
         return {
-            "intents": [{"id": k, "text": v} for k, v in self.intents.items()],
+            "intents": [{"id": k, "text": v, "servers": sorted(self.sig[k][0]), "given": sorted(self.sig[k][1])}
+                        for k, v in self.intents.items()],
             "solved_with": [{"intent": a, "tool": m.key(b), "w": w} for (a, b), w in self.solved.items()],
             "next": [{"src": m.key(a), "dst": m.key(b), "w": w} for (a, b), w in self.next.items()],
         }
@@ -78,17 +126,32 @@ def reset(db: HydraDB | None = None) -> None:
     STATE = LearnedState()
 
 
-def _intent_for(text: str, db: HydraDB, create: bool = True) -> int | None:
-    q = embed_one(text)
-    hits = STATE.match_intents(q, k=1)
+INTENT_Q2 = (
+    "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Intent, n.key = row.key, n.centroid_text = row.text, "
+    "n.servers = row.servers, n.given = row.given"
+)
+
+
+def _register_intent(db: HydraDB, vid: int, text: str, servers: frozenset, given: frozenset) -> None:
+    STATE.intents[vid] = text
+    STATE.sig[vid] = (servers, given)
+    STATE.index.add(str(vid), mask_entities(text))
+    db.run_raw(INTENT_Q2, {"rows": [{
+        "id": vid, "key": f"intent:{vid - config.ID_BASE['Intent']:04d}", "text": text,
+        "servers": ",".join(sorted(servers)), "given": ",".join(sorted(given)),
+    }]})
+
+
+def _intent_for(text: str, given: list[str], db: HydraDB, create: bool = True) -> int | None:
+    from .retrieve.base import mentioned_servers
+
+    hits = STATE.match(text, given, k=1)
     if hits:
         return hits[0][0]
     if not create:
         return None
     vid = config.ID_BASE["Intent"] + len(STATE.intents)
-    STATE.intents[vid] = text
-    STATE.index.add(str(vid), text)
-    db.run_raw(INTENT_Q, {"rows": [{"id": vid, "key": f"intent:{vid - config.ID_BASE['Intent']:04d}", "text": text}]})
+    _register_intent(db, vid, text, frozenset(mentioned_servers(text)), frozenset(given))
     return vid
 
 
@@ -139,7 +202,7 @@ def learn(
     plan_ids = [m[t] for t in plan if t in cat.tools]
     changes: dict = {"intent": None, "solved": {}, "next": {}, "gap": None}
     with STATE.lock:
-        intent = _intent_for(task_text, db, create=True)
+        intent = _intent_for(task_text, given, db, create=True)
         changes["intent"] = intent
         solved, nxt = {}, {}
         if success:
@@ -190,12 +253,15 @@ def load_snapshot(path: Path | None = None, db: HydraDB | None = None) -> dict:
         rows = []
         for it in snap["intents"]:
             vid = int(it["id"])
+            srv, giv = frozenset(it.get("servers", [])), frozenset(it.get("given", []))
             if vid not in STATE.intents:
                 STATE.intents[vid] = it["text"]
-                STATE.index.add(str(vid), it["text"])
-            rows.append({"id": vid, "key": f"intent:{vid - config.ID_BASE['Intent']:04d}", "text": it["text"]})
+                STATE.sig[vid] = (srv, giv)
+                STATE.index.add(str(vid), mask_entities(it["text"]))
+            rows.append({"id": vid, "key": f"intent:{vid - config.ID_BASE['Intent']:04d}", "text": it["text"],
+                         "servers": ",".join(sorted(srv)), "given": ",".join(sorted(giv))})
         if rows:
-            db.batch(INTENT_Q, rows)
+            db.batch(INTENT_Q2, rows)
         solved = {(int(s["intent"]), m[s["tool"]]): s["w"] for s in snap["solved_with"]}
         nxt = {(m[n["src"]], m[n["dst"]]): n["w"] for n in snap["next"]}
         STATE.solved.update(solved)
