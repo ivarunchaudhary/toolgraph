@@ -76,13 +76,19 @@ app = FastAPI(title="ToolGraph", version="1.0", lifespan=lifespan)
 
 
 def client_ip(req: Request) -> str:
+    """Right-most X-Forwarded-For hop = the address our own edge proxy saw (clients can only prepend)."""
     fwd = req.headers.get("x-forwarded-for")
-    return fwd.split(",")[0].strip() if fwd else (req.client.host if req.client else "?")
+    if fwd:
+        return fwd.split(",")[-1].strip()
+    return req.client.host if req.client else "?"
 
 
 def rate_limited(req: Request) -> None:
     ip, now = client_ip(req), time.time()
     with _hits_lock:
+        if len(_hits) > 10_000:  # drop idle clients
+            for k in [k for k, q in _hits.items() if not q or now - q[-1] > RATE_WINDOW_S]:
+                del _hits[k]
         q = _hits[ip]
         while q and now - q[0] > RATE_WINDOW_S:
             q.popleft()
@@ -224,15 +230,24 @@ def api_run(req: RunReq, request: Request):
         "plan": p["steps"], "cached_plan": p.get("cached", False),
         "outcome": None if sim is None else {"success": sim.success, "failure_reason": sim.failure_reason, "steps": sim.steps_used},
     }
-    if req.learn and sim is not None and req.strategy == "graph":
+    # learning only from catalogued demo tasks (known goal types), never from anonymous free text
+    if req.learn and req.task_id and sim is not None and req.strategy == "graph":
         out["learned"] = learner.learn(text, given, p["tools"], sim.success, sim.failure_reason, mentioned_servers(text))
     return out
 
 
+_reset_lock = threading.Lock()
+
+
 @app.post("/api/demo/reset")
 def api_reset(request: Request):
+    """Restore the published learned state. Disabled unless ADMIN_TOKEN is set; requires it as a bearer token."""
+    token = os.getenv("ADMIN_TOKEN", "")
+    if not token or request.headers.get("authorization", "") != f"Bearer {token}":
+        raise HTTPException(403, "reset is admin-only")
     rate_limited(request)
-    return warm()
+    with _reset_lock:
+        return warm()
 
 
 @app.get("/api/results")
@@ -248,9 +263,16 @@ def api_results():
     return out
 
 
+_stats_cache: dict = {"at": 0.0, "v": None}
+
+
 @app.get("/api/graph/stats")
 def api_stats():
-    st = graph_stats()
+    """Counts come from HydraDB (12 count queries); cached for 15 s so the header badge stays cheap."""
+    now = time.time()
+    if _stats_cache["v"] is None or now - _stats_cache["at"] > 15:
+        _stats_cache.update(at=now, v=graph_stats())
+    st = dict(_stats_cache["v"])
     cat = get_catalog()
     st["catalog"] = {"tools": len(cat.tools), "servers": len(cat.servers), "types": len(cat.datatypes), "capabilities": len(cat.capabilities)}
     st["learned"] = {"intents": len(learner.STATE.intents), "solved_with": len(learner.STATE.solved), "next": len(learner.STATE.next)}

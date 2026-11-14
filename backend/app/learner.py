@@ -153,6 +153,9 @@ def _intent_for(text: str, given: list[str], db: HydraDB, create: bool = True) -
         return hits[0][0]
     if not create:
         return None
+    if len(STATE.intents) >= MAX_INTENTS:  # cap: fold into the closest existing intent
+        near = STATE.match(text, given, k=1, thr=float("-inf"))
+        return near[0][0] if near else None
     vid = config.ID_BASE["Intent"] + len(STATE.intents)
     _register_intent(db, vid, text, frozenset(mentioned_servers(text)), frozenset(given))
     return vid

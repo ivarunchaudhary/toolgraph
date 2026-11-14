@@ -1,0 +1,11 @@
+.venv
+.cache
+.git
+.env
+**/__pycache__
+results/*.log
+tests
+eval
+scripts
+loadtest
+infra
