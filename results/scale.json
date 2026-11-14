@@ -1,0 +1,264 @@
+{
+ "sizes": [
+  {
+   "n_tools": 200,
+   "n_servers": 22,
+   "n_types": 174,
+   "ingest_ms": 934.3,
+   "graph_stats": {
+    "nodes": {
+     "Server": 22,
+     "Tool": 200,
+     "Capability": 71,
+     "DataType": 174,
+     "Intent": 0,
+     "Entity": 0
+    },
+    "edges": {
+     "PART_OF": 200,
+     "PROVIDES": 206,
+     "CONSUMES": 240,
+     "PRODUCED_BY": 221,
+     "NEXT": 0,
+     "SOLVED_WITH": 0
+    },
+    "ingest_ms": 934.3
+   },
+   "graph": {
+    "n": 53,
+    "success_rate": 0.6792452830188679,
+    "tool_recall": 0.8493710691823899,
+    "context_tokens": 625.6981132075472,
+    "cost_per_1k_tasks_usd": 0.6256981132075472,
+    "db_round_trips": 3.490566037735849,
+    "latency_p50_ms": 15.75266700820066,
+    "latency_p95_ms": 22.87975000217557,
+    "db_ms_p50": 14.091749966610223,
+    "failures": {
+     "goal_not_reached": 16,
+     "empty_plan": 1
+    },
+    "steps_per_success": 2.5277777777777777
+   },
+   "vector_k15": {
+    "n": 53,
+    "success_rate": 0.6415094339622641,
+    "tool_recall": 0.7830188679245284,
+    "context_tokens": 988.0754716981132,
+    "cost_per_1k_tasks_usd": 0.9880754716981133,
+    "db_round_trips": 0,
+    "latency_p50_ms": 0.17324998043477535,
+    "latency_p95_ms": 0.3485000052023679,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "empty_plan": 4,
+     "goal_not_reached": 15
+    },
+    "steps_per_success": 2.5294117647058822
+   },
+   "graph_union_first20": {
+    "n": 20,
+    "success_rate": 0.6,
+    "tool_recall": 0.845,
+    "context_tokens": 648.9,
+    "cost_per_1k_tasks_usd": 0.6489,
+    "db_round_trips": 1,
+    "latency_p50_ms": 129.4474999886006,
+    "latency_p95_ms": 445.79745800001547,
+    "db_ms_p50": 128.73279099585488,
+    "failures": {
+     "goal_not_reached": 8
+    },
+    "steps_per_success": 2.5
+   }
+  },
+  {
+   "n_tools": 1000,
+   "n_servers": 112,
+   "n_types": 855,
+   "ingest_ms": 2659.7,
+   "graph_stats": {
+    "nodes": {
+     "Server": 112,
+     "Tool": 1000,
+     "Capability": 71,
+     "DataType": 855,
+     "Intent": 0,
+     "Entity": 0
+    },
+    "edges": {
+     "PART_OF": 1000,
+     "PROVIDES": 1036,
+     "CONSUMES": 1158,
+     "PRODUCED_BY": 1091,
+     "NEXT": 0,
+     "SOLVED_WITH": 0
+    },
+    "ingest_ms": 2659.7
+   },
+   "graph": {
+    "n": 53,
+    "success_rate": 0.5660377358490566,
+    "tool_recall": 0.7575471698113208,
+    "context_tokens": 676.2641509433962,
+    "cost_per_1k_tasks_usd": 0.6762641509433962,
+    "db_round_trips": 3.339622641509434,
+    "latency_p50_ms": 30.80687500187196,
+    "latency_p95_ms": 72.97312500304542,
+    "db_ms_p50": 28.65362400189042,
+    "failures": {
+     "goal_not_reached": 19,
+     "empty_plan": 4
+    },
+    "steps_per_success": 2.5
+   },
+   "vector_k15": {
+    "n": 53,
+    "success_rate": 0.4528301886792453,
+    "tool_recall": 0.6591194968553459,
+    "context_tokens": 970.6603773584906,
+    "cost_per_1k_tasks_usd": 0.9706603773584906,
+    "db_round_trips": 0,
+    "latency_p50_ms": 0.5408340075518936,
+    "latency_p95_ms": 1.0377090075053275,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "empty_plan": 8,
+     "goal_not_reached": 21
+    },
+    "steps_per_success": 2.5
+   },
+   "graph_union_first20": {
+    "n": 20,
+    "success_rate": 0.5,
+    "tool_recall": 0.785,
+    "context_tokens": 699.7,
+    "cost_per_1k_tasks_usd": 0.6997,
+    "db_round_trips": 1,
+    "latency_p50_ms": 1559.2540839861613,
+    "latency_p95_ms": 10951.216750021558,
+    "db_ms_p50": 1556.2624589947518,
+    "failures": {
+     "goal_not_reached": 9,
+     "empty_plan": 1
+    },
+    "steps_per_success": 2.4
+   }
+  },
+  {
+   "n_tools": 5000,
+   "n_servers": 559,
+   "n_types": 4257,
+   "ingest_ms": 14730.0,
+   "graph_stats": {
+    "nodes": {
+     "Server": 559,
+     "Tool": 5000,
+     "Capability": 71,
+     "DataType": 4257,
+     "Intent": 0,
+     "Entity": 0
+    },
+    "edges": {
+     "PART_OF": 5000,
+     "PROVIDES": 5186,
+     "CONSUMES": 5755,
+     "PRODUCED_BY": 5449,
+     "NEXT": 0,
+     "SOLVED_WITH": 0
+    },
+    "ingest_ms": 14730.0
+   },
+   "graph": {
+    "n": 53,
+    "success_rate": 0.5283018867924528,
+    "tool_recall": 0.710377358490566,
+    "context_tokens": 676.3207547169811,
+    "cost_per_1k_tasks_usd": 0.676320754716981,
+    "db_round_trips": 3.3773584905660377,
+    "latency_p50_ms": 91.5196249843575,
+    "latency_p95_ms": 227.471374993911,
+    "db_ms_p50": 84.59399902494624,
+    "failures": {
+     "goal_not_reached": 18,
+     "empty_plan": 7
+    },
+    "steps_per_success": 2.5
+   },
+   "vector_k15": {
+    "n": 53,
+    "success_rate": 0.33962264150943394,
+    "tool_recall": 0.5182389937106918,
+    "context_tokens": 965.8867924528302,
+    "cost_per_1k_tasks_usd": 0.9658867924528302,
+    "db_round_trips": 0,
+    "latency_p50_ms": 1.3847079826518893,
+    "latency_p95_ms": 1.9635420176200569,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "goal_not_reached": 18,
+     "empty_plan": 17
+    },
+    "steps_per_success": 2.5
+   }
+  },
+  {
+   "n_tools": 10000,
+   "n_servers": 1119,
+   "n_types": 8511,
+   "ingest_ms": 35461.1,
+   "graph_stats": {
+    "nodes": {
+     "Server": 1119,
+     "Tool": 10000,
+     "Capability": 71,
+     "DataType": 8511,
+     "Intent": 0,
+     "Entity": 0
+    },
+    "edges": {
+     "PART_OF": 10000,
+     "PROVIDES": 10373,
+     "CONSUMES": 11500,
+     "PRODUCED_BY": 10897,
+     "NEXT": 0,
+     "SOLVED_WITH": 0
+    },
+    "ingest_ms": 35461.1
+   },
+   "graph": {
+    "n": 53,
+    "success_rate": 0.5094339622641509,
+    "tool_recall": 0.6946540880503145,
+    "context_tokens": 674.8679245283018,
+    "cost_per_1k_tasks_usd": 0.6748679245283018,
+    "db_round_trips": 3.4716981132075473,
+    "latency_p50_ms": 203.8704169972334,
+    "latency_p95_ms": 619.5750829938333,
+    "db_ms_p50": 192.22287397133186,
+    "failures": {
+     "goal_not_reached": 19,
+     "empty_plan": 7
+    },
+    "steps_per_success": 2.5185185185185186
+   },
+   "vector_k15": {
+    "n": 53,
+    "success_rate": 0.2830188679245283,
+    "tool_recall": 0.4421383647798742,
+    "context_tokens": 972.0377358490566,
+    "cost_per_1k_tasks_usd": 0.9720377358490566,
+    "db_round_trips": 0,
+    "latency_p50_ms": 2.2373750107362866,
+    "latency_p95_ms": 2.8138330089859664,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "goal_not_reached": 17,
+     "empty_plan": 21
+    },
+    "steps_per_success": 2.466666666666667
+   }
+  }
+ ],
+ "note": "graph = static (no learned edges), frontier traversal; success = context sufficiency via solver planner; graph_union_first20 = single deep UNION ALL query on the first 20 test tasks (only run up to 1k tools)"
+}

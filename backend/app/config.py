@@ -19,7 +19,7 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 PLANNER_MODEL = os.getenv("PLANNER_MODEL", "claude-haiku-5-5")
 PRICE_PER_MTOK_INPUT = float(os.getenv("PRICE_PER_MTOK_INPUT", "1.0"))
 
-DATA_DIR = ROOT / "data"
+DATA_DIR = Path(os.getenv("TOOLGRAPH_DATA_DIR", ROOT / "data"))  # scale test points this at a synthetic catalog
 RESULTS_DIR = ROOT / "results"
 CACHE_DIR = ROOT / ".cache"
 

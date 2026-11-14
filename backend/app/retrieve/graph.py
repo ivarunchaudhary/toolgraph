@@ -2,8 +2,11 @@
 
 Seeds   : top capabilities by cosine to the task, learned Intents (cos >= threshold), server mentions,
           and the types the user already supplied (pruned from prerequisite expansion).
-Traverse: Capability<-PROVIDES-Tool, Intent-SOLVED_WITH->Tool, and prerequisite chains
-          Tool-CONSUMES->DataType-PRODUCED_BY->Tool up to 3 levels, plus learned NEXT edges.
+Traverse: Capability<-PROVIDES-Tool, Intent-SOLVED_WITH->Tool, learned NEXT edges, and prerequisite
+          chains Tool-CONSUMES->DataType-PRODUCED_BY->Tool up to `depth` levels. Default "frontier"
+          traversal = 1 seed query + 1 hop query per level over the whole frontier (id-anchored, so it
+          stays fast at 10k tools); "union" = everything in one deep UNION ALL query (fine at ~100s of
+          tools, but deep patterns get expensive as the catalog grows - see results/scale.json).
 Select  : rank goal-serving tools, then pull in the best producer for every unsatisfied input,
           recursively, until the tool budget is used.
 """
@@ -32,22 +35,30 @@ class GraphOptions:
     learned: bool = True       # use Intent / SOLVED_WITH / NEXT
     server_filter: bool = True  # boost tools on servers the task names
     depth: int = 4             # prerequisite levels
+    locality: bool = True      # chains stay on named servers + servers of the best-matching tools
+    traversal: str = "frontier"  # "frontier": seed query + one hop query per level; "union": one deep UNION ALL query
 
 
-def _prereq_arm(seed_match: str, seed_where: str, level: int) -> str:
+LOCAL_TOP_TOOLS = 6  # servers of the top-N tools by similarity join the allowed set
+
+
+def _prereq_arm(seed_match: str, seed_where: str, level: int, local: bool = False) -> str:
     """Rows (consumer tool, unsatisfied input type, producer-or-null) at the `level`-th hop of
     prerequisite chains. OPTIONAL MATCH keeps inputs nobody can produce (dst = null)."""
     chain = "(t0)"
-    conds = []
+    conds = ["t0.server IN $allowed"] if local else []
     for k in range(1, level):
         chain += f"-[:CONSUMES]->(d{k}:DataType)-[:PRODUCED_BY]->(p{k}:Tool)"
         conds.append(f"NOT d{k}.id IN $known")
+        if local:
+            conds.append(f"p{k}.server IN $allowed")
     chain += f"-[:CONSUMES]->(d{level}:DataType)"
     conds.append(f"NOT d{level}.id IN $known")
     src = "t0" if level == 1 else f"p{level - 1}"
+    opt_where = f" WHERE p{level}.server IN $allowed" if local else ""
     return (
         f"MATCH {seed_match}, {chain} WHERE {seed_where} AND {' AND '.join(conds)} "
-        f"OPTIONAL MATCH (d{level})-[:PRODUCED_BY]->(p{level}:Tool) "
+        f"OPTIONAL MATCH (d{level})-[:PRODUCED_BY]->(p{level}:Tool){opt_where} "
         f"RETURN {src}.id AS src, d{level}.id AS via, p{level}.id AS dst, d{level}.id AS w"
     )
 
@@ -69,13 +80,40 @@ def build_query(opts: GraphOptions, with_intents: bool) -> str:
     if opts.prereq:
         for m, wcl in seeds:
             for lvl in range(1, opts.depth + 1):
-                arms.append(_prereq_arm(m, wcl, lvl))
+                arms.append(_prereq_arm(m, wcl, lvl, local=opts.locality))
     if opts.learned:
         arms.append(
             "MATCH (t0:Tool)-[:PROVIDES]->(c:Capability), (t0)-[r:NEXT]->(n:Tool) "
             "WHERE c.id IN $caps AND r.weight >= 1.5 RETURN t0.id AS src, t0.id AS via, n.id AS dst, r.weight AS w"
         )
     return " UNION ALL ".join(arms)
+
+
+def build_seed_query(opts: GraphOptions, with_intents: bool) -> str:
+    """Round trip 1 (frontier mode): capability -> tool, learned intent -> tool, learned NEXT."""
+    arms = [
+        "MATCH (t0:Tool)-[r:PROVIDES]->(c:Capability) WHERE c.id IN $caps "
+        "RETURN c.id AS src, c.id AS via, t0.id AS dst, r.weight AS w"
+    ]
+    if opts.learned and with_intents:
+        arms.append(
+            "MATCH (i:Intent)-[r:SOLVED_WITH]->(t0:Tool) WHERE i.id IN $intents "
+            "RETURN i.id AS src, i.id AS via, t0.id AS dst, r.weight AS w"
+        )
+    if opts.learned:
+        arms.append(
+            "MATCH (c:Capability)<-[:PROVIDES]-(t0:Tool)-[r:NEXT]->(n:Tool) "
+            "WHERE c.id IN $caps AND r.weight >= 1.5 RETURN t0.id AS src, t0.id AS via, n.id AS dst, r.weight AS w"
+        )
+    return " UNION ALL ".join(arms)
+
+
+# One prerequisite hop for a whole frontier: (tool)-[:CONSUMES]->(type)-[:PRODUCED_BY]->(producer | null)
+HOP_Q = (
+    "MATCH (t:Tool)-[:CONSUMES]->(d:DataType) WHERE t.id IN $frontier AND NOT d.id IN $known "
+    "OPTIONAL MATCH (d)-[:PRODUCED_BY]->(p:Tool) "
+    "RETURN t.id AS src, d.id AS via, p.id AS dst, p.server AS server"
+)
 
 
 @lru_cache(maxsize=1)
@@ -96,6 +134,16 @@ def _cap_tools() -> dict[str, list[int]]:
         for c in t.capabilities:
             out[c].append(idx[t.id])
     return out
+
+
+def local_servers(q, servers: set[str], n: int = LOCAL_TOP_TOOLS) -> set[str]:
+    """Neighbourhood for prerequisite chains: servers the task names + servers of the n most similar tools."""
+    from .vector import tool_index
+
+    cat = get_catalog()
+    ti = tool_index()
+    top = (ti.mat @ q).argsort()[::-1][:n]
+    return set(servers) | {cat.tools[ti.ids[i]].server for i in top}
 
 
 def seed_capabilities(q, servers: set[str], k: int = TOP_CAPS) -> list[tuple[str, float]]:
@@ -158,12 +206,36 @@ def retrieve(
     known = [m[g] for g in given if g in m.key2id]
 
     # ---- 2. traverse (HydraDB) ----
-    query = build_query(opts, with_intents=bool(intents))
+    allowed = sorted(local_servers(q, servers)) if opts.locality else []
     params = {"caps": list(cap_sim), "known": known or [-1]}
+    if opts.locality:
+        params["allowed"] = allowed
     if intents:
         params["intents"] = list(intent_sim)
     with track() as st:
-        rows = db.run(query, params)
+        if opts.traversal == "union":
+            rows = db.run(build_query(opts, with_intents=bool(intents)), params)
+        else:
+            rows = db.run(build_seed_query(opts, with_intents=bool(intents)), params)
+            if opts.prereq:
+                allowed_set = set(allowed)
+                is_local = (lambda v: cat.tools[m.key(v)].server in allowed_set) if opts.locality else (lambda v: True)
+                frontier = {r["dst"] for r in rows if _kind(r["via"]) in ("Capability", "Intent") and is_local(r["dst"])}
+                expanded: set[int] = set()
+                for _level in range(opts.depth):
+                    frontier -= expanded
+                    if not frontier:
+                        break
+                    hop = db.run(HOP_Q, {"frontier": sorted(frontier), "known": params["known"]})
+                    expanded |= frontier
+                    nxt_frontier = set()
+                    for r in hop:
+                        if r["dst"] is not None and not is_local(r["dst"]):
+                            r = {**r, "dst": None}  # producer outside the neighbourhood: treat as unavailable
+                        rows.append({"src": r["src"], "via": r["via"], "dst": r["dst"], "w": None})
+                        if r["dst"] is not None:
+                            nxt_frontier.add(r["dst"])
+                    frontier = nxt_frontier
 
     # ---- 3. score ----
     primary: dict[int, float] = defaultdict(float)
@@ -303,5 +375,6 @@ def retrieve(
     return Retrieval(
         strategy, tool_keys, tokens.tool_tokens(tool_keys), latency, st.round_trips, st.db_ms,
         {"nodes": nodes, "edges": edges},
-        debug={"caps": cap_hits, "intents": intents, "servers": sorted(servers), "rows": len(rows)},
+        debug={"caps": cap_hits, "intents": intents, "servers": sorted(servers), "allowed": allowed, "rows": len(rows),
+               "traversal": opts.traversal},
     )
