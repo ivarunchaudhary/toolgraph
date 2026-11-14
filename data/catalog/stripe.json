@@ -1,0 +1,222 @@
+[
+ {
+  "id": "tool:stripe.find_customer",
+  "server": "stripe",
+  "name": "find_customer",
+  "description": "Find a Stripe customer by email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:stripe_customer_id"
+  ],
+  "capabilities": [
+   "cap:payments.customer.find"
+  ]
+ },
+ {
+  "id": "tool:stripe.list_invoices",
+  "server": "stripe",
+  "name": "list_invoices",
+  "description": "List invoices for a Stripe customer.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "customer": {
+     "type": "string",
+     "description": "Stripe customer id cus_..."
+    }
+   },
+   "required": [
+    "customer"
+   ]
+  },
+  "consumes": [
+   "type:stripe_customer_id"
+  ],
+  "produces": [
+   "type:stripe_invoice_id"
+  ],
+  "capabilities": [
+   "cap:payments.invoice.read"
+  ]
+ },
+ {
+  "id": "tool:stripe.get_invoice",
+  "server": "stripe",
+  "name": "get_invoice",
+  "description": "Read a Stripe invoice's line items and status.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "invoice": {
+     "type": "string",
+     "description": "Stripe invoice id in_..."
+    }
+   },
+   "required": [
+    "invoice"
+   ]
+  },
+  "consumes": [
+   "type:stripe_invoice_id"
+  ],
+  "produces": [
+   "type:invoice_details"
+  ],
+  "capabilities": [
+   "cap:payments.invoice.read"
+  ]
+ },
+ {
+  "id": "tool:stripe.send_invoice",
+  "server": "stripe",
+  "name": "send_invoice",
+  "description": "Email a Stripe invoice to the customer.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "invoice": {
+     "type": "string",
+     "description": "Stripe invoice id in_..."
+    }
+   },
+   "required": [
+    "invoice"
+   ]
+  },
+  "consumes": [
+   "type:stripe_invoice_id"
+  ],
+  "produces": [
+   "type:invoice_sent"
+  ],
+  "capabilities": [
+   "cap:payments.invoice.send"
+  ]
+ },
+ {
+  "id": "tool:stripe.list_charges",
+  "server": "stripe",
+  "name": "list_charges",
+  "description": "List charges for a Stripe customer.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "customer": {
+     "type": "string",
+     "description": "Stripe customer id cus_..."
+    }
+   },
+   "required": [
+    "customer"
+   ]
+  },
+  "consumes": [
+   "type:stripe_customer_id"
+  ],
+  "produces": [
+   "type:stripe_charge_id"
+  ],
+  "capabilities": [
+   "cap:payments.invoice.read"
+  ]
+ },
+ {
+  "id": "tool:stripe.create_refund",
+  "server": "stripe",
+  "name": "create_refund",
+  "description": "Refund a Stripe charge.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "charge": {
+     "type": "string",
+     "description": "Stripe charge id ch_..."
+    },
+    "amount": {
+     "type": "string",
+     "description": "Amount in cents, optional"
+    }
+   },
+   "required": [
+    "charge"
+   ]
+  },
+  "consumes": [
+   "type:stripe_charge_id"
+  ],
+  "produces": [
+   "type:refund_issued"
+  ],
+  "capabilities": [
+   "cap:payments.refund"
+  ]
+ },
+ {
+  "id": "tool:stripe.list_subscriptions",
+  "server": "stripe",
+  "name": "list_subscriptions",
+  "description": "List a customer's Stripe subscriptions.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "customer": {
+     "type": "string",
+     "description": "Stripe customer id cus_..."
+    }
+   },
+   "required": [
+    "customer"
+   ]
+  },
+  "consumes": [
+   "type:stripe_customer_id"
+  ],
+  "produces": [
+   "type:stripe_subscription_id"
+  ],
+  "capabilities": [
+   "cap:payments.subscription.manage"
+  ]
+ },
+ {
+  "id": "tool:stripe.cancel_subscription",
+  "server": "stripe",
+  "name": "cancel_subscription",
+  "description": "Cancel a Stripe subscription.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "subscription": {
+     "type": "string",
+     "description": "Stripe subscription id sub_..."
+    }
+   },
+   "required": [
+    "subscription"
+   ]
+  },
+  "consumes": [
+   "type:stripe_subscription_id"
+  ],
+  "produces": [
+   "type:subscription_cancelled"
+  ],
+  "capabilities": [
+   "cap:payments.subscription.manage"
+  ]
+ }
+]

@@ -1,0 +1,447 @@
+[
+ {
+  "id": "tool:gitlab.search_projects",
+  "server": "gitlab",
+  "name": "search_projects",
+  "description": "Search GitLab projects by keyword.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Search keywords"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:repo_path"
+  ],
+  "capabilities": [
+   "cap:code.repo.search"
+  ]
+ },
+ {
+  "id": "tool:gitlab.list_merge_requests",
+  "server": "gitlab",
+  "name": "list_merge_requests",
+  "description": "List merge requests in a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "state": {
+     "type": "string",
+     "description": "opened, merged or all"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gl_mr_ref"
+  ],
+  "capabilities": [
+   "cap:code.pr.list"
+  ]
+ },
+ {
+  "id": "tool:gitlab.get_merge_request_changes",
+  "server": "gitlab",
+  "name": "get_merge_request_changes",
+  "description": "Get the diff of a GitLab merge request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "merge_request_iid": {
+     "type": "string",
+     "description": "GitLab merge request IID"
+    }
+   },
+   "required": [
+    "repo",
+    "merge_request_iid"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_mr_ref"
+  ],
+  "produces": [
+   "type:code_diff"
+  ],
+  "capabilities": [
+   "cap:code.pr.read"
+  ]
+ },
+ {
+  "id": "tool:gitlab.create_merge_request",
+  "server": "gitlab",
+  "name": "create_merge_request",
+  "description": "Open a GitLab merge request from a source branch.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "branch": {
+     "type": "string",
+     "description": "Name of a branch that exists on GitLab"
+    },
+    "title": {
+     "type": "string",
+     "description": "MR title"
+    }
+   },
+   "required": [
+    "repo",
+    "branch"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_branch"
+  ],
+  "produces": [
+   "type:gl_mr_ref",
+   "type:gl_mr_created"
+  ],
+  "capabilities": [
+   "cap:code.pr.create"
+  ]
+ },
+ {
+  "id": "tool:gitlab.accept_merge_request",
+  "server": "gitlab",
+  "name": "accept_merge_request",
+  "description": "Merge a GitLab merge request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "merge_request_iid": {
+     "type": "string",
+     "description": "GitLab merge request IID"
+    }
+   },
+   "required": [
+    "repo",
+    "merge_request_iid"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_mr_ref"
+  ],
+  "produces": [
+   "type:gl_mr_merged"
+  ],
+  "capabilities": [
+   "cap:code.pr.merge"
+  ]
+ },
+ {
+  "id": "tool:gitlab.create_branch",
+  "server": "gitlab",
+  "name": "create_branch",
+  "description": "Create a branch in a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "branch_name": {
+     "type": "string",
+     "description": "New branch name"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gl_branch"
+  ],
+  "capabilities": [
+   "cap:code.branch.create"
+  ]
+ },
+ {
+  "id": "tool:gitlab.list_issues",
+  "server": "gitlab",
+  "name": "list_issues",
+  "description": "List issues in a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gl_issue_ref"
+  ],
+  "capabilities": [
+   "cap:issue.list"
+  ]
+ },
+ {
+  "id": "tool:gitlab.create_issue",
+  "server": "gitlab",
+  "name": "create_issue",
+  "description": "Create an issue in a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "title": {
+     "type": "string",
+     "description": "Issue title"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gl_issue_created"
+  ],
+  "capabilities": [
+   "cap:issue.create"
+  ]
+ },
+ {
+  "id": "tool:gitlab.create_merge_request_note",
+  "server": "gitlab",
+  "name": "create_merge_request_note",
+  "description": "Add a note to a GitLab merge request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "merge_request_iid": {
+     "type": "string",
+     "description": "GitLab merge request IID"
+    },
+    "body": {
+     "type": "string",
+     "description": "Note text"
+    }
+   },
+   "required": [
+    "repo",
+    "merge_request_iid"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_mr_ref"
+  ],
+  "produces": [
+   "type:gl_comment_posted"
+  ],
+  "capabilities": [
+   "cap:code.comment"
+  ]
+ },
+ {
+  "id": "tool:gitlab.list_pipelines",
+  "server": "gitlab",
+  "name": "list_pipelines",
+  "description": "List CI pipelines for a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "status": {
+     "type": "string",
+     "description": "Filter such as failed"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gl_pipeline_ref"
+  ],
+  "capabilities": [
+   "cap:ci.runs.list"
+  ]
+ },
+ {
+  "id": "tool:gitlab.get_pipeline_job_log",
+  "server": "gitlab",
+  "name": "get_pipeline_job_log",
+  "description": "Read the job log of a GitLab pipeline.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pipeline_id": {
+     "type": "string",
+     "description": "GitLab CI pipeline id"
+    }
+   },
+   "required": [
+    "repo",
+    "pipeline_id"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_pipeline_ref"
+  ],
+  "produces": [
+   "type:ci_log"
+  ],
+  "capabilities": [
+   "cap:ci.logs.read"
+  ]
+ },
+ {
+  "id": "tool:gitlab.find_user",
+  "server": "gitlab",
+  "name": "find_user",
+  "description": "Find a GitLab username by display name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "A person's display name"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  },
+  "consumes": [
+   "type:person_name"
+  ],
+  "produces": [
+   "type:gl_username"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:gitlab.assign_reviewer",
+  "server": "gitlab",
+  "name": "assign_reviewer",
+  "description": "Assign a reviewer to a GitLab merge request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "merge_request_iid": {
+     "type": "string",
+     "description": "GitLab merge request IID"
+    },
+    "username": {
+     "type": "string",
+     "description": "GitLab username"
+    }
+   },
+   "required": [
+    "repo",
+    "merge_request_iid",
+    "username"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gl_mr_ref",
+   "type:gl_username"
+  ],
+  "produces": [
+   "type:gl_review_requested"
+  ],
+  "capabilities": [
+   "cap:code.review.request"
+  ]
+ },
+ {
+  "id": "tool:gitlab.get_file",
+  "server": "gitlab",
+  "name": "get_file",
+  "description": "Read a file from a GitLab project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "file_path": {
+     "type": "string",
+     "description": "Path inside the repo"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:file_text"
+  ],
+  "capabilities": [
+   "cap:code.file.read"
+  ]
+ }
+]

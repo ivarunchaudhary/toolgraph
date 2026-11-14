@@ -1,0 +1,221 @@
+[
+ {
+  "id": "tool:discord.find_channel",
+  "server": "discord",
+  "name": "find_channel",
+  "description": "Find a Discord channel id by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_name": {
+     "type": "string",
+     "description": "Human-readable chat channel name such as #incidents"
+    }
+   },
+   "required": [
+    "channel_name"
+   ]
+  },
+  "consumes": [
+   "type:channel_name"
+  ],
+  "produces": [
+   "type:discord_channel_id"
+  ],
+  "capabilities": [
+   "cap:chat.channel.find"
+  ]
+ },
+ {
+  "id": "tool:discord.send_message",
+  "server": "discord",
+  "name": "send_message",
+  "description": "Send a message to a Discord channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_id": {
+     "type": "string",
+     "description": "Discord channel snowflake id"
+    },
+    "content": {
+     "type": "string",
+     "description": "Message text"
+    }
+   },
+   "required": [
+    "channel_id"
+   ]
+  },
+  "consumes": [
+   "type:discord_channel_id"
+  ],
+  "produces": [
+   "type:discord_message_ref",
+   "type:discord_message_sent"
+  ],
+  "capabilities": [
+   "cap:chat.message.post"
+  ]
+ },
+ {
+  "id": "tool:discord.send_dm",
+  "server": "discord",
+  "name": "send_dm",
+  "description": "Send a direct message to a Discord member.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "user_id": {
+     "type": "string",
+     "description": "Discord user snowflake id"
+    },
+    "content": {
+     "type": "string",
+     "description": "Message text"
+    }
+   },
+   "required": [
+    "user_id"
+   ]
+  },
+  "consumes": [
+   "type:discord_user_id"
+  ],
+  "produces": [
+   "type:discord_dm_sent"
+  ],
+  "capabilities": [
+   "cap:chat.dm.send"
+  ]
+ },
+ {
+  "id": "tool:discord.search_members",
+  "server": "discord",
+  "name": "search_members",
+  "description": "Find a Discord member id by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "A person's display name"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  },
+  "consumes": [
+   "type:person_name"
+  ],
+  "produces": [
+   "type:discord_user_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:discord.read_messages",
+  "server": "discord",
+  "name": "read_messages",
+  "description": "Read recent messages in a Discord channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_id": {
+     "type": "string",
+     "description": "Discord channel snowflake id"
+    }
+   },
+   "required": [
+    "channel_id"
+   ]
+  },
+  "consumes": [
+   "type:discord_channel_id"
+  ],
+  "produces": [
+   "type:chat_transcript",
+   "type:discord_message_ref"
+  ],
+  "capabilities": [
+   "cap:chat.history.read"
+  ]
+ },
+ {
+  "id": "tool:discord.create_thread",
+  "server": "discord",
+  "name": "create_thread",
+  "description": "Start a Discord thread from a message.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_id": {
+     "type": "string",
+     "description": "Discord channel snowflake id"
+    },
+    "message_id": {
+     "type": "string",
+     "description": "Discord message id"
+    },
+    "name": {
+     "type": "string",
+     "description": "Thread name"
+    }
+   },
+   "required": [
+    "channel_id",
+    "message_id"
+   ]
+  },
+  "consumes": [
+   "type:discord_channel_id",
+   "type:discord_message_ref"
+  ],
+  "produces": [
+   "type:discord_thread_created"
+  ],
+  "capabilities": [
+   "cap:chat.thread.reply"
+  ]
+ },
+ {
+  "id": "tool:discord.add_reaction",
+  "server": "discord",
+  "name": "add_reaction",
+  "description": "React to a Discord message with an emoji.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_id": {
+     "type": "string",
+     "description": "Discord channel snowflake id"
+    },
+    "message_id": {
+     "type": "string",
+     "description": "Discord message id"
+    },
+    "emoji": {
+     "type": "string",
+     "description": "Emoji"
+    }
+   },
+   "required": [
+    "channel_id",
+    "message_id"
+   ]
+  },
+  "consumes": [
+   "type:discord_channel_id",
+   "type:discord_message_ref"
+  ],
+  "produces": [
+   "type:discord_reaction_added"
+  ],
+  "capabilities": [
+   "cap:chat.reaction.add"
+  ]
+ }
+]

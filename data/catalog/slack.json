@@ -1,0 +1,370 @@
+[
+ {
+  "id": "tool:slack.find_channel",
+  "server": "slack",
+  "name": "find_channel",
+  "description": "Find a Slack channel id by its name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel_name": {
+     "type": "string",
+     "description": "Human-readable chat channel name such as #incidents"
+    }
+   },
+   "required": [
+    "channel_name"
+   ]
+  },
+  "consumes": [
+   "type:channel_name"
+  ],
+  "produces": [
+   "type:slack_channel_id"
+  ],
+  "capabilities": [
+   "cap:chat.channel.find"
+  ]
+ },
+ {
+  "id": "tool:slack.post_message",
+  "server": "slack",
+  "name": "post_message",
+  "description": "Post a message to a Slack channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "text": {
+     "type": "string",
+     "description": "Message text"
+    }
+   },
+   "required": [
+    "channel"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id"
+  ],
+  "produces": [
+   "type:slack_message_ref",
+   "type:slack_message_sent"
+  ],
+  "capabilities": [
+   "cap:chat.message.post"
+  ]
+ },
+ {
+  "id": "tool:slack.send_dm",
+  "server": "slack",
+  "name": "send_dm",
+  "description": "Send a direct message to a Slack user.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "user": {
+     "type": "string",
+     "description": "Slack user id like U0123"
+    },
+    "text": {
+     "type": "string",
+     "description": "Message text"
+    }
+   },
+   "required": [
+    "user"
+   ]
+  },
+  "consumes": [
+   "type:slack_user_id"
+  ],
+  "produces": [
+   "type:slack_dm_sent"
+  ],
+  "capabilities": [
+   "cap:chat.dm.send"
+  ]
+ },
+ {
+  "id": "tool:slack.lookup_user_by_email",
+  "server": "slack",
+  "name": "lookup_user_by_email",
+  "description": "Find a Slack user id from an email address.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:slack_user_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:slack.search_users",
+  "server": "slack",
+  "name": "search_users",
+  "description": "Find a Slack user id by display name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "A person's display name"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  },
+  "consumes": [
+   "type:person_name"
+  ],
+  "produces": [
+   "type:slack_user_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:slack.get_user_profile",
+  "server": "slack",
+  "name": "get_user_profile",
+  "description": "Get a Slack user's profile including email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "user": {
+     "type": "string",
+     "description": "Slack user id like U0123"
+    }
+   },
+   "required": [
+    "user"
+   ]
+  },
+  "consumes": [
+   "type:slack_user_id"
+  ],
+  "produces": [
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:user.contact.get"
+  ]
+ },
+ {
+  "id": "tool:slack.get_channel_history",
+  "server": "slack",
+  "name": "get_channel_history",
+  "description": "Read recent messages in a Slack channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "limit": {
+     "type": "string",
+     "description": "Max messages"
+    }
+   },
+   "required": [
+    "channel"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id"
+  ],
+  "produces": [
+   "type:chat_transcript",
+   "type:slack_message_ref"
+  ],
+  "capabilities": [
+   "cap:chat.history.read"
+  ]
+ },
+ {
+  "id": "tool:slack.get_thread_replies",
+  "server": "slack",
+  "name": "get_thread_replies",
+  "description": "Read replies in a Slack thread.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "ts": {
+     "type": "string",
+     "description": "Slack message timestamp reference"
+    }
+   },
+   "required": [
+    "channel",
+    "ts"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id",
+   "type:slack_message_ref"
+  ],
+  "produces": [
+   "type:chat_transcript"
+  ],
+  "capabilities": [
+   "cap:chat.history.read"
+  ]
+ },
+ {
+  "id": "tool:slack.reply_in_thread",
+  "server": "slack",
+  "name": "reply_in_thread",
+  "description": "Reply in a Slack thread.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "ts": {
+     "type": "string",
+     "description": "Slack message timestamp reference"
+    },
+    "text": {
+     "type": "string",
+     "description": "Reply text"
+    }
+   },
+   "required": [
+    "channel",
+    "ts"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id",
+   "type:slack_message_ref"
+  ],
+  "produces": [
+   "type:slack_message_sent"
+  ],
+  "capabilities": [
+   "cap:chat.thread.reply"
+  ]
+ },
+ {
+  "id": "tool:slack.add_reaction",
+  "server": "slack",
+  "name": "add_reaction",
+  "description": "Add an emoji reaction to a Slack message.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "ts": {
+     "type": "string",
+     "description": "Slack message timestamp reference"
+    },
+    "emoji": {
+     "type": "string",
+     "description": "Emoji name"
+    }
+   },
+   "required": [
+    "channel",
+    "ts"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id",
+   "type:slack_message_ref"
+  ],
+  "produces": [
+   "type:slack_reaction_added"
+  ],
+  "capabilities": [
+   "cap:chat.reaction.add"
+  ]
+ },
+ {
+  "id": "tool:slack.list_channel_members",
+  "server": "slack",
+  "name": "list_channel_members",
+  "description": "List members of a Slack channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    }
+   },
+   "required": [
+    "channel"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id"
+  ],
+  "produces": [
+   "type:slack_user_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:slack.set_channel_topic",
+  "server": "slack",
+  "name": "set_channel_topic",
+  "description": "Set the topic of a Slack channel.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "channel": {
+     "type": "string",
+     "description": "Slack channel id like C0123"
+    },
+    "topic": {
+     "type": "string",
+     "description": "New topic"
+    }
+   },
+   "required": [
+    "channel"
+   ]
+  },
+  "consumes": [
+   "type:slack_channel_id"
+  ],
+  "produces": [
+   "type:slack_topic_set"
+  ],
+  "capabilities": [
+   "cap:chat.topic.set"
+  ]
+ }
+]

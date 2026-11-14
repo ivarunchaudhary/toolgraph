@@ -1,0 +1,659 @@
+[
+ {
+  "id": "tool:github.search_repositories",
+  "server": "github",
+  "name": "search_repositories",
+  "description": "Search GitHub repositories by keyword.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Search keywords"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:repo_path"
+  ],
+  "capabilities": [
+   "cap:code.repo.search"
+  ]
+ },
+ {
+  "id": "tool:github.list_pull_requests",
+  "server": "github",
+  "name": "list_pull_requests",
+  "description": "List pull requests in a GitHub repository, newest first, with CI status.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "state": {
+     "type": "string",
+     "description": "open, closed or all"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_pr_ref"
+  ],
+  "capabilities": [
+   "cap:code.pr.list"
+  ]
+ },
+ {
+  "id": "tool:github.get_pull_request_diff",
+  "server": "github",
+  "name": "get_pull_request_diff",
+  "description": "Get the unified diff of a GitHub pull request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pull_number": {
+     "type": "string",
+     "description": "GitHub pull request number within a repository"
+    }
+   },
+   "required": [
+    "repo",
+    "pull_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_pr_ref"
+  ],
+  "produces": [
+   "type:code_diff"
+  ],
+  "capabilities": [
+   "cap:code.pr.read"
+  ]
+ },
+ {
+  "id": "tool:github.get_pull_request",
+  "server": "github",
+  "name": "get_pull_request",
+  "description": "Get title, head branch and status of a GitHub pull request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pull_number": {
+     "type": "string",
+     "description": "GitHub pull request number within a repository"
+    }
+   },
+   "required": [
+    "repo",
+    "pull_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_pr_ref"
+  ],
+  "produces": [
+   "type:gh_branch",
+   "type:gh_commit_sha"
+  ],
+  "capabilities": [
+   "cap:code.pr.read"
+  ]
+ },
+ {
+  "id": "tool:github.create_pull_request",
+  "server": "github",
+  "name": "create_pull_request",
+  "description": "Open a pull request from a head branch into a base branch.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "branch": {
+     "type": "string",
+     "description": "Name of a branch that exists on GitHub"
+    },
+    "title": {
+     "type": "string",
+     "description": "PR title"
+    },
+    "base": {
+     "type": "string",
+     "description": "Base branch"
+    }
+   },
+   "required": [
+    "repo",
+    "branch"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_branch"
+  ],
+  "produces": [
+   "type:gh_pr_ref",
+   "type:gh_pr_created"
+  ],
+  "capabilities": [
+   "cap:code.pr.create"
+  ]
+ },
+ {
+  "id": "tool:github.merge_pull_request",
+  "server": "github",
+  "name": "merge_pull_request",
+  "description": "Merge a GitHub pull request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pull_number": {
+     "type": "string",
+     "description": "GitHub pull request number within a repository"
+    },
+    "method": {
+     "type": "string",
+     "description": "merge, squash or rebase"
+    }
+   },
+   "required": [
+    "repo",
+    "pull_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_pr_ref"
+  ],
+  "produces": [
+   "type:gh_pr_merged"
+  ],
+  "capabilities": [
+   "cap:code.pr.merge"
+  ]
+ },
+ {
+  "id": "tool:github.request_reviewers",
+  "server": "github",
+  "name": "request_reviewers",
+  "description": "Request a review on a GitHub pull request from a user.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pull_number": {
+     "type": "string",
+     "description": "GitHub pull request number within a repository"
+    },
+    "username": {
+     "type": "string",
+     "description": "GitHub user login"
+    }
+   },
+   "required": [
+    "repo",
+    "pull_number",
+    "username"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_pr_ref",
+   "type:gh_user_login"
+  ],
+  "produces": [
+   "type:gh_review_requested"
+  ],
+  "capabilities": [
+   "cap:code.review.request"
+  ]
+ },
+ {
+  "id": "tool:github.add_pull_request_comment",
+  "server": "github",
+  "name": "add_pull_request_comment",
+  "description": "Comment on a GitHub pull request.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "pull_number": {
+     "type": "string",
+     "description": "GitHub pull request number within a repository"
+    },
+    "body": {
+     "type": "string",
+     "description": "Comment text"
+    }
+   },
+   "required": [
+    "repo",
+    "pull_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_pr_ref"
+  ],
+  "produces": [
+   "type:gh_comment_posted"
+  ],
+  "capabilities": [
+   "cap:code.comment"
+  ]
+ },
+ {
+  "id": "tool:github.list_issues",
+  "server": "github",
+  "name": "list_issues",
+  "description": "List issues in a GitHub repository.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "labels": {
+     "type": "string",
+     "description": "Comma-separated labels"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_issue_ref"
+  ],
+  "capabilities": [
+   "cap:issue.list"
+  ]
+ },
+ {
+  "id": "tool:github.get_issue",
+  "server": "github",
+  "name": "get_issue",
+  "description": "Read a GitHub issue's title, body and labels.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "issue_number": {
+     "type": "string",
+     "description": "GitHub issue number within a repository"
+    }
+   },
+   "required": [
+    "repo",
+    "issue_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_issue_ref"
+  ],
+  "produces": [
+   "type:ticket_details"
+  ],
+  "capabilities": [
+   "cap:issue.read"
+  ]
+ },
+ {
+  "id": "tool:github.create_issue",
+  "server": "github",
+  "name": "create_issue",
+  "description": "Create an issue in a GitHub repository.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "title": {
+     "type": "string",
+     "description": "Issue title"
+    },
+    "body": {
+     "type": "string",
+     "description": "Issue body"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_issue_created"
+  ],
+  "capabilities": [
+   "cap:issue.create"
+  ]
+ },
+ {
+  "id": "tool:github.add_issue_comment",
+  "server": "github",
+  "name": "add_issue_comment",
+  "description": "Comment on a GitHub issue.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "issue_number": {
+     "type": "string",
+     "description": "GitHub issue number within a repository"
+    },
+    "body": {
+     "type": "string",
+     "description": "Comment text"
+    }
+   },
+   "required": [
+    "repo",
+    "issue_number"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_issue_ref"
+  ],
+  "produces": [
+   "type:gh_comment_posted"
+  ],
+  "capabilities": [
+   "cap:issue.comment",
+   "cap:code.comment"
+  ]
+ },
+ {
+  "id": "tool:github.list_workflow_runs",
+  "server": "github",
+  "name": "list_workflow_runs",
+  "description": "List GitHub Actions workflow runs for a repository, newest first.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "status": {
+     "type": "string",
+     "description": "Filter such as failure"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_run_ref"
+  ],
+  "capabilities": [
+   "cap:ci.runs.list"
+  ]
+ },
+ {
+  "id": "tool:github.get_workflow_run_logs",
+  "server": "github",
+  "name": "get_workflow_run_logs",
+  "description": "Download logs of a GitHub Actions workflow run.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "run_id": {
+     "type": "string",
+     "description": "GitHub Actions workflow run id"
+    }
+   },
+   "required": [
+    "repo",
+    "run_id"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_run_ref"
+  ],
+  "produces": [
+   "type:ci_log"
+  ],
+  "capabilities": [
+   "cap:ci.logs.read"
+  ]
+ },
+ {
+  "id": "tool:github.create_branch",
+  "server": "github",
+  "name": "create_branch",
+  "description": "Create a new branch in a GitHub repository.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "branch_name": {
+     "type": "string",
+     "description": "New branch name"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_branch"
+  ],
+  "capabilities": [
+   "cap:code.branch.create"
+  ]
+ },
+ {
+  "id": "tool:github.get_file_contents",
+  "server": "github",
+  "name": "get_file_contents",
+  "description": "Read a file from a GitHub repository.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "file_path": {
+     "type": "string",
+     "description": "Path inside the repo"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:file_text"
+  ],
+  "capabilities": [
+   "cap:code.file.read"
+  ]
+ },
+ {
+  "id": "tool:github.list_commits",
+  "server": "github",
+  "name": "list_commits",
+  "description": "List recent commits on a GitHub repository branch.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    }
+   },
+   "required": [
+    "repo"
+   ]
+  },
+  "consumes": [
+   "type:repo_path"
+  ],
+  "produces": [
+   "type:gh_commit_sha"
+  ],
+  "capabilities": [
+   "cap:code.commit.list"
+  ]
+ },
+ {
+  "id": "tool:github.search_users",
+  "server": "github",
+  "name": "search_users",
+  "description": "Find a GitHub user login by display name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "A person's display name"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  },
+  "consumes": [
+   "type:person_name"
+  ],
+  "produces": [
+   "type:gh_user_login"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:github.get_user",
+  "server": "github",
+  "name": "get_user",
+  "description": "Get a GitHub user's public profile including email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "username": {
+     "type": "string",
+     "description": "GitHub user login"
+    }
+   },
+   "required": [
+    "username"
+   ]
+  },
+  "consumes": [
+   "type:gh_user_login"
+  ],
+  "produces": [
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:user.contact.get"
+  ]
+ },
+ {
+  "id": "tool:github.create_release",
+  "server": "github",
+  "name": "create_release",
+  "description": "Publish a GitHub release from a commit.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "repo": {
+     "type": "string",
+     "description": "Repository path such as owner/name, valid on GitHub or GitLab"
+    },
+    "sha": {
+     "type": "string",
+     "description": "Git commit SHA on GitHub"
+    },
+    "tag": {
+     "type": "string",
+     "description": "Version tag"
+    }
+   },
+   "required": [
+    "repo",
+    "sha"
+   ]
+  },
+  "consumes": [
+   "type:repo_path",
+   "type:gh_commit_sha"
+  ],
+  "produces": [
+   "type:gh_release_created"
+  ],
+  "capabilities": [
+   "cap:code.release.create"
+  ]
+ }
+]

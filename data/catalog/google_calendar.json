@@ -1,0 +1,224 @@
+[
+ {
+  "id": "tool:google_calendar.list_events",
+  "server": "google_calendar",
+  "name": "list_events",
+  "description": "List calendar events in a date range.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "date_range": {
+     "type": "string",
+     "description": "A date or time range, e.g. next Tuesday or last 7 days"
+    }
+   },
+   "required": [
+    "date_range"
+   ]
+  },
+  "consumes": [
+   "type:date_range"
+  ],
+  "produces": [
+   "type:gcal_event_id"
+  ],
+  "capabilities": [
+   "cap:calendar.events.list"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.get_event",
+  "server": "google_calendar",
+  "name": "get_event",
+  "description": "Get an event's time and attendee emails.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "event_id": {
+     "type": "string",
+     "description": "Google Calendar event id"
+    }
+   },
+   "required": [
+    "event_id"
+   ]
+  },
+  "consumes": [
+   "type:gcal_event_id"
+  ],
+  "produces": [
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:calendar.events.list"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.find_free_slot",
+  "server": "google_calendar",
+  "name": "find_free_slot",
+  "description": "Find a time slot when attendees are free.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "date_range": {
+     "type": "string",
+     "description": "A date or time range, e.g. next Tuesday or last 7 days"
+    },
+    "duration_minutes": {
+     "type": "string",
+     "description": "Meeting length"
+    }
+   },
+   "required": [
+    "email",
+    "date_range"
+   ]
+  },
+  "consumes": [
+   "type:email_address",
+   "type:date_range"
+  ],
+  "produces": [
+   "type:time_slot"
+  ],
+  "capabilities": [
+   "cap:calendar.availability"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.create_event",
+  "server": "google_calendar",
+  "name": "create_event",
+  "description": "Create a calendar event and invite attendees.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "slot": {
+     "type": "string",
+     "description": "A concrete free time slot with start and end"
+    },
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "title": {
+     "type": "string",
+     "description": "Event title"
+    }
+   },
+   "required": [
+    "slot",
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:time_slot",
+   "type:email_address"
+  ],
+  "produces": [
+   "type:gcal_event_id",
+   "type:event_created"
+  ],
+  "capabilities": [
+   "cap:calendar.event.create"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.update_event",
+  "server": "google_calendar",
+  "name": "update_event",
+  "description": "Move an event to a new time slot.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "event_id": {
+     "type": "string",
+     "description": "Google Calendar event id"
+    },
+    "slot": {
+     "type": "string",
+     "description": "A concrete free time slot with start and end"
+    }
+   },
+   "required": [
+    "event_id",
+    "slot"
+   ]
+  },
+  "consumes": [
+   "type:gcal_event_id",
+   "type:time_slot"
+  ],
+  "produces": [
+   "type:event_updated"
+  ],
+  "capabilities": [
+   "cap:calendar.event.update"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.add_attendee",
+  "server": "google_calendar",
+  "name": "add_attendee",
+  "description": "Add an attendee to an event.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "event_id": {
+     "type": "string",
+     "description": "Google Calendar event id"
+    },
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    }
+   },
+   "required": [
+    "event_id",
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:gcal_event_id",
+   "type:email_address"
+  ],
+  "produces": [
+   "type:attendee_added"
+  ],
+  "capabilities": [
+   "cap:calendar.event.update"
+  ]
+ },
+ {
+  "id": "tool:google_calendar.delete_event",
+  "server": "google_calendar",
+  "name": "delete_event",
+  "description": "Cancel a calendar event.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "event_id": {
+     "type": "string",
+     "description": "Google Calendar event id"
+    }
+   },
+   "required": [
+    "event_id"
+   ]
+  },
+  "consumes": [
+   "type:gcal_event_id"
+  ],
+  "produces": [
+   "type:event_cancelled"
+  ],
+  "capabilities": [
+   "cap:calendar.event.cancel"
+  ]
+ }
+]

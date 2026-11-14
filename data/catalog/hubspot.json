@@ -1,0 +1,231 @@
+[
+ {
+  "id": "tool:hubspot.search_contacts",
+  "server": "hubspot",
+  "name": "search_contacts",
+  "description": "Search HubSpot contacts by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "A person's display name"
+    }
+   },
+   "required": [
+    "name"
+   ]
+  },
+  "consumes": [
+   "type:person_name"
+  ],
+  "produces": [
+   "type:hubspot_contact_id"
+  ],
+  "capabilities": [
+   "cap:crm.contact.find"
+  ]
+ },
+ {
+  "id": "tool:hubspot.get_contact",
+  "server": "hubspot",
+  "name": "get_contact",
+  "description": "Read a HubSpot contact including email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "contact_id": {
+     "type": "string",
+     "description": "HubSpot contact id"
+    }
+   },
+   "required": [
+    "contact_id"
+   ]
+  },
+  "consumes": [
+   "type:hubspot_contact_id"
+  ],
+  "produces": [
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:crm.contact.find",
+   "cap:user.contact.get"
+  ]
+ },
+ {
+  "id": "tool:hubspot.create_contact",
+  "server": "hubspot",
+  "name": "create_contact",
+  "description": "Create a HubSpot contact from an email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "firstname": {
+     "type": "string",
+     "description": "First name"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:contact_created"
+  ],
+  "capabilities": [
+   "cap:crm.contact.create"
+  ]
+ },
+ {
+  "id": "tool:hubspot.find_company",
+  "server": "hubspot",
+  "name": "find_company",
+  "description": "Find a HubSpot company by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "company": {
+     "type": "string",
+     "description": "Name of a customer company"
+    }
+   },
+   "required": [
+    "company"
+   ]
+  },
+  "consumes": [
+   "type:company_name"
+  ],
+  "produces": [
+   "type:hubspot_company_id"
+  ],
+  "capabilities": [
+   "cap:crm.company.find"
+  ]
+ },
+ {
+  "id": "tool:hubspot.list_company_contacts",
+  "server": "hubspot",
+  "name": "list_company_contacts",
+  "description": "List contacts at a HubSpot company.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "company_id": {
+     "type": "string",
+     "description": "HubSpot company id"
+    }
+   },
+   "required": [
+    "company_id"
+   ]
+  },
+  "consumes": [
+   "type:hubspot_company_id"
+  ],
+  "produces": [
+   "type:hubspot_contact_id"
+  ],
+  "capabilities": [
+   "cap:crm.contact.find"
+  ]
+ },
+ {
+  "id": "tool:hubspot.list_company_deals",
+  "server": "hubspot",
+  "name": "list_company_deals",
+  "description": "List deals for a HubSpot company.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "company_id": {
+     "type": "string",
+     "description": "HubSpot company id"
+    }
+   },
+   "required": [
+    "company_id"
+   ]
+  },
+  "consumes": [
+   "type:hubspot_company_id"
+  ],
+  "produces": [
+   "type:hubspot_deal_id"
+  ],
+  "capabilities": [
+   "cap:crm.deal.read"
+  ]
+ },
+ {
+  "id": "tool:hubspot.update_deal_stage",
+  "server": "hubspot",
+  "name": "update_deal_stage",
+  "description": "Move a HubSpot deal to a new stage.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "deal_id": {
+     "type": "string",
+     "description": "HubSpot deal id"
+    },
+    "stage": {
+     "type": "string",
+     "description": "Target stage"
+    }
+   },
+   "required": [
+    "deal_id"
+   ]
+  },
+  "consumes": [
+   "type:hubspot_deal_id"
+  ],
+  "produces": [
+   "type:deal_updated"
+  ],
+  "capabilities": [
+   "cap:crm.deal.update"
+  ]
+ },
+ {
+  "id": "tool:hubspot.create_note",
+  "server": "hubspot",
+  "name": "create_note",
+  "description": "Log a note on a HubSpot contact.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "contact_id": {
+     "type": "string",
+     "description": "HubSpot contact id"
+    },
+    "body": {
+     "type": "string",
+     "description": "Note text"
+    }
+   },
+   "required": [
+    "contact_id"
+   ]
+  },
+  "consumes": [
+   "type:hubspot_contact_id"
+  ],
+  "produces": [
+   "type:crm_note_added"
+  ],
+  "capabilities": [
+   "cap:crm.note.add"
+  ]
+ }
+]

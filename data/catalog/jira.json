@@ -1,0 +1,291 @@
+[
+ {
+  "id": "tool:jira.get_project",
+  "server": "jira",
+  "name": "get_project",
+  "description": "Get a Jira project id from its key.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "project_key": {
+     "type": "string",
+     "description": "Jira project key such as PAY"
+    }
+   },
+   "required": [
+    "project_key"
+   ]
+  },
+  "consumes": [
+   "type:project_key"
+  ],
+  "produces": [
+   "type:jira_project_id"
+  ],
+  "capabilities": [
+   "cap:team.lookup"
+  ]
+ },
+ {
+  "id": "tool:jira.create_issue",
+  "server": "jira",
+  "name": "create_issue",
+  "description": "Create a Jira issue in a project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "project_id": {
+     "type": "string",
+     "description": "Jira project id"
+    },
+    "summary": {
+     "type": "string",
+     "description": "Summary"
+    },
+    "issue_type": {
+     "type": "string",
+     "description": "Bug, Task or Story"
+    }
+   },
+   "required": [
+    "project_id"
+   ]
+  },
+  "consumes": [
+   "type:jira_project_id"
+  ],
+  "produces": [
+   "type:jira_issue_created"
+  ],
+  "capabilities": [
+   "cap:issue.create"
+  ]
+ },
+ {
+  "id": "tool:jira.search_issues",
+  "server": "jira",
+  "name": "search_issues",
+  "description": "Search Jira issues with JQL.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "jql": {
+     "type": "string",
+     "description": "JQL query"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:jira_issue_key"
+  ],
+  "capabilities": [
+   "cap:issue.list"
+  ]
+ },
+ {
+  "id": "tool:jira.get_issue",
+  "server": "jira",
+  "name": "get_issue",
+  "description": "Read a Jira issue's fields and status.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_key": {
+     "type": "string",
+     "description": "Jira issue key like PAY-42"
+    }
+   },
+   "required": [
+    "issue_key"
+   ]
+  },
+  "consumes": [
+   "type:jira_issue_key"
+  ],
+  "produces": [
+   "type:ticket_details"
+  ],
+  "capabilities": [
+   "cap:issue.read"
+  ]
+ },
+ {
+  "id": "tool:jira.transition_issue",
+  "server": "jira",
+  "name": "transition_issue",
+  "description": "Transition a Jira issue to a new status.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_key": {
+     "type": "string",
+     "description": "Jira issue key like PAY-42"
+    },
+    "status": {
+     "type": "string",
+     "description": "Target status"
+    }
+   },
+   "required": [
+    "issue_key"
+   ]
+  },
+  "consumes": [
+   "type:jira_issue_key"
+  ],
+  "produces": [
+   "type:jira_issue_updated"
+  ],
+  "capabilities": [
+   "cap:issue.update"
+  ]
+ },
+ {
+  "id": "tool:jira.find_user",
+  "server": "jira",
+  "name": "find_user",
+  "description": "Find a Jira account id by email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:jira_account_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:jira.assign_issue",
+  "server": "jira",
+  "name": "assign_issue",
+  "description": "Assign a Jira issue to an account.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_key": {
+     "type": "string",
+     "description": "Jira issue key like PAY-42"
+    },
+    "account_id": {
+     "type": "string",
+     "description": "Jira user account id"
+    }
+   },
+   "required": [
+    "issue_key",
+    "account_id"
+   ]
+  },
+  "consumes": [
+   "type:jira_issue_key",
+   "type:jira_account_id"
+  ],
+  "produces": [
+   "type:jira_issue_assigned"
+  ],
+  "capabilities": [
+   "cap:issue.assign"
+  ]
+ },
+ {
+  "id": "tool:jira.add_comment",
+  "server": "jira",
+  "name": "add_comment",
+  "description": "Comment on a Jira issue.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_key": {
+     "type": "string",
+     "description": "Jira issue key like PAY-42"
+    },
+    "body": {
+     "type": "string",
+     "description": "Comment text"
+    }
+   },
+   "required": [
+    "issue_key"
+   ]
+  },
+  "consumes": [
+   "type:jira_issue_key"
+  ],
+  "produces": [
+   "type:jira_comment_added"
+  ],
+  "capabilities": [
+   "cap:issue.comment"
+  ]
+ },
+ {
+  "id": "tool:jira.get_active_sprint",
+  "server": "jira",
+  "name": "get_active_sprint",
+  "description": "Get the active sprint of a Jira project.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "project_id": {
+     "type": "string",
+     "description": "Jira project id"
+    }
+   },
+   "required": [
+    "project_id"
+   ]
+  },
+  "consumes": [
+   "type:jira_project_id"
+  ],
+  "produces": [
+   "type:jira_sprint_id"
+  ],
+  "capabilities": [
+   "cap:sprint.read"
+  ]
+ },
+ {
+  "id": "tool:jira.list_sprint_issues",
+  "server": "jira",
+  "name": "list_sprint_issues",
+  "description": "List issues in a Jira sprint.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "sprint_id": {
+     "type": "string",
+     "description": "Jira sprint id"
+    }
+   },
+   "required": [
+    "sprint_id"
+   ]
+  },
+  "consumes": [
+   "type:jira_sprint_id"
+  ],
+  "produces": [
+   "type:jira_issue_key"
+  ],
+  "capabilities": [
+   "cap:sprint.read",
+   "cap:issue.list"
+  ]
+ }
+]

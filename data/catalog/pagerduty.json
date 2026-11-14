@@ -1,0 +1,254 @@
+[
+ {
+  "id": "tool:pagerduty.get_service",
+  "server": "pagerduty",
+  "name": "get_service",
+  "description": "Get a PagerDuty service id by service name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "service": {
+     "type": "string",
+     "description": "Name of a production service, e.g. payments-api"
+    }
+   },
+   "required": [
+    "service"
+   ]
+  },
+  "consumes": [
+   "type:service_name"
+  ],
+  "produces": [
+   "type:pd_service_id"
+  ],
+  "capabilities": [
+   "cap:incident.list",
+   "cap:oncall.lookup"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.list_oncalls",
+  "server": "pagerduty",
+  "name": "list_oncalls",
+  "description": "List who is currently on call for a service.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "service_id": {
+     "type": "string",
+     "description": "PagerDuty service id"
+    }
+   },
+   "required": [
+    "service_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_service_id"
+  ],
+  "produces": [
+   "type:pd_user_id"
+  ],
+  "capabilities": [
+   "cap:oncall.lookup"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.get_user",
+  "server": "pagerduty",
+  "name": "get_user",
+  "description": "Get a PagerDuty user's name and email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "user_id": {
+     "type": "string",
+     "description": "PagerDuty user id"
+    }
+   },
+   "required": [
+    "user_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_user_id"
+  ],
+  "produces": [
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:user.contact.get"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.list_incidents",
+  "server": "pagerduty",
+  "name": "list_incidents",
+  "description": "List open incidents for a service.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "service_id": {
+     "type": "string",
+     "description": "PagerDuty service id"
+    }
+   },
+   "required": [
+    "service_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_service_id"
+  ],
+  "produces": [
+   "type:pd_incident_id"
+  ],
+  "capabilities": [
+   "cap:incident.list"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.get_incident",
+  "server": "pagerduty",
+  "name": "get_incident",
+  "description": "Read an incident's summary and timeline.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "incident_id": {
+     "type": "string",
+     "description": "PagerDuty incident id"
+    }
+   },
+   "required": [
+    "incident_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_incident_id"
+  ],
+  "produces": [
+   "type:incident_summary"
+  ],
+  "capabilities": [
+   "cap:incident.read"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.acknowledge_incident",
+  "server": "pagerduty",
+  "name": "acknowledge_incident",
+  "description": "Acknowledge a PagerDuty incident.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "incident_id": {
+     "type": "string",
+     "description": "PagerDuty incident id"
+    }
+   },
+   "required": [
+    "incident_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_incident_id"
+  ],
+  "produces": [
+   "type:incident_acknowledged"
+  ],
+  "capabilities": [
+   "cap:incident.ack"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.resolve_incident",
+  "server": "pagerduty",
+  "name": "resolve_incident",
+  "description": "Resolve a PagerDuty incident.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "incident_id": {
+     "type": "string",
+     "description": "PagerDuty incident id"
+    }
+   },
+   "required": [
+    "incident_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_incident_id"
+  ],
+  "produces": [
+   "type:incident_resolved"
+  ],
+  "capabilities": [
+   "cap:incident.resolve"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.create_incident",
+  "server": "pagerduty",
+  "name": "create_incident",
+  "description": "Trigger a new incident on a service.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "service_id": {
+     "type": "string",
+     "description": "PagerDuty service id"
+    },
+    "title": {
+     "type": "string",
+     "description": "Incident title"
+    }
+   },
+   "required": [
+    "service_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_service_id"
+  ],
+  "produces": [
+   "type:incident_created"
+  ],
+  "capabilities": [
+   "cap:incident.create"
+  ]
+ },
+ {
+  "id": "tool:pagerduty.add_incident_note",
+  "server": "pagerduty",
+  "name": "add_incident_note",
+  "description": "Add a note to an incident.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "incident_id": {
+     "type": "string",
+     "description": "PagerDuty incident id"
+    },
+    "note": {
+     "type": "string",
+     "description": "Note text"
+    }
+   },
+   "required": [
+    "incident_id"
+   ]
+  },
+  "consumes": [
+   "type:pd_incident_id"
+  ],
+  "produces": [
+   "type:incident_note_added"
+  ],
+  "capabilities": [
+   "cap:incident.note"
+  ]
+ }
+]

@@ -1,0 +1,264 @@
+[
+ {
+  "id": "tool:linear.find_team",
+  "server": "linear",
+  "name": "find_team",
+  "description": "Find a Linear team id by team name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "team_name": {
+     "type": "string",
+     "description": "Name of an engineering or product team"
+    }
+   },
+   "required": [
+    "team_name"
+   ]
+  },
+  "consumes": [
+   "type:team_name"
+  ],
+  "produces": [
+   "type:linear_team_id"
+  ],
+  "capabilities": [
+   "cap:team.lookup"
+  ]
+ },
+ {
+  "id": "tool:linear.create_issue",
+  "server": "linear",
+  "name": "create_issue",
+  "description": "Create a Linear issue in a team.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "team_id": {
+     "type": "string",
+     "description": "Linear team id"
+    },
+    "title": {
+     "type": "string",
+     "description": "Issue title"
+    },
+    "description": {
+     "type": "string",
+     "description": "Details"
+    }
+   },
+   "required": [
+    "team_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_team_id"
+  ],
+  "produces": [
+   "type:linear_issue_created"
+  ],
+  "capabilities": [
+   "cap:issue.create"
+  ]
+ },
+ {
+  "id": "tool:linear.search_issues",
+  "server": "linear",
+  "name": "search_issues",
+  "description": "Search Linear issues by text.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Search text"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:linear_issue_ref"
+  ],
+  "capabilities": [
+   "cap:issue.list"
+  ]
+ },
+ {
+  "id": "tool:linear.get_issue",
+  "server": "linear",
+  "name": "get_issue",
+  "description": "Read a Linear issue's details and status.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_id": {
+     "type": "string",
+     "description": "Linear issue identifier like ENG-123"
+    }
+   },
+   "required": [
+    "issue_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_issue_ref"
+  ],
+  "produces": [
+   "type:ticket_details"
+  ],
+  "capabilities": [
+   "cap:issue.read"
+  ]
+ },
+ {
+  "id": "tool:linear.update_issue_state",
+  "server": "linear",
+  "name": "update_issue_state",
+  "description": "Move a Linear issue to a new workflow state.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_id": {
+     "type": "string",
+     "description": "Linear issue identifier like ENG-123"
+    },
+    "state": {
+     "type": "string",
+     "description": "Target state"
+    }
+   },
+   "required": [
+    "issue_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_issue_ref"
+  ],
+  "produces": [
+   "type:linear_issue_updated"
+  ],
+  "capabilities": [
+   "cap:issue.update"
+  ]
+ },
+ {
+  "id": "tool:linear.find_user",
+  "server": "linear",
+  "name": "find_user",
+  "description": "Find a Linear user id by email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:linear_user_id"
+  ],
+  "capabilities": [
+   "cap:user.lookup"
+  ]
+ },
+ {
+  "id": "tool:linear.assign_issue",
+  "server": "linear",
+  "name": "assign_issue",
+  "description": "Assign a Linear issue to a user.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_id": {
+     "type": "string",
+     "description": "Linear issue identifier like ENG-123"
+    },
+    "assignee_id": {
+     "type": "string",
+     "description": "Linear user id"
+    }
+   },
+   "required": [
+    "issue_id",
+    "assignee_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_issue_ref",
+   "type:linear_user_id"
+  ],
+  "produces": [
+   "type:linear_issue_assigned"
+  ],
+  "capabilities": [
+   "cap:issue.assign"
+  ]
+ },
+ {
+  "id": "tool:linear.add_comment",
+  "server": "linear",
+  "name": "add_comment",
+  "description": "Comment on a Linear issue.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "issue_id": {
+     "type": "string",
+     "description": "Linear issue identifier like ENG-123"
+    },
+    "body": {
+     "type": "string",
+     "description": "Comment text"
+    }
+   },
+   "required": [
+    "issue_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_issue_ref"
+  ],
+  "produces": [
+   "type:linear_comment_added"
+  ],
+  "capabilities": [
+   "cap:issue.comment"
+  ]
+ },
+ {
+  "id": "tool:linear.list_cycle_issues",
+  "server": "linear",
+  "name": "list_cycle_issues",
+  "description": "List issues in a Linear team's current cycle.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "team_id": {
+     "type": "string",
+     "description": "Linear team id"
+    }
+   },
+   "required": [
+    "team_id"
+   ]
+  },
+  "consumes": [
+   "type:linear_team_id"
+  ],
+  "produces": [
+   "type:linear_issue_ref"
+  ],
+  "capabilities": [
+   "cap:sprint.read",
+   "cap:issue.list"
+  ]
+ }
+]

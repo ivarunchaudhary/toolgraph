@@ -1,0 +1,110 @@
+[
+ {
+  "id": "tool:filesystem.read_file",
+  "server": "filesystem",
+  "name": "read_file",
+  "description": "Read a local text file.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "path": {
+     "type": "string",
+     "description": "A path on the local filesystem"
+    }
+   },
+   "required": [
+    "path"
+   ]
+  },
+  "consumes": [
+   "type:local_path"
+  ],
+  "produces": [
+   "type:file_text"
+  ],
+  "capabilities": [
+   "cap:file.read"
+  ]
+ },
+ {
+  "id": "tool:filesystem.write_file",
+  "server": "filesystem",
+  "name": "write_file",
+  "description": "Write text to a local file.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "path": {
+     "type": "string",
+     "description": "A path on the local filesystem"
+    },
+    "content": {
+     "type": "string",
+     "description": "File content"
+    }
+   },
+   "required": [
+    "path"
+   ]
+  },
+  "consumes": [
+   "type:local_path"
+  ],
+  "produces": [
+   "type:local_file_written"
+  ],
+  "capabilities": [
+   "cap:file.write"
+  ]
+ },
+ {
+  "id": "tool:filesystem.search_files",
+  "server": "filesystem",
+  "name": "search_files",
+  "description": "Find local files matching a pattern.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "pattern": {
+     "type": "string",
+     "description": "Glob pattern"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:local_path"
+  ],
+  "capabilities": [
+   "cap:file.search"
+  ]
+ },
+ {
+  "id": "tool:filesystem.list_directory",
+  "server": "filesystem",
+  "name": "list_directory",
+  "description": "List entries in a local directory.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "path": {
+     "type": "string",
+     "description": "A path on the local filesystem"
+    }
+   },
+   "required": [
+    "path"
+   ]
+  },
+  "consumes": [
+   "type:local_path"
+  ],
+  "produces": [
+   "type:local_path"
+  ],
+  "capabilities": [
+   "cap:file.search"
+  ]
+ }
+]

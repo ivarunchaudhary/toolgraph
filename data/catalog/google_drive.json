@@ -1,0 +1,209 @@
+[
+ {
+  "id": "tool:google_drive.search_files",
+  "server": "google_drive",
+  "name": "search_files",
+  "description": "Search Google Drive files by name or content.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Search text"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:drive_file_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ },
+ {
+  "id": "tool:google_drive.read_file",
+  "server": "google_drive",
+  "name": "read_file",
+  "description": "Export a Drive file's text content.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "file_id": {
+     "type": "string",
+     "description": "Google Drive file id"
+    }
+   },
+   "required": [
+    "file_id"
+   ]
+  },
+  "consumes": [
+   "type:drive_file_id"
+  ],
+  "produces": [
+   "type:doc_text"
+  ],
+  "capabilities": [
+   "cap:doc.read"
+  ]
+ },
+ {
+  "id": "tool:google_drive.find_folder",
+  "server": "google_drive",
+  "name": "find_folder",
+  "description": "Find a Drive folder id by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string",
+     "description": "Folder name"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:drive_folder_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ },
+ {
+  "id": "tool:google_drive.create_document",
+  "server": "google_drive",
+  "name": "create_document",
+  "description": "Create a Google Doc in a folder.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "folder_id": {
+     "type": "string",
+     "description": "Google Drive folder id"
+    },
+    "title": {
+     "type": "string",
+     "description": "Doc title"
+    },
+    "content": {
+     "type": "string",
+     "description": "Body"
+    }
+   },
+   "required": [
+    "folder_id"
+   ]
+  },
+  "consumes": [
+   "type:drive_folder_id"
+  ],
+  "produces": [
+   "type:drive_file_id",
+   "type:drive_doc_created"
+  ],
+  "capabilities": [
+   "cap:doc.create"
+  ]
+ },
+ {
+  "id": "tool:google_drive.share_file",
+  "server": "google_drive",
+  "name": "share_file",
+  "description": "Share a Drive file with an email address.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "file_id": {
+     "type": "string",
+     "description": "Google Drive file id"
+    },
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "role": {
+     "type": "string",
+     "description": "reader or writer"
+    }
+   },
+   "required": [
+    "file_id",
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:drive_file_id",
+   "type:email_address"
+  ],
+  "produces": [
+   "type:drive_file_shared"
+  ],
+  "capabilities": [
+   "cap:doc.share"
+  ]
+ },
+ {
+  "id": "tool:google_drive.upload_file",
+  "server": "google_drive",
+  "name": "upload_file",
+  "description": "Upload a local file into a Drive folder.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "path": {
+     "type": "string",
+     "description": "A path on the local filesystem"
+    },
+    "folder_id": {
+     "type": "string",
+     "description": "Google Drive folder id"
+    }
+   },
+   "required": [
+    "path",
+    "folder_id"
+   ]
+  },
+  "consumes": [
+   "type:local_path",
+   "type:drive_folder_id"
+  ],
+  "produces": [
+   "type:drive_file_id",
+   "type:drive_file_uploaded"
+  ],
+  "capabilities": [
+   "cap:file.upload"
+  ]
+ },
+ {
+  "id": "tool:google_drive.list_folder",
+  "server": "google_drive",
+  "name": "list_folder",
+  "description": "List files in a Drive folder.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "folder_id": {
+     "type": "string",
+     "description": "Google Drive folder id"
+    }
+   },
+   "required": [
+    "folder_id"
+   ]
+  },
+  "consumes": [
+   "type:drive_folder_id"
+  ],
+  "produces": [
+   "type:drive_file_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ }
+]

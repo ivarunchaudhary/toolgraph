@@ -1,0 +1,1140 @@
+{
+ "servers": [
+  {
+   "id": "server:github",
+   "name": "github",
+   "description": "GitHub: repositories, pull requests, issues and Actions"
+  },
+  {
+   "id": "server:gitlab",
+   "name": "gitlab",
+   "description": "GitLab: projects, merge requests, issues and pipelines"
+  },
+  {
+   "id": "server:slack",
+   "name": "slack",
+   "description": "Slack: channels, messages and direct messages"
+  },
+  {
+   "id": "server:discord",
+   "name": "discord",
+   "description": "Discord: server channels, messages and members"
+  },
+  {
+   "id": "server:linear",
+   "name": "linear",
+   "description": "Linear: issue tracking for product teams"
+  },
+  {
+   "id": "server:jira",
+   "name": "jira",
+   "description": "Jira: issue tracking, projects and sprints"
+  },
+  {
+   "id": "server:notion",
+   "name": "notion",
+   "description": "Notion: pages, wikis and databases"
+  },
+  {
+   "id": "server:google_drive",
+   "name": "google_drive",
+   "description": "Google Drive: files, folders and Google Docs"
+  },
+  {
+   "id": "server:gmail",
+   "name": "gmail",
+   "description": "Gmail: email inbox, drafts and sending"
+  },
+  {
+   "id": "server:google_calendar",
+   "name": "google_calendar",
+   "description": "Google Calendar: events and availability"
+  },
+  {
+   "id": "server:pagerduty",
+   "name": "pagerduty",
+   "description": "PagerDuty: on-call schedules and incidents"
+  },
+  {
+   "id": "server:postgres",
+   "name": "postgres",
+   "description": "Postgres: database schemas and SQL queries"
+  },
+  {
+   "id": "server:stripe",
+   "name": "stripe",
+   "description": "Stripe: customers, invoices, charges and subscriptions"
+  },
+  {
+   "id": "server:hubspot",
+   "name": "hubspot",
+   "description": "HubSpot: CRM contacts, companies and deals"
+  },
+  {
+   "id": "server:filesystem",
+   "name": "filesystem",
+   "description": "Local filesystem: read, write and search files"
+  }
+ ],
+ "datatypes": [
+  {
+   "id": "type:repo_path",
+   "name": "repo_path",
+   "description": "Repository path such as owner/name, valid on GitHub or GitLab",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:email_address",
+   "name": "email_address",
+   "description": "An email address of a person",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:person_name",
+   "name": "person_name",
+   "description": "A person's display name",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:service_name",
+   "name": "service_name",
+   "description": "Name of a production service, e.g. payments-api",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:channel_name",
+   "name": "channel_name",
+   "description": "Human-readable chat channel name such as #incidents",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:team_name",
+   "name": "team_name",
+   "description": "Name of an engineering or product team",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:project_key",
+   "name": "project_key",
+   "description": "Jira project key such as PAY",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:local_path",
+   "name": "local_path",
+   "description": "A path on the local filesystem",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:company_name",
+   "name": "company_name",
+   "description": "Name of a customer company",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:table_name",
+   "name": "table_name",
+   "description": "Name of a Postgres table",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:date_range",
+   "name": "date_range",
+   "description": "A date or time range, e.g. next Tuesday or last 7 days",
+   "user_suppliable": true
+  },
+  {
+   "id": "type:gh_pr_ref",
+   "name": "gh_pr_ref",
+   "description": "GitHub pull request number within a repository",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_issue_ref",
+   "name": "gh_issue_ref",
+   "description": "GitHub issue number within a repository",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_branch",
+   "name": "gh_branch",
+   "description": "Name of a branch that exists on GitHub",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_run_ref",
+   "name": "gh_run_ref",
+   "description": "GitHub Actions workflow run id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_user_login",
+   "name": "gh_user_login",
+   "description": "GitHub user login",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_commit_sha",
+   "name": "gh_commit_sha",
+   "description": "Git commit SHA on GitHub",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_pr_created",
+   "name": "gh_pr_created",
+   "description": "A GitHub pull request was opened",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_pr_merged",
+   "name": "gh_pr_merged",
+   "description": "A GitHub pull request was merged",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_review_requested",
+   "name": "gh_review_requested",
+   "description": "A GitHub review was requested",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_issue_created",
+   "name": "gh_issue_created",
+   "description": "A GitHub issue was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_comment_posted",
+   "name": "gh_comment_posted",
+   "description": "A comment was posted on GitHub",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gh_release_created",
+   "name": "gh_release_created",
+   "description": "A GitHub release was published",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_mr_ref",
+   "name": "gl_mr_ref",
+   "description": "GitLab merge request IID",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_issue_ref",
+   "name": "gl_issue_ref",
+   "description": "GitLab issue IID",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_branch",
+   "name": "gl_branch",
+   "description": "Name of a branch that exists on GitLab",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_pipeline_ref",
+   "name": "gl_pipeline_ref",
+   "description": "GitLab CI pipeline id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_username",
+   "name": "gl_username",
+   "description": "GitLab username",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_mr_created",
+   "name": "gl_mr_created",
+   "description": "A GitLab merge request was opened",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_mr_merged",
+   "name": "gl_mr_merged",
+   "description": "A GitLab merge request was merged",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_review_requested",
+   "name": "gl_review_requested",
+   "description": "A GitLab reviewer was assigned",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_issue_created",
+   "name": "gl_issue_created",
+   "description": "A GitLab issue was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gl_comment_posted",
+   "name": "gl_comment_posted",
+   "description": "A note was posted on GitLab",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:code_diff",
+   "name": "code_diff",
+   "description": "Unified diff of a code change",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:ci_log",
+   "name": "ci_log",
+   "description": "Log output from a CI job",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:file_text",
+   "name": "file_text",
+   "description": "Text content of a file",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:chat_transcript",
+   "name": "chat_transcript",
+   "description": "Recent messages from a chat channel or thread",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:doc_text",
+   "name": "doc_text",
+   "description": "Body text of a document or page",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:email_body",
+   "name": "email_body",
+   "description": "Body text of an email",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:ticket_details",
+   "name": "ticket_details",
+   "description": "Title, description and status of a ticket",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:incident_summary",
+   "name": "incident_summary",
+   "description": "Summary and timeline of an incident",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:query_rows",
+   "name": "query_rows",
+   "description": "Rows returned by a database query",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:invoice_details",
+   "name": "invoice_details",
+   "description": "Line items and status of an invoice",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_channel_id",
+   "name": "slack_channel_id",
+   "description": "Slack channel id like C0123",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_user_id",
+   "name": "slack_user_id",
+   "description": "Slack user id like U0123",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_message_ref",
+   "name": "slack_message_ref",
+   "description": "Slack message timestamp reference",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_message_sent",
+   "name": "slack_message_sent",
+   "description": "A message was posted in a Slack channel or thread",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_dm_sent",
+   "name": "slack_dm_sent",
+   "description": "A Slack direct message was sent",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_reaction_added",
+   "name": "slack_reaction_added",
+   "description": "A reaction was added on Slack",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:slack_topic_set",
+   "name": "slack_topic_set",
+   "description": "A Slack channel topic was updated",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_channel_id",
+   "name": "discord_channel_id",
+   "description": "Discord channel snowflake id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_user_id",
+   "name": "discord_user_id",
+   "description": "Discord user snowflake id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_message_ref",
+   "name": "discord_message_ref",
+   "description": "Discord message id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_message_sent",
+   "name": "discord_message_sent",
+   "description": "A message was posted in a Discord channel",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_dm_sent",
+   "name": "discord_dm_sent",
+   "description": "A Discord direct message was sent",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_thread_created",
+   "name": "discord_thread_created",
+   "description": "A Discord thread was started",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:discord_reaction_added",
+   "name": "discord_reaction_added",
+   "description": "A reaction was added on Discord",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_team_id",
+   "name": "linear_team_id",
+   "description": "Linear team id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_issue_ref",
+   "name": "linear_issue_ref",
+   "description": "Linear issue identifier like ENG-123",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_user_id",
+   "name": "linear_user_id",
+   "description": "Linear user id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_issue_created",
+   "name": "linear_issue_created",
+   "description": "A Linear issue was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_issue_updated",
+   "name": "linear_issue_updated",
+   "description": "A Linear issue's state was changed",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_issue_assigned",
+   "name": "linear_issue_assigned",
+   "description": "A Linear issue was assigned",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:linear_comment_added",
+   "name": "linear_comment_added",
+   "description": "A comment was added to a Linear issue",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_project_id",
+   "name": "jira_project_id",
+   "description": "Jira project id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_issue_key",
+   "name": "jira_issue_key",
+   "description": "Jira issue key like PAY-42",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_account_id",
+   "name": "jira_account_id",
+   "description": "Jira user account id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_sprint_id",
+   "name": "jira_sprint_id",
+   "description": "Jira sprint id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_issue_created",
+   "name": "jira_issue_created",
+   "description": "A Jira issue was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_issue_updated",
+   "name": "jira_issue_updated",
+   "description": "A Jira issue was transitioned",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_issue_assigned",
+   "name": "jira_issue_assigned",
+   "description": "A Jira issue was assigned",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:jira_comment_added",
+   "name": "jira_comment_added",
+   "description": "A comment was added to a Jira issue",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:notion_page_id",
+   "name": "notion_page_id",
+   "description": "Notion page id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:notion_db_id",
+   "name": "notion_db_id",
+   "description": "Notion database id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:notion_page_created",
+   "name": "notion_page_created",
+   "description": "A Notion page was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:notion_page_updated",
+   "name": "notion_page_updated",
+   "description": "Content was appended to a Notion page",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:notion_comment_added",
+   "name": "notion_comment_added",
+   "description": "A comment was added to a Notion page",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:drive_file_id",
+   "name": "drive_file_id",
+   "description": "Google Drive file id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:drive_folder_id",
+   "name": "drive_folder_id",
+   "description": "Google Drive folder id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:drive_doc_created",
+   "name": "drive_doc_created",
+   "description": "A Google Doc was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:drive_file_shared",
+   "name": "drive_file_shared",
+   "description": "A Drive file was shared with someone",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:drive_file_uploaded",
+   "name": "drive_file_uploaded",
+   "description": "A file was uploaded to Drive",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gmail_message_id",
+   "name": "gmail_message_id",
+   "description": "Gmail message id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gmail_draft_id",
+   "name": "gmail_draft_id",
+   "description": "Gmail draft id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:email_sent",
+   "name": "email_sent",
+   "description": "An email was sent",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:email_reply_sent",
+   "name": "email_reply_sent",
+   "description": "A reply was sent on an email thread",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gmail_labeled",
+   "name": "gmail_labeled",
+   "description": "A label was applied to an email",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:gcal_event_id",
+   "name": "gcal_event_id",
+   "description": "Google Calendar event id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:time_slot",
+   "name": "time_slot",
+   "description": "A concrete free time slot with start and end",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:event_created",
+   "name": "event_created",
+   "description": "A calendar event was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:event_updated",
+   "name": "event_updated",
+   "description": "A calendar event was changed",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:event_cancelled",
+   "name": "event_cancelled",
+   "description": "A calendar event was cancelled",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:attendee_added",
+   "name": "attendee_added",
+   "description": "An attendee was added to a calendar event",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:pd_service_id",
+   "name": "pd_service_id",
+   "description": "PagerDuty service id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:pd_user_id",
+   "name": "pd_user_id",
+   "description": "PagerDuty user id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:pd_incident_id",
+   "name": "pd_incident_id",
+   "description": "PagerDuty incident id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:incident_acknowledged",
+   "name": "incident_acknowledged",
+   "description": "A PagerDuty incident was acknowledged",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:incident_resolved",
+   "name": "incident_resolved",
+   "description": "A PagerDuty incident was resolved",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:incident_created",
+   "name": "incident_created",
+   "description": "A PagerDuty incident was triggered",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:incident_note_added",
+   "name": "incident_note_added",
+   "description": "A note was added to a PagerDuty incident",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:table_schema",
+   "name": "table_schema",
+   "description": "Column names and types of a table",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:db_rows_updated",
+   "name": "db_rows_updated",
+   "description": "Rows were written to the database",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:table_stats",
+   "name": "table_stats",
+   "description": "Row count and size of a table",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:stripe_customer_id",
+   "name": "stripe_customer_id",
+   "description": "Stripe customer id cus_...",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:stripe_invoice_id",
+   "name": "stripe_invoice_id",
+   "description": "Stripe invoice id in_...",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:stripe_charge_id",
+   "name": "stripe_charge_id",
+   "description": "Stripe charge id ch_...",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:stripe_subscription_id",
+   "name": "stripe_subscription_id",
+   "description": "Stripe subscription id sub_...",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:refund_issued",
+   "name": "refund_issued",
+   "description": "A Stripe refund was issued",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:subscription_cancelled",
+   "name": "subscription_cancelled",
+   "description": "A Stripe subscription was cancelled",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:invoice_sent",
+   "name": "invoice_sent",
+   "description": "A Stripe invoice was emailed",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:hubspot_contact_id",
+   "name": "hubspot_contact_id",
+   "description": "HubSpot contact id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:hubspot_company_id",
+   "name": "hubspot_company_id",
+   "description": "HubSpot company id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:hubspot_deal_id",
+   "name": "hubspot_deal_id",
+   "description": "HubSpot deal id",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:crm_note_added",
+   "name": "crm_note_added",
+   "description": "A note was logged on a HubSpot record",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:deal_updated",
+   "name": "deal_updated",
+   "description": "A HubSpot deal stage was changed",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:contact_created",
+   "name": "contact_created",
+   "description": "A HubSpot contact was created",
+   "user_suppliable": false
+  },
+  {
+   "id": "type:local_file_written",
+   "name": "local_file_written",
+   "description": "A file was written on the local filesystem",
+   "user_suppliable": false
+  }
+ ],
+ "capabilities": [
+  {
+   "id": "cap:code.repo.search",
+   "name": "code.repo.search",
+   "description": "find or search code repositories"
+  },
+  {
+   "id": "cap:code.pr.list",
+   "name": "code.pr.list",
+   "description": "list or find open pull requests or merge requests"
+  },
+  {
+   "id": "cap:code.pr.read",
+   "name": "code.pr.read",
+   "description": "read a pull request or merge request diff and changes"
+  },
+  {
+   "id": "cap:code.pr.create",
+   "name": "code.pr.create",
+   "description": "open a new pull request or merge request"
+  },
+  {
+   "id": "cap:code.pr.merge",
+   "name": "code.pr.merge",
+   "description": "merge a pull request or merge request"
+  },
+  {
+   "id": "cap:code.review.request",
+   "name": "code.review.request",
+   "description": "ask someone to review a pull request or merge request"
+  },
+  {
+   "id": "cap:code.comment",
+   "name": "code.comment",
+   "description": "comment on a pull request, merge request or code issue"
+  },
+  {
+   "id": "cap:code.branch.create",
+   "name": "code.branch.create",
+   "description": "create a git branch"
+  },
+  {
+   "id": "cap:code.file.read",
+   "name": "code.file.read",
+   "description": "read a file from a repository"
+  },
+  {
+   "id": "cap:code.commit.list",
+   "name": "code.commit.list",
+   "description": "list recent commits"
+  },
+  {
+   "id": "cap:code.release.create",
+   "name": "code.release.create",
+   "description": "publish a release or tag a version"
+  },
+  {
+   "id": "cap:ci.runs.list",
+   "name": "ci.runs.list",
+   "description": "list CI builds, workflow runs or pipelines"
+  },
+  {
+   "id": "cap:ci.logs.read",
+   "name": "ci.logs.read",
+   "description": "read logs of a failing CI build or job"
+  },
+  {
+   "id": "cap:issue.list",
+   "name": "issue.list",
+   "description": "list or search bugs, issues or tickets"
+  },
+  {
+   "id": "cap:issue.create",
+   "name": "issue.create",
+   "description": "create or file a bug report, issue or ticket"
+  },
+  {
+   "id": "cap:issue.read",
+   "name": "issue.read",
+   "description": "read the details of an issue or ticket"
+  },
+  {
+   "id": "cap:issue.update",
+   "name": "issue.update",
+   "description": "change the status of a ticket, move or close an issue"
+  },
+  {
+   "id": "cap:issue.assign",
+   "name": "issue.assign",
+   "description": "assign a ticket or issue to a person"
+  },
+  {
+   "id": "cap:issue.comment",
+   "name": "issue.comment",
+   "description": "add a comment on a ticket or issue"
+  },
+  {
+   "id": "cap:sprint.read",
+   "name": "sprint.read",
+   "description": "see what is in the current sprint or cycle"
+  },
+  {
+   "id": "cap:team.lookup",
+   "name": "team.lookup",
+   "description": "look up a team or project"
+  },
+  {
+   "id": "cap:chat.channel.find",
+   "name": "chat.channel.find",
+   "description": "find a chat channel"
+  },
+  {
+   "id": "cap:chat.message.post",
+   "name": "chat.message.post",
+   "description": "post or send a message to a chat channel or team"
+  },
+  {
+   "id": "cap:chat.dm.send",
+   "name": "chat.dm.send",
+   "description": "send a direct message to a person in chat"
+  },
+  {
+   "id": "cap:chat.history.read",
+   "name": "chat.history.read",
+   "description": "read recent chat messages or a discussion thread"
+  },
+  {
+   "id": "cap:chat.thread.reply",
+   "name": "chat.thread.reply",
+   "description": "reply in a chat thread"
+  },
+  {
+   "id": "cap:chat.reaction.add",
+   "name": "chat.reaction.add",
+   "description": "react to a chat message with an emoji"
+  },
+  {
+   "id": "cap:chat.topic.set",
+   "name": "chat.topic.set",
+   "description": "update a chat channel topic"
+  },
+  {
+   "id": "cap:user.lookup",
+   "name": "user.lookup",
+   "description": "find a person's account or user id"
+  },
+  {
+   "id": "cap:user.contact.get",
+   "name": "user.contact.get",
+   "description": "get a person's email or contact details"
+  },
+  {
+   "id": "cap:oncall.lookup",
+   "name": "oncall.lookup",
+   "description": "find who is on call for a service"
+  },
+  {
+   "id": "cap:incident.list",
+   "name": "incident.list",
+   "description": "list open incidents or alerts"
+  },
+  {
+   "id": "cap:incident.read",
+   "name": "incident.read",
+   "description": "read details of an incident"
+  },
+  {
+   "id": "cap:incident.ack",
+   "name": "incident.ack",
+   "description": "acknowledge an incident or page"
+  },
+  {
+   "id": "cap:incident.resolve",
+   "name": "incident.resolve",
+   "description": "resolve or close an incident"
+  },
+  {
+   "id": "cap:incident.create",
+   "name": "incident.create",
+   "description": "trigger or open a new incident or page someone"
+  },
+  {
+   "id": "cap:incident.note",
+   "name": "incident.note",
+   "description": "add a note to an incident"
+  },
+  {
+   "id": "cap:doc.search",
+   "name": "doc.search",
+   "description": "search documents, pages or wiki"
+  },
+  {
+   "id": "cap:doc.read",
+   "name": "doc.read",
+   "description": "read a document, page or spec"
+  },
+  {
+   "id": "cap:doc.create",
+   "name": "doc.create",
+   "description": "write or create a new document or page"
+  },
+  {
+   "id": "cap:doc.update",
+   "name": "doc.update",
+   "description": "append to or edit a document or page"
+  },
+  {
+   "id": "cap:doc.share",
+   "name": "doc.share",
+   "description": "share a document with someone"
+  },
+  {
+   "id": "cap:doc.comment",
+   "name": "doc.comment",
+   "description": "comment on a document or page"
+  },
+  {
+   "id": "cap:file.upload",
+   "name": "file.upload",
+   "description": "upload a file to cloud storage"
+  },
+  {
+   "id": "cap:email.search",
+   "name": "email.search",
+   "description": "search an inbox for emails"
+  },
+  {
+   "id": "cap:email.read",
+   "name": "email.read",
+   "description": "read an email"
+  },
+  {
+   "id": "cap:email.send",
+   "name": "email.send",
+   "description": "send or reply to an email"
+  },
+  {
+   "id": "cap:email.draft",
+   "name": "email.draft",
+   "description": "draft an email"
+  },
+  {
+   "id": "cap:email.label",
+   "name": "email.label",
+   "description": "label or tag an email"
+  },
+  {
+   "id": "cap:calendar.events.list",
+   "name": "calendar.events.list",
+   "description": "list calendar events or meetings"
+  },
+  {
+   "id": "cap:calendar.event.create",
+   "name": "calendar.event.create",
+   "description": "schedule a meeting or create a calendar event"
+  },
+  {
+   "id": "cap:calendar.event.update",
+   "name": "calendar.event.update",
+   "description": "reschedule or change a meeting, add attendees"
+  },
+  {
+   "id": "cap:calendar.event.cancel",
+   "name": "calendar.event.cancel",
+   "description": "cancel a meeting"
+  },
+  {
+   "id": "cap:calendar.availability",
+   "name": "calendar.availability",
+   "description": "find a free time slot for people"
+  },
+  {
+   "id": "cap:db.schema.read",
+   "name": "db.schema.read",
+   "description": "inspect database tables and schemas"
+  },
+  {
+   "id": "cap:db.query.read",
+   "name": "db.query.read",
+   "description": "run a read-only SQL query and get data"
+  },
+  {
+   "id": "cap:db.query.write",
+   "name": "db.query.write",
+   "description": "update or insert rows in a database"
+  },
+  {
+   "id": "cap:payments.customer.find",
+   "name": "payments.customer.find",
+   "description": "find a billing customer"
+  },
+  {
+   "id": "cap:payments.invoice.read",
+   "name": "payments.invoice.read",
+   "description": "look up invoices and billing history"
+  },
+  {
+   "id": "cap:payments.invoice.send",
+   "name": "payments.invoice.send",
+   "description": "send an invoice"
+  },
+  {
+   "id": "cap:payments.refund",
+   "name": "payments.refund",
+   "description": "refund a payment or charge"
+  },
+  {
+   "id": "cap:payments.subscription.manage",
+   "name": "payments.subscription.manage",
+   "description": "cancel or change a subscription"
+  },
+  {
+   "id": "cap:crm.contact.find",
+   "name": "crm.contact.find",
+   "description": "find a contact or lead in the CRM"
+  },
+  {
+   "id": "cap:crm.contact.create",
+   "name": "crm.contact.create",
+   "description": "add a new contact to the CRM"
+  },
+  {
+   "id": "cap:crm.company.find",
+   "name": "crm.company.find",
+   "description": "find a customer company account in the CRM"
+  },
+  {
+   "id": "cap:crm.deal.read",
+   "name": "crm.deal.read",
+   "description": "see deals or opportunities for an account"
+  },
+  {
+   "id": "cap:crm.deal.update",
+   "name": "crm.deal.update",
+   "description": "move a deal to a new stage"
+  },
+  {
+   "id": "cap:crm.note.add",
+   "name": "crm.note.add",
+   "description": "log a note or activity on a CRM record"
+  },
+  {
+   "id": "cap:file.read",
+   "name": "file.read",
+   "description": "read a local file"
+  },
+  {
+   "id": "cap:file.write",
+   "name": "file.write",
+   "description": "save or write a local file"
+  },
+  {
+   "id": "cap:file.search",
+   "name": "file.search",
+   "description": "find files on the local disk"
+  }
+ ]
+}

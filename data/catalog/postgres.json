@@ -1,0 +1,136 @@
+[
+ {
+  "id": "tool:postgres.list_tables",
+  "server": "postgres",
+  "name": "list_tables",
+  "description": "List tables in the database.",
+  "input_schema": {
+   "type": "object",
+   "properties": {},
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:table_name"
+  ],
+  "capabilities": [
+   "cap:db.schema.read"
+  ]
+ },
+ {
+  "id": "tool:postgres.describe_table",
+  "server": "postgres",
+  "name": "describe_table",
+  "description": "Get columns and types of a table.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "table": {
+     "type": "string",
+     "description": "Name of a Postgres table"
+    }
+   },
+   "required": [
+    "table"
+   ]
+  },
+  "consumes": [
+   "type:table_name"
+  ],
+  "produces": [
+   "type:table_schema"
+  ],
+  "capabilities": [
+   "cap:db.schema.read"
+  ]
+ },
+ {
+  "id": "tool:postgres.run_select",
+  "server": "postgres",
+  "name": "run_select",
+  "description": "Run a read-only SQL SELECT written against a known schema.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "schema": {
+     "type": "string",
+     "description": "Column names and types of a table"
+    },
+    "sql": {
+     "type": "string",
+     "description": "SELECT statement"
+    }
+   },
+   "required": [
+    "schema"
+   ]
+  },
+  "consumes": [
+   "type:table_schema"
+  ],
+  "produces": [
+   "type:query_rows"
+  ],
+  "capabilities": [
+   "cap:db.query.read"
+  ]
+ },
+ {
+  "id": "tool:postgres.run_update",
+  "server": "postgres",
+  "name": "run_update",
+  "description": "Run an INSERT or UPDATE statement against a known schema.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "schema": {
+     "type": "string",
+     "description": "Column names and types of a table"
+    },
+    "sql": {
+     "type": "string",
+     "description": "SQL statement"
+    }
+   },
+   "required": [
+    "schema"
+   ]
+  },
+  "consumes": [
+   "type:table_schema"
+  ],
+  "produces": [
+   "type:db_rows_updated"
+  ],
+  "capabilities": [
+   "cap:db.query.write"
+  ]
+ },
+ {
+  "id": "tool:postgres.table_stats",
+  "server": "postgres",
+  "name": "table_stats",
+  "description": "Get row count and on-disk size of a table.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "table": {
+     "type": "string",
+     "description": "Name of a Postgres table"
+    }
+   },
+   "required": [
+    "table"
+   ]
+  },
+  "consumes": [
+   "type:table_name"
+  ],
+  "produces": [
+   "type:table_stats"
+  ],
+  "capabilities": [
+   "cap:db.schema.read"
+  ]
+ }
+]

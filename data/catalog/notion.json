@@ -1,0 +1,204 @@
+[
+ {
+  "id": "tool:notion.search",
+  "server": "notion",
+  "name": "search",
+  "description": "Search Notion pages and databases by title.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Search text"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:notion_page_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ },
+ {
+  "id": "tool:notion.get_page_content",
+  "server": "notion",
+  "name": "get_page_content",
+  "description": "Read the blocks of a Notion page.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "page_id": {
+     "type": "string",
+     "description": "Notion page id"
+    }
+   },
+   "required": [
+    "page_id"
+   ]
+  },
+  "consumes": [
+   "type:notion_page_id"
+  ],
+  "produces": [
+   "type:doc_text"
+  ],
+  "capabilities": [
+   "cap:doc.read"
+  ]
+ },
+ {
+  "id": "tool:notion.create_page",
+  "server": "notion",
+  "name": "create_page",
+  "description": "Create a Notion page under a parent page.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "page_id": {
+     "type": "string",
+     "description": "Notion page id"
+    },
+    "title": {
+     "type": "string",
+     "description": "Page title"
+    },
+    "content": {
+     "type": "string",
+     "description": "Markdown body"
+    }
+   },
+   "required": [
+    "page_id"
+   ]
+  },
+  "consumes": [
+   "type:notion_page_id"
+  ],
+  "produces": [
+   "type:notion_page_created",
+   "type:notion_page_id"
+  ],
+  "capabilities": [
+   "cap:doc.create"
+  ]
+ },
+ {
+  "id": "tool:notion.append_blocks",
+  "server": "notion",
+  "name": "append_blocks",
+  "description": "Append content to a Notion page.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "page_id": {
+     "type": "string",
+     "description": "Notion page id"
+    },
+    "content": {
+     "type": "string",
+     "description": "Markdown to append"
+    }
+   },
+   "required": [
+    "page_id"
+   ]
+  },
+  "consumes": [
+   "type:notion_page_id"
+  ],
+  "produces": [
+   "type:notion_page_updated"
+  ],
+  "capabilities": [
+   "cap:doc.update"
+  ]
+ },
+ {
+  "id": "tool:notion.find_database",
+  "server": "notion",
+  "name": "find_database",
+  "description": "Find a Notion database by name.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Database name"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:notion_db_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ },
+ {
+  "id": "tool:notion.query_database",
+  "server": "notion",
+  "name": "query_database",
+  "description": "Query rows of a Notion database.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "database_id": {
+     "type": "string",
+     "description": "Notion database id"
+    },
+    "filter": {
+     "type": "string",
+     "description": "Filter expression"
+    }
+   },
+   "required": [
+    "database_id"
+   ]
+  },
+  "consumes": [
+   "type:notion_db_id"
+  ],
+  "produces": [
+   "type:notion_page_id"
+  ],
+  "capabilities": [
+   "cap:doc.search"
+  ]
+ },
+ {
+  "id": "tool:notion.add_comment",
+  "server": "notion",
+  "name": "add_comment",
+  "description": "Comment on a Notion page.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "page_id": {
+     "type": "string",
+     "description": "Notion page id"
+    },
+    "text": {
+     "type": "string",
+     "description": "Comment"
+    }
+   },
+   "required": [
+    "page_id"
+   ]
+  },
+  "consumes": [
+   "type:notion_page_id"
+  ],
+  "produces": [
+   "type:notion_comment_added"
+  ],
+  "capabilities": [
+   "cap:doc.comment"
+  ]
+ }
+]

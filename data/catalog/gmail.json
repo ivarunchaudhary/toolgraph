@@ -1,0 +1,212 @@
+[
+ {
+  "id": "tool:gmail.search_messages",
+  "server": "gmail",
+  "name": "search_messages",
+  "description": "Search the Gmail inbox.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "query": {
+     "type": "string",
+     "description": "Gmail search query"
+    }
+   },
+   "required": []
+  },
+  "consumes": [],
+  "produces": [
+   "type:gmail_message_id"
+  ],
+  "capabilities": [
+   "cap:email.search"
+  ]
+ },
+ {
+  "id": "tool:gmail.read_message",
+  "server": "gmail",
+  "name": "read_message",
+  "description": "Read an email's body and sender.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "message_id": {
+     "type": "string",
+     "description": "Gmail message id"
+    }
+   },
+   "required": [
+    "message_id"
+   ]
+  },
+  "consumes": [
+   "type:gmail_message_id"
+  ],
+  "produces": [
+   "type:email_body",
+   "type:email_address"
+  ],
+  "capabilities": [
+   "cap:email.read"
+  ]
+ },
+ {
+  "id": "tool:gmail.send_email",
+  "server": "gmail",
+  "name": "send_email",
+  "description": "Send an email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "subject": {
+     "type": "string",
+     "description": "Subject"
+    },
+    "body": {
+     "type": "string",
+     "description": "Body"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:email_sent"
+  ],
+  "capabilities": [
+   "cap:email.send"
+  ]
+ },
+ {
+  "id": "tool:gmail.reply_to_message",
+  "server": "gmail",
+  "name": "reply_to_message",
+  "description": "Reply to an email thread.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "message_id": {
+     "type": "string",
+     "description": "Gmail message id"
+    },
+    "body": {
+     "type": "string",
+     "description": "Reply body"
+    }
+   },
+   "required": [
+    "message_id"
+   ]
+  },
+  "consumes": [
+   "type:gmail_message_id"
+  ],
+  "produces": [
+   "type:email_reply_sent"
+  ],
+  "capabilities": [
+   "cap:email.send"
+  ]
+ },
+ {
+  "id": "tool:gmail.create_draft",
+  "server": "gmail",
+  "name": "create_draft",
+  "description": "Create an email draft.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "email": {
+     "type": "string",
+     "description": "An email address of a person"
+    },
+    "subject": {
+     "type": "string",
+     "description": "Subject"
+    },
+    "body": {
+     "type": "string",
+     "description": "Body"
+    }
+   },
+   "required": [
+    "email"
+   ]
+  },
+  "consumes": [
+   "type:email_address"
+  ],
+  "produces": [
+   "type:gmail_draft_id"
+  ],
+  "capabilities": [
+   "cap:email.draft"
+  ]
+ },
+ {
+  "id": "tool:gmail.send_draft",
+  "server": "gmail",
+  "name": "send_draft",
+  "description": "Send an existing Gmail draft.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "draft_id": {
+     "type": "string",
+     "description": "Gmail draft id"
+    }
+   },
+   "required": [
+    "draft_id"
+   ]
+  },
+  "consumes": [
+   "type:gmail_draft_id"
+  ],
+  "produces": [
+   "type:email_sent"
+  ],
+  "capabilities": [
+   "cap:email.send"
+  ]
+ },
+ {
+  "id": "tool:gmail.add_label",
+  "server": "gmail",
+  "name": "add_label",
+  "description": "Apply a label to an email.",
+  "input_schema": {
+   "type": "object",
+   "properties": {
+    "message_id": {
+     "type": "string",
+     "description": "Gmail message id"
+    },
+    "label": {
+     "type": "string",
+     "description": "Label name"
+    }
+   },
+   "required": [
+    "message_id"
+   ]
+  },
+  "consumes": [
+   "type:gmail_message_id"
+  ],
+  "produces": [
+   "type:gmail_labeled"
+  ],
+  "capabilities": [
+   "cap:email.label"
+  ]
+ }
+]
