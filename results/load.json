@@ -1,0 +1,79 @@
+{
+ "host": "https://app-production-17690aee.up.railway.app",
+ "at": "2026-11-15T06:49:34+00:00",
+ "note": "Locust headless; mix = 4x POST /api/retrieve (graph, held-out task texts) : 1x GET /api/graph/stats",
+ "runs": [
+  {
+   "users": 50,
+   "duration": "3m",
+   "endpoints": {
+    "/api/graph/stats": {
+     "requests": 3215,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 17.89502500188695,
+     "p50_ms": 280.0,
+     "p95_ms": 870.0,
+     "p99_ms": 1600.0,
+     "max_ms": 3164.7226249915548
+    },
+    "/api/retrieve [graph]": {
+     "requests": 12697,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 70.67282502300424,
+     "p50_ms": 300.0,
+     "p95_ms": 1000.0,
+     "p99_ms": 2500.0,
+     "max_ms": 11886.381040996639
+    },
+    "Aggregated": {
+     "requests": 15912,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 88.56785002489119,
+     "p50_ms": 300.0,
+     "p95_ms": 970.0,
+     "p99_ms": 2200.0,
+     "max_ms": 11886.381040996639
+    }
+   }
+  },
+  {
+   "users": 200,
+   "duration": "3m",
+   "endpoints": {
+    "/api/graph/stats": {
+     "requests": 6111,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 34.044420107466564,
+     "p50_ms": 680.0,
+     "p95_ms": 1300.0,
+     "p99_ms": 3600.0,
+     "max_ms": 26888.288874994032
+    },
+    "/api/retrieve [graph]": {
+     "requests": 25045,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 139.52585527597776,
+     "p50_ms": 900.0,
+     "p95_ms": 1700.0,
+     "p99_ms": 3500.0,
+     "max_ms": 48564.00758298696
+    },
+    "Aggregated": {
+     "requests": 31156,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 173.57027538344434,
+     "p50_ms": 850.0,
+     "p95_ms": 1600.0,
+     "p99_ms": 3600.0,
+     "max_ms": 48564.00758298696
+    }
+   }
+  }
+ ]
+}

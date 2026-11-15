@@ -4,7 +4,7 @@
 
 ToolGraph is a tool router for AI agents. It stores MCP tools, the capabilities they provide and the typed data they consume and produce as a graph in [HydraDB](https://github.com/hydra-db/hydradb). For each task it traverses that graph and returns only the tools needed, **including the prerequisite tools** that vector search misses. It also learns from outcomes, so routing improves with use.
 
-**Live demo:** _link added after deploy_ · **Walkthrough (Loom):** _link added after recording_ · HydraDB Hackathon, Track 2
+**Live demo:** [app-production-17690aee.up.railway.app](https://app-production-17690aee.up.railway.app) · **Walkthrough (Loom):** _link added after recording_ · HydraDB Hackathon, Track 2
 
 <!-- gen:headline -->
 On 53 held-out tasks (3 seeds; context sufficiency: the planner is an LLM-free solver that finds the shortest valid plan using **only the retrieved tools**, so success measures whether retrieval put enough in context): ToolGraph goes from **70% → 91% task success** as it learns from outcomes, vs **70%** for vector top-15, while sending **606 tool tokens per task instead of 8,524** (−93%) with all tools in context. (All tools in context scores 100% here by construction: a perfect planner is never confused by extra tools, so this setting only shows what extra context *costs*; the LLM-planner run shows what it does to accuracy.)
@@ -151,12 +151,12 @@ Single deep `UNION ALL` query instead of frontier traversal (first 20 test tasks
 **Load** (`POST /api/retrieve`, graph strategy, retrieval only):
 
 <!-- gen:load -->
-Source: `results/load_local.json`, local Docker stack on a laptop (app + HydraDB containers), host `http://127.0.0.1:8000`. Locust headless; mix = 4x POST /api/retrieve (graph, held-out task texts) : 1x GET /api/graph/stats.
+Source: `results/load.json`, hosted deployment, host `https://app-production-17690aee.up.railway.app`. Locust headless; mix = 4x POST /api/retrieve (graph, held-out task texts) : 1x GET /api/graph/stats.
 
 | concurrent users | duration | retrieve RPS | p50 | p95 | p99 | errors |
 |---|---|---|---|---|---|---|
-| 50 | 3m | 68.6 | 340 ms | 1700 ms | 3100 ms | 0.00% |
-| 200 | 3m | 83.2 | 1700 ms | 3200 ms | 4000 ms | 0.00% |
+| 50 | 3m | 70.7 | 300 ms | 1000 ms | 2500 ms | 0.00% |
+| 200 | 3m | 139.5 | 900 ms | 1700 ms | 3500 ms | 0.00% |
 <!-- /gen:load -->
 
 ## What's measured, exactly
@@ -178,6 +178,8 @@ Source: `results/load_local.json`, local Docker stack on a laptop (app + HydraDB
 
 ```bash
 pipx install git+https://github.com/ivarunchaudhary/toolgraph   # or: pip install git+https://...
+export TOOLGRAPH_URL=https://app-production-17690aee.up.railway.app   # try it against the hosted demo, no Docker needed
+# or run your own:
 toolgraph up                     # fetches the repo to ~/.toolgraph, starts HydraDB + app in Docker → http://127.0.0.1:8000
 toolgraph route "post the failing CI logs for my repo to the #eng slack channel"
 toolgraph compare "open a linear issue for the newest pagerduty incident"
@@ -190,7 +192,7 @@ The CLI has no Python dependencies; it talks HTTP to a ToolGraph server (`--url`
 
 ```bash
 claude mcp add toolgraph -- toolgraph mcp
-claude mcp add toolgraph -e TOOLGRAPH_URL=https://<host> -- toolgraph mcp   # against a hosted server
+claude mcp add toolgraph -e TOOLGRAPH_URL=https://app-production-17690aee.up.railway.app -- toolgraph mcp   # against the hosted demo
 ```
 
 ## Run it locally
