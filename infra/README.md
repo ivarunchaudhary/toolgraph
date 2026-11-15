@@ -18,6 +18,7 @@ ANTHROPIC_API_KEY=...          # optional: without it /api/run uses the LLM-free
 PLANNER_MODEL=claude-haiku-5-5
 ADMIN_TOKEN=...                # optional: enables POST /api/demo/reset (Bearer token)
 RUN_RATE_LIMIT=10              # /api/run per IP per minute
+TRUST_PROXY=1                  # Railway's edge sets X-Forwarded-For; don't set this if the app is exposed directly
 ```
 
 On boot the app ingests the catalog (idempotent) and re-applies the learned state published in

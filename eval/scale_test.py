@@ -94,8 +94,10 @@ def run_size() -> None:
     vector.tool_index()  # build embeddings outside the timed section
     graph.cap_index()
     test = load_tasks("test")
+    from backend.app import tokens
+
     res = {"n_tools": len(cat.tools), "n_servers": len(cat.servers), "n_types": len(cat.datatypes),
-           "ingest_ms": st["ingest_ms"], "graph_stats": st}
+           "ingest_ms": st["ingest_ms"], "graph_stats": st, "all_tools_tokens": tokens.tool_tokens(sorted(cat.tools))}
     for name, fn in (("graph", lambda t, g: graph.retrieve(t, g, opts=GraphOptions(learned=False))),
                      ("vector_k15", lambda t, g: vector.retrieve(t, g, k=15))):
         evaluate(test[:5], fn, name, 4)  # warm-up

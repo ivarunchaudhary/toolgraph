@@ -78,6 +78,7 @@ services:
     environment:
       HYDRADB_URL: http://hydradb:8443
       HYDRADB_BOLT_URL: bolt://hydradb:7687
+      HYDRADB_MAX_INFLIGHT: ${HYDRADB_MAX_INFLIGHT:-4}
     ports: ["8000:8000"]
 
 volumes:

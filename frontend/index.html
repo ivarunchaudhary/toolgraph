@@ -26,6 +26,7 @@
   <button role="tab" class="tab active" data-tab="route" aria-selected="true">Route a task</button>
   <button role="tab" class="tab" data-tab="compare" aria-selected="false">Compare strategies</button>
   <button role="tab" class="tab" data-tab="results" aria-selected="false">Results</button>
+  <button role="tab" class="tab" data-tab="how" aria-selected="false">How it works</button>
 </nav>
 
 <main>
@@ -109,6 +110,49 @@
       <p class="sub">Read from <code>/api/results</code>, i.e. the <code>results/*.json</code> files written by <code>eval/</code> scripts. Nothing on this page is typed in by hand.</p>
       <div class="table-wrap"><table id="res-table"></table></div>
     </div>
+  </section>
+
+  <!-- tab: how -->
+  <section class="panel" id="panel-how">
+    <div class="card">
+      <h2>Architecture</h2>
+      <p class="sub">The agent asks for tools per task instead of loading the whole catalog.</p>
+      <svg class="arch" viewBox="0 0 980 200" role="img" aria-label="Agent sends task to ToolGraph API, which seeds in Python, traverses HydraDB, and returns tools; outcomes flow back as learned edges">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker></defs>
+        <g class="box"><rect x="10" y="60" width="170" height="80" rx="10"/><text x="95" y="95">Agent / LLM</text><text x="95" y="117" class="s">task + inputs it has</text></g>
+        <g class="box hl"><rect x="260" y="40" width="260" height="120" rx="10"/><text x="390" y="72">ToolGraph API</text><text x="390" y="96" class="s">1. seed: capabilities, learned intents,</text><text x="390" y="114" class="s">servers named, inputs already known</text><text x="390" y="132" class="s">3. rank + chain-complete to budget</text></g>
+        <g class="box db"><rect x="600" y="40" width="200" height="120" rx="10"/><text x="700" y="72">HydraDB 0.3</text><text x="700" y="96" class="s">graph-node (HTTP Cypher)</text><text x="700" y="114" class="s">graph-indexer</text><text x="700" y="132" class="s">object store (SlateDB)</text></g>
+        <g class="box"><rect x="860" y="60" width="110" height="80" rx="10"/><text x="915" y="95">Simulator</text><text x="915" y="117" class="s">outcome</text></g>
+        <path d="M180,85 L258,85" marker-end="url(#ar)"/><text x="219" y="77" class="e">task</text>
+        <path d="M258,118 L182,118" marker-end="url(#ar)"/><text x="219" y="136" class="e">~6–10 tools</text>
+        <path d="M520,85 L598,85" marker-end="url(#ar)"/><text x="559" y="77" class="e">2. traverse</text>
+        <path d="M598,118 L522,118" marker-end="url(#ar)"/><text x="559" y="136" class="e">subgraph</text>
+        <path d="M915,140 C915,195 700,195 700,162" marker-end="url(#ar)"/><text x="808" y="190" class="e">learn: SOLVED_WITH / NEXT weights</text>
+      </svg>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Graph schema</h2>
+        <ul class="schema">
+          <li><b>(Tool)-[:PROVIDES {weight}]-&gt;(Capability)</b> what a tool is for</li>
+          <li><b>(Tool)-[:CONSUMES]-&gt;(DataType)</b> required inputs (typed: a Slack channel id is not a Discord one)</li>
+          <li><b>(DataType)-[:PRODUCED_BY]-&gt;(Tool)</b> who can produce an input: the prerequisite edge vector search cannot see</li>
+          <li><b>(Tool)-[:PART_OF]-&gt;(Server)</b> MCP server membership</li>
+          <li><b>(Intent)-[:SOLVED_WITH {weight}]-&gt;(Tool)</b> learned: task cluster → tools that worked</li>
+          <li><b>(Tool)-[:NEXT {weight}]-&gt;(Tool)</b> learned: "often called after"</li>
+        </ul>
+        <h2 style="margin-top:14px">Learning rules</h2>
+        <ul class="schema" id="rules"></ul>
+      </div>
+      <div class="card">
+        <h2>Why frontier traversal</h2>
+        <p class="sub" style="color:var(--text-2)">The first version sent one deep <code>UNION ALL</code> query (one round trip). It was fine at 134 tools, but at 1,000 tools its p50 was ~1.5 s, because 4-level chain patterns expand before filtering. Now ToolGraph sends 1 seed query plus 1 id-anchored hop query per prerequisite level, keeping only producers near the task (named servers + servers of the most similar tools). Results are identical at 134 tools, and at 10,000 tools the p50 is ~200 ms. Both variants are measured in <code>results/scale.json</code>.</p>
+      </div>
+    </div>
+    <div class="card"><h2>Seed query <span class="muted" style="font-weight:400">(round trip 1)</span></h2><pre id="q-seed"></pre></div>
+    <div class="card"><h2>Prerequisite hop <span class="muted" style="font-weight:400">(one per level, for the whole frontier)</span></h2><pre id="q-hop"></pre></div>
+    <div class="card"><h2>Learning writes</h2><pre id="q-learn"></pre></div>
+    <div class="card"><h2>Single-query variant, depth 2 <span class="muted" style="font-weight:400">(<code>traversal="union"</code>)</span></h2><pre id="q-union"></pre></div>
   </section>
 </main>
 

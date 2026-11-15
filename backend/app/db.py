@@ -9,6 +9,7 @@ Follows upstream USING-HYDRADB.md (v0.3.0):
 from __future__ import annotations
 
 import threading
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any, Iterable
@@ -46,6 +47,11 @@ _local = threading.local()
 
 def current_stats() -> QueryStats | None:
     return getattr(_local, "stats", None)
+
+
+# Max concurrent HydraDB queries from this process. Under overload graph-node throughput drops sharply
+# (measured locally: ~10 rps at 200 users uncapped vs ~77 rps with a cap of 4), so excess requests wait in the app.
+_INFLIGHT = threading.BoundedSemaphore(int(os.getenv("HYDRADB_MAX_INFLIGHT", "4")))
 
 
 class track:
@@ -86,7 +92,8 @@ class HydraDB:
             body["parameters"] = params
         body.update(extra)
         t0 = time.perf_counter()
-        resp = self.client.post(self.endpoint, json=body)
+        with _INFLIGHT:  # backpressure: queue here rather than overload graph-node
+            resp = self.client.post(self.endpoint, json=body)
         ms = (time.perf_counter() - t0) * 1000
         st = current_stats()
         if st is not None:

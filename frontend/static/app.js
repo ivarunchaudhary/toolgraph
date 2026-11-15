@@ -30,8 +30,9 @@ document.querySelectorAll(".tab").forEach((t) =>
   t.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach((x) => { x.classList.toggle("active", x === t); x.setAttribute("aria-selected", x === t); });
     document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === `panel-${t.dataset.tab}`));
-    $(".task-card").style.display = t.dataset.tab === "results" ? "none" : "";
+    $(".task-card").style.display = ["results", "how"].includes(t.dataset.tab) ? "none" : "";
     if (t.dataset.tab === "results") loadResults();
+    if (t.dataset.tab === "how") loadHow();
     if (t.dataset.tab === "route" && S.cy) S.cy.resize();
   })
 );
@@ -331,6 +332,29 @@ function renderTable(B, A, SC) {
     for (const r of SC.sizes) rows.push([`${fmt(r.n_tools)} tools`, pct(r.graph.tool_recall), pct(r.vector_k15.tool_recall), `${fmt(r.graph.latency_p50_ms, 1)} / ${fmt(r.graph.latency_p95_ms, 1)} ms`, `${fmt(r.ingest_ms / 1000, 1)} s`, pct(r.graph.success_rate)]);
   }
   $("#res-table").innerHTML = rows.map((r) => (r[0].startsWith("<b>") ? `<tr>${r.map((c, i) => `<th>${i ? esc(c) : c}</th>`).join("")}</tr>` : `<tr class="${r[6] || ""}">${r.slice(0, 6).map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`)).join("");
+}
+
+/* ---------------- how it works ---------------- */
+function cypher(q) {
+  const pretty = q.replace(/ UNION ALL /g, "\nUNION ALL\n").replace(/ (OPTIONAL MATCH|WHERE|RETURN|MERGE|SET) /g, "\n  $1 ");
+  return esc(pretty).replace(/\b(MATCH|OPTIONAL|UNION ALL|WHERE|RETURN|MERGE|SET|UNWIND|AS|AND|NOT|IN)\b/g, '<span class="kw">$1</span>');
+}
+async function loadHow() {
+  if (S.howLoaded) return;
+  S.howLoaded = true;
+  const h = await api("/api/how");
+  $("#q-seed").innerHTML = cypher(h.seed_query);
+  $("#q-hop").innerHTML = cypher(h.hop_query);
+  $("#q-union").innerHTML = cypher(h.union_query_depth2);
+  $("#q-learn").innerHTML = Object.entries(h.learn_queries).map(([k, q]) => `// ${esc(k)}\n${cypher(q)}`).join("\n\n");
+  const r = h.rules;
+  $("#rules").innerHTML = [
+    `Success: NEXT ${esc(r.success.NEXT)} between consecutive plan steps, SOLVED_WITH ${esc(r.success.SOLVED_WITH)} intent → each tool used`,
+    `Failure with a missing input: ${esc(r.gap_driven)} (the graph is asked who produces it)`,
+    `Failure: ${esc(r.failure_penalty)}; weights clamped to [${r.clamp.join(", ")}]`,
+    `Intent match: masked task text + servers named + inputs supplied, threshold ${fmt(r.intent_threshold, 3)} (calibrated on train only)`,
+    `Learning uses simulator outcomes only, never gold labels; the held-out test set never updates the graph`,
+  ].map((x) => `<li>${x}</li>`).join("");
 }
 
 /* ---------------- boot ---------------- */

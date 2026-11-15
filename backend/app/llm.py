@@ -53,6 +53,57 @@ class OpenAILLM:
                 "output_tokens": r.usage.completion_tokens}
 
 
+class OpenAICompatLLM:
+    """Any OpenAI-compatible chat endpoint over plain httpx (Groq, Gemini's OpenAI layer, ...).
+    Free tiers are rate limited: a client-side RPM throttle plus Retry-After-aware backoff on 429/5xx."""
+
+    PRESETS = {
+        "groq": ("https://api.groq.com/openai/v1", "GROQ_API_KEY", "llama-3.3-70b-versatile"),
+        "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai", "GEMINI_API_KEY", "gemini-2.5-flash"),
+    }
+
+    def __init__(self, provider: str, model: str | None = None):
+        import httpx
+
+        base, key_env, default_model = self.PRESETS[provider]
+        self.key = os.getenv(key_env, "")
+        if not self.key:
+            raise RuntimeError(f"{key_env} is not set (LLM_PROVIDER={provider})")
+        self.model = model or os.getenv("LLM_MODEL") or default_model
+        self.name = f"{provider}:{self.model}"
+        self.url = f"{base}/chat/completions"
+        self.http = httpx.Client(timeout=120)
+        self.min_gap = 60.0 / float(os.getenv("LLM_RPM", "25"))
+        self._next = 0.0
+        self._gate = threading.Lock()
+
+    def _throttle(self) -> None:
+        with self._gate:
+            now = time.monotonic()
+            wait = self._next - now
+            self._next = max(now, self._next) + self.min_gap
+        if wait > 0:
+            time.sleep(wait)
+
+    def complete(self, system: str, prompt: str, max_tokens: int = 800) -> dict:
+        body = {"model": self.model, "temperature": 0, "max_tokens": max_tokens,
+                "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}]}
+        for attempt in range(8):
+            self._throttle()
+            r = self.http.post(self.url, json=body, headers={"Authorization": f"Bearer {self.key}"})
+            if r.status_code == 200:
+                d = r.json()
+                u = d.get("usage") or {}
+                return {"text": d["choices"][0]["message"].get("content") or "",
+                        "input_tokens": u.get("prompt_tokens"), "output_tokens": u.get("completion_tokens")}
+            if r.status_code in (429, 500, 502, 503, 504):
+                ra = r.headers.get("retry-after")
+                time.sleep(float(ra) if ra and ra.replace(".", "", 1).isdigit() else min(60, 2 ** attempt * 2))
+                continue
+            raise RuntimeError(f"{self.name} HTTP {r.status_code}: {r.text[:300]}")
+        raise RuntimeError(f"{self.name}: still rate limited after retries")
+
+
 _stats_lock = threading.Lock()
 STATS = {"calls": 0, "cache_hits": 0, "input_tokens": 0, "output_tokens": 0}
 
@@ -78,8 +129,8 @@ class CachedLLM:
         f.write_text(json.dumps(out))
         with _stats_lock:
             STATS["calls"] += 1
-            STATS["input_tokens"] += out.get("input_tokens", 0)
-            STATS["output_tokens"] += out.get("output_tokens", 0)
+            STATS["input_tokens"] += out.get("input_tokens") or 0
+            STATS["output_tokens"] += out.get("output_tokens") or 0
         out["cached"] = False
         return out
 
@@ -91,6 +142,11 @@ def get_llm() -> CachedLLM:
     global _llm
     if _llm is None:
         provider = os.getenv("LLM_PROVIDER", "anthropic")
-        inner = OpenAILLM() if provider == "openai" else AnthropicLLM()
+        if provider in OpenAICompatLLM.PRESETS:
+            inner = OpenAICompatLLM(provider)
+        elif provider == "openai":
+            inner = OpenAILLM()
+        else:
+            inner = AnthropicLLM()
         _llm = CachedLLM(inner)
     return _llm

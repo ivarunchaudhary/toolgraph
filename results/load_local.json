@@ -1,35 +1,79 @@
 {
  "host": "http://127.0.0.1:8000",
- "users": 20,
- "duration": "60s",
- "at": "2026-11-14T20:03:56+00:00",
- "endpoints": {
-  "/api/graph/stats": {
-   "requests": 1372,
-   "failures": 0,
-   "rps": 23.207311642462034,
-   "p50_ms": 4.0,
-   "p95_ms": 26.0,
-   "p99_ms": 1500.0,
-   "max_ms": 1726.3950839987956
+ "at": "2026-11-14T20:32:10+00:00",
+ "note": "Locust headless; mix = 4x POST /api/retrieve (graph, held-out task texts) : 1x GET /api/graph/stats",
+ "runs": [
+  {
+   "users": 50,
+   "duration": "3m",
+   "endpoints": {
+    "/api/graph/stats": {
+     "requests": 2592,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 14.41940793151422,
+     "p50_ms": 8.0,
+     "p95_ms": 6700.0,
+     "p99_ms": 9400.0,
+     "max_ms": 12801.147791993571
+    },
+    "/api/retrieve [graph]": {
+     "requests": 10273,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 57.1491426236287,
+     "p50_ms": 370.0,
+     "p95_ms": 1100.0,
+     "p99_ms": 2200.0,
+     "max_ms": 4748.6790829862
+    },
+    "Aggregated": {
+     "requests": 12865,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 71.56855055514292,
+     "p50_ms": 340.0,
+     "p95_ms": 1500.0,
+     "p99_ms": 6700.0,
+     "max_ms": 12801.147791993571
+    }
+   }
   },
-  "/api/retrieve [graph]": {
-   "requests": 5116,
-   "failures": 0,
-   "rps": 86.5368851041077,
-   "p50_ms": 32.0,
-   "p95_ms": 160.0,
-   "p99_ms": 330.0,
-   "max_ms": 881.8387919745874
-  },
-  "Aggregated": {
-   "requests": 6488,
-   "failures": 0,
-   "rps": 109.74419674656974,
-   "p50_ms": 27.0,
-   "p95_ms": 150.0,
-   "p99_ms": 560.0,
-   "max_ms": 1726.3950839987956
+  {
+   "users": 200,
+   "duration": "3m",
+   "endpoints": {
+    "/api/graph/stats": {
+     "requests": 1128,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 0.9967156337186859,
+     "p50_ms": 2200.0,
+     "p95_ms": 16000.0,
+     "p99_ms": 19000.0,
+     "max_ms": 22879.095917014638
+    },
+    "/api/retrieve [graph]": {
+     "requests": 4611,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 4.074340236770267,
+     "p50_ms": 2700.0,
+     "p95_ms": 9400.0,
+     "p99_ms": 14000.0,
+     "max_ms": 15320.281458989484
+    },
+    "Aggregated": {
+     "requests": 5739,
+     "failures": 0,
+     "error_rate": 0.0,
+     "rps": 5.071055870488952,
+     "p50_ms": 2700.0,
+     "p95_ms": 12000.0,
+     "p99_ms": 16000.0,
+     "max_ms": 22879.095917014638
+    }
+   }
   }
- }
+ ]
 }
