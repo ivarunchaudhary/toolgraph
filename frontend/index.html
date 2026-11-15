@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolGraph: the right tools for your agent</title>
+<meta name="description" content="ToolGraph is a tool router for AI agents. Connect your MCP servers; your agent calls find_tools and gets only the few tools a task needs, prerequisites included. Free during launch.">
+<meta property="og:title" content="ToolGraph">
+<meta property="og:description" content="Your agent doesn't need 200 tools in context. It needs the right 6.">
+<meta name="theme-color" content="#0f0f0e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='16' r='5' fill='%233987e5'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%239085e9'/%3E%3Ccircle cx='24' cy='24' r='4' fill='%23199e70'/%3E%3Cpath d='M12 14 21 9M12 18l9 5' stroke='%23c3c2b7' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body data-page="landing">
+<a class="sr-only" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="ToolGraph home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>ToolGraph</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#why">Why a graph</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/playground">Benchmark</a>
+    </nav>
+    <div class="nav-end">
+      <a class="btn quiet sm" href="https://github.com/ivarunchaudhary/toolgraph" rel="noopener">GitHub</a>
+      <a class="btn primary sm" href="/app">Get a free workspace</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ============================================================ hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1><span>Your agent doesn't need 200 tools in context.</span><span>It needs the right 6.</span></h1>
+        <p class="lede">ToolGraph is a hosted MCP endpoint that routes each task to the few tools it needs from your MCP servers, including the lookups those tools depend on. Your agent stays fast, cheap and on target.</p>
+        <div class="ctas">
+          <a class="btn primary lg" href="/app">Get a free workspace</a>
+          <a class="btn lg" href="/playground">See the benchmark</a>
+        </div>
+        <p class="fine">Free during launch. No card, no LLM key.</p>
+      </div>
+      <figure class="field" style="margin:0">
+        <svg id="field-svg" viewBox="0 0 300 200" role="img" aria-label="Each dot is a tool in the demo catalog. Lit dots are the tools returned for the current task; lines connect a prerequisite to the tool that needs its output."></svg>
+        <figcaption>
+          <p class="field-caption" id="field-caption" aria-live="polite">Routing a sample task against the public demo catalog…</p>
+          <div class="field-legend" aria-hidden="true">
+            <span><i style="background:var(--tool)"></i>Matches the task</span>
+            <span><i style="background:var(--type)"></i>Prerequisite</span>
+            <span><i style="background:var(--learn)"></i>Learned from outcomes</span>
+          </div>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============================================================ try it -->
+  <section class="band flush" id="try" aria-labelledby="try-h">
+    <div class="wrap">
+      <h2 id="try-h" class="sr-only">Try find_tools</h2>
+      <div class="console">
+        <form id="try-form" role="search">
+          <label for="try-task" class="sr-only">Describe a task for your agent</label>
+          <input id="try-task" type="text" maxlength="1000" autocomplete="off" placeholder="Describe a task, like: post the open PRs in acme/api to #eng on Slack">
+          <button class="btn primary lg" id="try-go" type="submit">Find tools</button>
+        </form>
+        <div class="examples" role="group" aria-label="Example tasks">
+          <button type="button" class="chipbtn" data-task="Post the open PRs in acme/api to #eng on Slack">Post the open PRs in acme/api to #eng on Slack</button>
+          <button type="button" class="chipbtn" data-task="Cancel the Stripe subscription for lena.o@hooli.com">Cancel the Stripe subscription for lena.o@hooli.com</button>
+          <button type="button" class="chipbtn" data-task="Share the failing CI log for initech/billing in the Slack channel #payments-team">Share the failing CI log in #payments-team</button>
+          <button type="button" class="chipbtn" data-task="Create a Linear issue for the checkout bug and assign it to the payments team">Create a Linear issue for the checkout bug</button>
+        </div>
+        <div class="out">
+          <div>
+            <div id="try-results" aria-live="polite"><p class="results-empty">Pick an example or describe a task.</p></div>
+          </div>
+          <aside aria-label="Context cost">
+            <div id="try-meter"></div>
+            <p class="src">Live call to <code>POST /v1/find_tools</code> against the public demo graph. Sign up to route over your own servers.</p>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ how it works -->
+  <section class="band" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <h2 id="how-h">Three steps, and it gets better as your agent works.</h2>
+      <p class="sublede">You keep your MCP servers and your agent. ToolGraph sits in front of the tool list and decides what goes into context.</p>
+      <ol class="steps">
+        <li>
+          <h3>Connect your servers</h3>
+          <p>Bring the tool lists from the MCP servers your agent already uses. ToolGraph reads each tool's inputs and outputs and stores them as a typed graph in HydraDB.</p>
+          <ul class="opts">
+            <li>Run <code>toolgraph sync</code> to upload every MCP server you already use in Claude Code, Claude Desktop or Cursor</li>
+            <li>Paste a <code>tools/list</code> response</li>
+            <li>Import from an MCP server URL</li>
+            <li>Pick a preset like GitHub, Slack or Linear</li>
+          </ul>
+        </li>
+        <li>
+          <h3>Your agent calls find_tools</h3>
+          <p>Add one MCP server to your agent. Before any multi-tool task, it asks for the tools it needs and gets back a short list, with the reason each tool is there.</p>
+          <div class="code"><pre>find_tools({
+  task: "post open PRs to #eng"
+})</pre></div>
+        </li>
+        <li>
+          <h3>report_outcome teaches it</h3>
+          <p>When the task is done, the agent reports which tools it called and whether it worked. Chains that worked get stronger; ones that failed get weaker.</p>
+          <div class="code"><pre>report_outcome({
+  task, success: true,
+  tools: ["slack.list_channels",
+          "slack.post_message"]
+})</pre></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============================================================ why a graph -->
+  <section class="band" id="why" aria-labelledby="why-h">
+    <div class="wrap why-grid">
+      <div class="why-copy">
+        <h2 id="why-h">Search finds the tool. The graph finds what it needs.</h2>
+        <p style="margin-top:18px">Ask an agent to post to <code>#eng</code>. Vector search finds <code>slack_post_message</code>, but that tool wants a <code>channel_id</code> like <code>C024BE91L</code>, and the agent only has a channel name.</p>
+        <p>The tool that turns a name into an id, <code>slack_list_channels</code>, doesn't sound anything like "post a message", so similarity search leaves it out. The agent guesses, or stalls.</p>
+        <p>ToolGraph stores which tool produces each typed input and which tools consume it. When a matching tool needs something the agent doesn't have, the producer comes along, marked as a prerequisite.</p>
+        <p class="ablation" id="ablation" hidden></p>
+      </div>
+      <div class="diagram">
+        <svg viewBox="0 0 560 300" role="img" aria-labelledby="dg-t dg-d">
+          <title id="dg-t">Vector search versus ToolGraph for posting to a Slack channel</title>
+          <desc id="dg-d">With vector search, only slack_post_message is returned; its channel_id input has no source. With ToolGraph, slack_list_channels produces channel_id, which slack_post_message consumes, so both are returned.</desc>
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah typed"/></marker>
+          </defs>
+          <text class="head" x="10" y="22">Vector search: ranks tools by text similarity</text>
+          <g class="n miss"><rect x="10" y="44" width="180" height="40" rx="8"/><text x="100" y="69" text-anchor="middle" style="fill:var(--muted)">slack_list_channels</text></g>
+          <g class="n miss"><rect x="226" y="44" width="118" height="40" rx="20"/><text x="285" y="69" text-anchor="middle" style="fill:var(--muted)">channel_id ?</text></g>
+          <g class="n tool"><rect x="370" y="44" width="180" height="40" rx="8"/><text x="460" y="69" text-anchor="middle">slack_post_message</text></g>
+          <path d="M344,64 L368,64" style="stroke-dasharray:3 3" marker-end="url(#a1)"/>
+          <text class="lab" x="100" y="104" text-anchor="middle">not returned</text>
+          <text class="bad" x="10" y="132">The agent has "#eng". The API wants an id.</text>
+          <line class="div" x1="0" x2="560" y1="156" y2="156"/>
+          <text class="head" x="10" y="186">ToolGraph: follows typed inputs to their producers</text>
+          <g class="n tool"><rect x="10" y="208" width="180" height="40" rx="8"/><text x="100" y="233" text-anchor="middle">slack_list_channels</text></g>
+          <g class="n type"><rect x="226" y="208" width="118" height="40" rx="20"/><text x="285" y="233" text-anchor="middle" style="fill:var(--type-ink)">channel_id</text></g>
+          <g class="n tool"><rect x="370" y="208" width="180" height="40" rx="8"/><text x="460" y="233" text-anchor="middle">slack_post_message</text></g>
+          <path class="typed" d="M190,228 L224,228" marker-end="url(#a2)"/>
+          <path class="typed" d="M344,228 L368,228" marker-end="url(#a2)"/>
+          <text class="lab" x="208" y="268" text-anchor="middle">produces</text>
+          <text class="lab" x="356" y="268" text-anchor="middle">consumed by</text>
+          <text class="good" x="10" y="292">Both tools returned, prerequisite first.</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ proof -->
+  <section class="band" id="proof" aria-labelledby="proof-h">
+    <div class="wrap">
+      <h2 id="proof-h">Measured, not promised.</h2>
+      <p class="sublede">These figures load from the benchmark result files in this deployment. Rerun the benchmark and they change.</p>
+      <div class="proof">
+        <div class="panel chart">
+          <h3>Routing improves as agents report outcomes</h3>
+          <p class="claim" id="proof-curve-claim"></p>
+          <div id="proof-curve"></div>
+          <p class="note" id="proof-curve-note"></p>
+        </div>
+        <div class="side-stack">
+          <div class="panel" id="proof-tokens-panel">
+            <h3>Tool definitions in context</h3>
+            <p class="claim" id="proof-tokens-claim"></p>
+            <div id="proof-tokens"></div>
+          </div>
+          <div class="panel" id="proof-llm-panel">
+            <h3>With an LLM doing the planning</h3>
+            <p class="claim" id="proof-llm-claim" style="font-size:18px"></p>
+            <p class="note" id="proof-llm-note"></p>
+          </div>
+        </div>
+      </div>
+      <p class="proof-src"><span id="proof-src"></span> <a href="/playground">Open the full benchmark</a>.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ clients -->
+  <section class="band" id="clients" aria-labelledby="clients-h">
+    <div class="wrap clients">
+      <div>
+        <h2 id="clients-h">Works with the agent you already use.</h2>
+        <p class="sublede">ToolGraph is a standard MCP server over HTTP. Add it to Claude Code, Claude.ai, Cursor or any MCP client, next to the servers your agent calls.</p>
+        <p class="sublede" style="font-size:15px">Your dashboard fills in your real key. Routing never calls an LLM, so you never hand us one.</p>
+      </div>
+      <div>
+        <div class="tabs" role="tablist" aria-label="MCP clients">
+          <button role="tab" id="t-cc" aria-controls="p-cc" aria-selected="true">Claude Code</button>
+          <button role="tab" id="t-ca" aria-controls="p-ca" aria-selected="false" tabindex="-1">Claude.ai</button>
+          <button role="tab" id="t-cu" aria-controls="p-cu" aria-selected="false" tabindex="-1">Cursor</button>
+          <button role="tab" id="t-any" aria-controls="p-any" aria-selected="false" tabindex="-1">Any MCP client</button>
+        </div>
+        <div class="tabpanel active" id="p-cc" role="tabpanel" aria-labelledby="t-cc">
+          <p>Run this once in your terminal.</p>
+          <div class="code"><pre class="wrapline" id="s-cc" data-origin>claude mcp add --transport http toolgraph {origin}/mcp --header "Authorization: Bearer tg_your_key"</pre><button class="btn sm copy" data-copy-from="#s-cc">Copy</button></div>
+        </div>
+        <div class="tabpanel" id="p-ca" role="tabpanel" aria-labelledby="t-ca">
+          <p>In Claude.ai, open Settings, then Connectors, then Add custom connector, and paste your secret URL. It contains your key, so treat it like a password.</p>
+          <div class="code"><pre class="wrapline" id="s-ca" data-origin>{origin}/mcp/tg_your_key</pre><button class="btn sm copy" data-copy-from="#s-ca">Copy</button></div>
+        </div>
+        <div class="tabpanel" id="p-cu" role="tabpanel" aria-labelledby="t-cu">
+          <p>Add this to <code>~/.cursor/mcp.json</code>.</p>
+          <div class="code"><pre id="s-cu" data-origin>{
+  "mcpServers": {
+    "toolgraph": {
+      "url": "{origin}/mcp",
+      "headers": { "Authorization": "Bearer tg_your_key" }
+    }
+  }
+}</pre><button class="btn sm copy" data-copy-from="#s-cu">Copy</button></div>
+        </div>
+        <div class="tabpanel" id="p-any" role="tabpanel" aria-labelledby="t-any">
+          <p>Point any Streamable HTTP MCP client at <code data-origin>{origin}/mcp</code> with a Bearer key, or call the REST API directly.</p>
+          <div class="code"><pre class="wrapline" id="s-any" data-origin>curl -s {origin}/v1/find_tools \
+  -H 'Authorization: Bearer tg_your_key' \
+  -H 'content-type: application/json' \
+  -d '{"task": "post the open PRs in acme/api to #eng on slack"}'</pre><button class="btn sm copy" data-copy-from="#s-any">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ pricing -->
+  <section class="band" id="pricing" aria-labelledby="pricing-h">
+    <div class="wrap">
+      <h2 id="pricing-h">Start free. Pay when your team does.</h2>
+      <div class="plans">
+        <div class="plan">
+          <h3>Free</h3>
+          <p class="price">$0</p>
+          <ul>
+            <li>1 workspace</li>
+            <li>Up to 300 tools</li>
+            <li>10,000 find_tools calls a month</li>
+            <li>Hosted MCP endpoint</li>
+            <li>Learning from reported outcomes</li>
+          </ul>
+          <a class="btn primary" href="/app">Get a free workspace</a>
+        </div>
+        <div class="plan">
+          <h3>Team <span class="soon">Coming soon</span></h3>
+          <p class="price">$29<small> / month</small></p>
+          <ul>
+            <li>Several workspaces</li>
+            <li>Shared learning across your team's agents</li>
+            <li>Usage analytics</li>
+          </ul>
+        </div>
+        <div class="plan">
+          <h3>Enterprise</h3>
+          <p class="price soft">Self-host on your own HydraDB</p>
+          <ul>
+            <li>Your tools and outcomes stay in your infrastructure</li>
+            <li>Same API and MCP endpoint</li>
+          </ul>
+          <a class="btn" href="https://github.com/ivarunchaudhary/toolgraph/issues" rel="noopener">Contact us</a>
+        </div>
+      </div>
+      <p class="launch-note">Free during launch, no card.</p>
+      <p class="usage-line" id="usage" hidden></p>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap">
+      <h2>Give your agent the right 6 tools, starting now.</h2>
+      <div class="ctas">
+        <a class="btn primary lg" href="/app">Get a free workspace</a>
+        <a class="btn lg" href="/playground">See the benchmark</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="/" style="font-size:15px"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>ToolGraph</a>
+      <p style="margin-top:10px">Built on <a href="https://github.com/hydra-db/hydradb" rel="noopener">HydraDB</a> (AGPL-3.0).</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="/app">Dashboard</a>
+      <a href="/playground">Benchmark</a>
+      <a href="/docs">API docs</a>
+      <a href="https://github.com/ivarunchaudhary/toolgraph" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="/static/site.js"></script>
+</body>
+</html>

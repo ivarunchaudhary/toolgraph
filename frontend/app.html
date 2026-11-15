@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToolGraph dashboard</title>
+<meta name="description" content="Your ToolGraph workspace: connect MCP servers, plug in your agent, and try find_tools.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0f0e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/site.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='16' r='5' fill='%233987e5'/%3E%3Ccircle cx='24' cy='8' r='4' fill='%239085e9'/%3E%3Ccircle cx='24' cy='24' r='4' fill='%23199e70'/%3E%3Cpath d='M12 14 21 9M12 18l9 5' stroke='%23c3c2b7' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body class="dash" data-page="app">
+<a class="sr-only" href="#main">Skip to content</a>
+
+<header class="nav scrolled">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="ToolGraph home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>ToolGraph</a>
+    <nav class="nav-links" aria-label="Site">
+      <a href="/">Home</a>
+      <a href="/playground">Benchmark</a>
+      <a href="/docs">API docs</a>
+    </nav>
+    <div class="nav-end">
+      <button class="btn sm" id="nav-forget" type="button" hidden>Switch workspace</button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <p id="boot" class="empty" aria-live="polite">Loading your workspace…</p>
+
+    <!-- ======================================================== no key: sign up / sign in -->
+    <section id="view-onboard" class="onboard" hidden aria-labelledby="ob-h">
+      <h1 id="ob-h">Create your free workspace</h1>
+      <p>A workspace holds your MCP servers' tools as a graph and gives your agent one MCP endpoint to ask for the right ones. Free during launch, no card.</p>
+      <div id="ob-msg" class="status-msg" aria-live="polite"></div>
+      <form id="create-form" novalidate>
+        <label class="field" for="ws-name">Workspace name
+          <input id="ws-name" type="text" maxlength="60" required autocomplete="organization" placeholder="e.g. acme platform team">
+        </label>
+        <button class="btn primary lg" type="submit" id="create-go">Create workspace</button>
+      </form>
+      <div class="alt">
+        <h2>I already have a key</h2>
+        <form id="key-form" class="inline-form" novalidate>
+          <label for="have-key" class="sr-only">Workspace key</label>
+          <input id="have-key" type="password" autocomplete="off" spellcheck="false" placeholder="tg_…">
+          <button class="btn" type="submit" id="key-go">Open workspace</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ======================================================== key shown once -->
+    <section id="view-key" class="onboard" hidden aria-labelledby="key-h">
+      <h1 id="key-h">Save your key now</h1>
+      <p id="key-lede">This is the only time ToolGraph shows this key. We store only a hash of it, so it can't be recovered later.</p>
+      <div class="keybox">
+        <div class="code"><pre class="wrapline" id="new-key"></pre><button class="btn sm copy" type="button" data-copy-from="#new-key">Copy</button></div>
+      </div>
+      <p class="warn-note" style="margin-top:14px">Store it in your password manager. Anyone with this key can read and change your workspace. This browser keeps a copy so the dashboard works, but clearing site data removes it.</p>
+      <p id="key-store-warn" class="err" style="margin-top:10px" hidden>This browser blocked local storage, so the dashboard can't remember your key. Copy it before you continue.</p>
+      <div class="row-actions" style="margin-top:22px">
+        <button class="btn primary lg" type="button" id="key-continue">I saved it, open my workspace</button>
+      </div>
+    </section>
+
+    <!-- ======================================================== dashboard -->
+    <div id="view-dash" hidden>
+      <div class="ws-head">
+        <div>
+          <h1><span id="ws-title"></span><span class="plan-badge" id="ws-plan">Free</span></h1>
+          <p class="slug" id="ws-slug"></p>
+        </div>
+        <dl class="ws-stats">
+          <div><dt>Tools</dt><dd><span id="st-tools">–</span> <small id="st-tools-lim"></small></dd></div>
+          <div><dt>find_tools calls</dt><dd id="st-calls">–</dd></div>
+          <div><dt>Outcomes reported</dt><dd id="st-outcomes">–</dd></div>
+        </dl>
+      </div>
+
+      <!-- servers -->
+      <div class="cols" style="margin-top:24px">
+        <section class="box" aria-labelledby="srv-h">
+          <header><h2 id="srv-h">Servers</h2><p id="srv-count"></p></header>
+          <ul class="servers" id="servers"></ul>
+        </section>
+
+        <section class="box" aria-labelledby="add-h">
+          <header><h2 id="add-h">Add a server</h2></header>
+          <div class="tabs" role="tablist" aria-label="Ways to add a server">
+            <button role="tab" type="button" id="ta-sync" aria-controls="pa-sync" aria-selected="true">Sync from your apps</button>
+            <button role="tab" type="button" id="ta-paste" aria-controls="pa-paste" aria-selected="false" tabindex="-1">Paste tools/list</button>
+            <button role="tab" type="button" id="ta-url" aria-controls="pa-url" aria-selected="false" tabindex="-1">Import from URL</button>
+            <button role="tab" type="button" id="ta-pre" aria-controls="pa-pre" aria-selected="false" tabindex="-1">Presets</button>
+          </div>
+
+          <div class="tabpanel active" id="pa-sync" role="tabpanel" aria-labelledby="ta-sync">
+            <p class="lead" style="margin:0 0 12px">Upload every MCP server you already use in Claude Code, Claude Desktop or Cursor in one go. The CLI starts each server locally, reads its tool list, and sends only the tool definitions here.</p>
+            <div class="form-grid">
+              <div><p class="hint" style="margin-bottom:6px">1. Install the CLI</p>
+                <div class="code"><pre class="wrapline" id="cli-install">pipx install git+https://github.com/ivarunchaudhary/toolgraph</pre><button class="btn sm copy" type="button" data-copy-from="#cli-install">Copy</button></div></div>
+              <div><p class="hint" style="margin-bottom:6px">2. Sync your servers (add <code>--dry-run</code> to preview)</p>
+                <div class="code"><pre class="wrapline" id="cli-sync"></pre><button class="btn sm copy" type="button" data-copy-from="#cli-sync">Copy</button></div></div>
+              <div class="row-actions"><button class="btn sm" type="button" id="sync-refresh">I ran it, refresh servers</button></div>
+            </div>
+          </div>
+
+          <div class="tabpanel" id="pa-paste" role="tabpanel" aria-labelledby="ta-paste">
+            <form id="paste-form" class="form-grid" novalidate>
+              <label class="field" for="paste-name">Server name
+                <input id="paste-name" type="text" maxlength="48" required placeholder="e.g. slack" spellcheck="false">
+              </label>
+              <label class="field" for="paste-json">tools/list JSON <span class="hint">The response of your server's <code>tools/list</code> call, or just its <code>tools</code> array.</span>
+                <textarea id="paste-json" rows="9" spellcheck="false" placeholder='{"tools": [{"name": "...", "description": "...", "inputSchema": {...}}]}'></textarea>
+              </label>
+              <div class="row-actions">
+                <span class="hint">Load a sample:</span>
+                <button class="btn sm" type="button" data-sample="slack">Slack</button>
+                <button class="btn sm" type="button" data-sample="github">GitHub</button>
+                <button class="btn sm" type="button" data-sample="linear">Linear</button>
+              </div>
+              <div class="row-actions"><button class="btn primary" type="submit" id="paste-go">Add server</button></div>
+            </form>
+          </div>
+
+          <div class="tabpanel" id="pa-url" role="tabpanel" aria-labelledby="ta-url">
+            <form id="url-form" class="form-grid" novalidate>
+              <label class="field" for="url-name">Server name
+                <input id="url-name" type="text" maxlength="48" required placeholder="e.g. linear" spellcheck="false">
+              </label>
+              <label class="field" for="url-url">MCP server URL <span class="hint">Streamable HTTP endpoint that answers <code>tools/list</code>.</span>
+                <input id="url-url" type="url" maxlength="500" required placeholder="https://mcp.example.com/mcp" spellcheck="false">
+              </label>
+              <label class="field" for="url-auth">Authorization header <span class="hint">Optional. Used once to fetch the tool list, never stored.</span>
+                <input id="url-auth" type="password" maxlength="2000" autocomplete="off" placeholder="Bearer …" spellcheck="false">
+              </label>
+              <div class="row-actions"><button class="btn primary" type="submit" id="url-go">Import tools</button></div>
+            </form>
+          </div>
+
+          <div class="tabpanel" id="pa-pre" role="tabpanel" aria-labelledby="ta-pre">
+            <p class="lead" style="margin:0 0 12px">Demo servers with realistic tool lists. One click adds them to your workspace.</p>
+            <div class="presets" id="presets"><p class="empty">Loading presets…</p></div>
+          </div>
+          <div id="add-msg" class="status-msg" aria-live="polite"></div>
+        </section>
+      </div>
+
+      <!-- connect -->
+      <section class="box" aria-labelledby="con-h">
+        <header><h2 id="con-h">Connect your agent</h2><p>Add ToolGraph next to the MCP servers your agent already calls.</p></header>
+        <div class="tabs" role="tablist" aria-label="MCP clients">
+          <button role="tab" type="button" id="tc-cc" aria-controls="pc-cc" aria-selected="true">Claude Code</button>
+          <button role="tab" type="button" id="tc-ca" aria-controls="pc-ca" aria-selected="false" tabindex="-1">Claude.ai</button>
+          <button role="tab" type="button" id="tc-cu" aria-controls="pc-cu" aria-selected="false" tabindex="-1">Cursor</button>
+          <button role="tab" type="button" id="tc-curl" aria-controls="pc-curl" aria-selected="false" tabindex="-1">curl</button>
+        </div>
+        <div class="tabpanel active" id="pc-cc" role="tabpanel" aria-labelledby="tc-cc">
+          <p class="lead" style="margin:0 0 10px">Run this once in your terminal.</p>
+          <div class="code"><pre class="wrapline" id="c-cc"></pre><button class="btn sm copy" type="button" data-copy-from="#c-cc">Copy</button></div>
+        </div>
+        <div class="tabpanel" id="pc-ca" role="tabpanel" aria-labelledby="tc-ca">
+          <p class="lead" style="margin:0 0 10px">In Claude.ai, open Settings, then Connectors, then Add custom connector, and paste this URL.</p>
+          <div class="code"><pre class="wrapline" id="c-ca"></pre><button class="btn sm copy" type="button" data-copy-from="#c-ca">Copy</button></div>
+          <p class="warn-note" style="margin-top:12px">This secret URL contains your key. Don't share it or commit it. If it leaks, rotate your key below.</p>
+        </div>
+        <div class="tabpanel" id="pc-cu" role="tabpanel" aria-labelledby="tc-cu">
+          <p class="lead" style="margin:0 0 10px">Add this to <code>~/.cursor/mcp.json</code>, or <code>.cursor/mcp.json</code> in a project.</p>
+          <div class="code"><pre id="c-cu"></pre><button class="btn sm copy" type="button" data-copy-from="#c-cu">Copy</button></div>
+        </div>
+        <div class="tabpanel" id="pc-curl" role="tabpanel" aria-labelledby="tc-curl">
+          <p class="lead" style="margin:0 0 10px">Call the REST API from any language. The MCP endpoint is <code id="c-mcp"></code>.</p>
+          <div class="code"><pre class="wrapline" id="c-curl"></pre><button class="btn sm copy" type="button" data-copy-from="#c-curl">Copy</button></div>
+        </div>
+        <div class="foot-actions" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+          <span>Leaked a key or secret URL? Rotating issues a new key and switches off the old one immediately.</span>
+          <button class="btn sm" type="button" id="rotate">Rotate key</button>
+        </div>
+      </section>
+
+      <!-- try -->
+      <section class="box try" aria-labelledby="try-h">
+        <header><h2 id="try-h">Try find_tools</h2><p>Same call your agent makes, routed over this workspace.</p></header>
+        <form id="try-form" novalidate>
+          <label for="try-task" class="sr-only">Task</label>
+          <input id="try-task" type="text" maxlength="1000" autocomplete="off" placeholder="e.g. post the open PRs in acme/api to #eng on Slack">
+          <button class="btn primary" type="submit" id="try-go">Find tools</button>
+        </form>
+        <p id="try-empty" class="hint" style="margin-top:10px" hidden>Add a server first, then try a task here.</p>
+        <div class="out" id="try-out" hidden>
+          <div>
+            <div id="try-results" aria-live="polite"></div>
+            <div class="feedback" id="feedback" hidden>
+              <p>Run the task with your agent, then report how it went. Untick any tool it didn't call.</p>
+              <fieldset class="fb-tools-set"><legend class="sr-only">Tools your agent called</legend><div id="fb-tools" class="fb-tools"></div></fieldset>
+              <label class="field" for="fb-missing">If it failed because an input was missing, name it <span class="hint">Optional, e.g. <code>channel_id</code></span>
+                <input id="fb-missing" type="text" maxlength="100" spellcheck="false" style="max-width:320px">
+              </label>
+              <div class="row-actions">
+                <button class="btn good" type="button" id="fb-ok">It worked</button>
+                <button class="btn bad" type="button" id="fb-fail">It failed</button>
+              </div>
+              <div id="fb-out" class="learned-out" aria-live="polite"></div>
+            </div>
+          </div>
+          <aside id="try-meter"></aside>
+        </div>
+      </section>
+
+      <!-- tools -->
+      <section class="box" aria-labelledby="tools-h">
+        <header><h2 id="tools-h">Tools in this workspace</h2><p id="learned-sum"></p></header>
+        <div id="chains-wrap" hidden>
+          <p class="lead" style="margin:0 0 10px">Prerequisite chains: a tool that produces an input other tools need. When a task needs one of those tools, the producer comes with it.</p>
+          <ul class="chains" id="chains"></ul>
+        </div>
+        <div id="tools-table"><p class="empty">No tools yet. Add a server above.</p></div>
+      </section>
+
+      <div class="foot-actions">
+        <span>The key for this workspace is saved in this browser only.</span>
+        <button class="btn sm quiet" type="button" id="forget">Forget key on this device</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/static/site.js"></script>
+<script src="/static/dash.js"></script>
+</body>
+</html>
