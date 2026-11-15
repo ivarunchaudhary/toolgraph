@@ -35,9 +35,11 @@ def _check_public(url: str) -> None:
 
 def _post(c: httpx.Client, url: str, headers: dict, body: dict) -> tuple[httpx.Response, str]:
     """POST and read at most MAX_BYTES of the body (streamed, so an endless response can't exhaust memory)."""
-    with c.stream("POST", url, headers=headers, json=body) as r:
+    with c.stream("POST", url, headers={**headers, "Accept-Encoding": "identity"}, json=body) as r:
         if int(r.headers.get("content-length") or 0) > MAX_BYTES:
             raise RemoteError("response too large")
+        if r.headers.get("content-encoding", "identity").lower() not in ("identity", ""):
+            raise RemoteError("compressed responses are not accepted")  # the cap must apply before decompression
         buf, n = [], 0
         for chunk in r.iter_bytes():
             n += len(chunk)
