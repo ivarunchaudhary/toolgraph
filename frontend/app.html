@@ -21,7 +21,7 @@
     <a class="brand" href="/" aria-label="ToolGraph home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i></span>ToolGraph</a>
     <nav class="nav-links" aria-label="Site">
       <a href="/">Home</a>
-      <a href="/playground">Benchmark</a>
+      <a href="/playground">Benchmark (demo)</a>
       <a href="/docs">API docs</a>
     </nav>
     <div class="nav-end">
@@ -162,6 +162,36 @@
         </section>
       </div>
 
+      <!-- try -->
+      <section class="box try" id="try" aria-labelledby="try-h">
+        <header><h2 id="try-h">Try a task on your tools</h2><p>The same find_tools call your agent makes, on this workspace. Pick an example or describe a task.</p></header>
+        <form id="try-form" novalidate>
+          <label for="try-task" class="sr-only">Task</label>
+          <input id="try-task" type="text" maxlength="1000" autocomplete="off" placeholder="e.g. post the open PRs in acme/api to #eng on Slack">
+          <button class="btn primary" type="submit" id="try-go">Find tools</button>
+        </form>
+        <div class="try-ex" id="try-ex" hidden></div>
+        <p id="try-empty" class="hint" style="margin-top:10px" hidden>Add a server first, then try a task here.</p>
+        <div class="out" id="try-out" hidden>
+          <div>
+            <div id="try-results" aria-live="polite"></div>
+            <div class="feedback" id="feedback" hidden>
+              <p>Run the task with your agent, then report how it went. Untick any tool it didn't call.</p>
+              <fieldset class="fb-tools-set"><legend class="sr-only">Tools your agent called</legend><div id="fb-tools" class="fb-tools"></div></fieldset>
+              <label class="field" for="fb-missing">If it failed because an input was missing, name it <span class="hint">Optional, e.g. <code>channel_id</code></span>
+                <input id="fb-missing" type="text" maxlength="100" spellcheck="false" style="max-width:320px">
+              </label>
+              <div class="row-actions">
+                <button class="btn good" type="button" id="fb-ok">It worked</button>
+                <button class="btn bad" type="button" id="fb-fail">It failed</button>
+              </div>
+              <div id="fb-out" class="learned-out" aria-live="polite"></div>
+            </div>
+          </div>
+          <aside id="try-meter"></aside>
+        </div>
+      </section>
+
       <!-- connect -->
       <section class="box" aria-labelledby="con-h">
         <header><h2 id="con-h">Connect your agent</h2><p>Add ToolGraph next to the MCP servers your agent already calls.</p></header>
@@ -191,35 +221,6 @@
         <div class="foot-actions" style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
           <span>Leaked a key or secret URL? Rotating issues a new key and switches off the old one immediately.</span>
           <button class="btn sm" type="button" id="rotate">Rotate key</button>
-        </div>
-      </section>
-
-      <!-- try -->
-      <section class="box try" aria-labelledby="try-h">
-        <header><h2 id="try-h">Try find_tools</h2><p>Same call your agent makes, routed over this workspace.</p></header>
-        <form id="try-form" novalidate>
-          <label for="try-task" class="sr-only">Task</label>
-          <input id="try-task" type="text" maxlength="1000" autocomplete="off" placeholder="e.g. post the open PRs in acme/api to #eng on Slack">
-          <button class="btn primary" type="submit" id="try-go">Find tools</button>
-        </form>
-        <p id="try-empty" class="hint" style="margin-top:10px" hidden>Add a server first, then try a task here.</p>
-        <div class="out" id="try-out" hidden>
-          <div>
-            <div id="try-results" aria-live="polite"></div>
-            <div class="feedback" id="feedback" hidden>
-              <p>Run the task with your agent, then report how it went. Untick any tool it didn't call.</p>
-              <fieldset class="fb-tools-set"><legend class="sr-only">Tools your agent called</legend><div id="fb-tools" class="fb-tools"></div></fieldset>
-              <label class="field" for="fb-missing">If it failed because an input was missing, name it <span class="hint">Optional, e.g. <code>channel_id</code></span>
-                <input id="fb-missing" type="text" maxlength="100" spellcheck="false" style="max-width:320px">
-              </label>
-              <div class="row-actions">
-                <button class="btn good" type="button" id="fb-ok">It worked</button>
-                <button class="btn bad" type="button" id="fb-fail">It failed</button>
-              </div>
-              <div id="fb-out" class="learned-out" aria-live="polite"></div>
-            </div>
-          </div>
-          <aside id="try-meter"></aside>
         </div>
       </section>
 

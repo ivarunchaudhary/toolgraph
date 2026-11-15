@@ -44,6 +44,7 @@ async function loadStatus() {
     const st = await api("/api/graph/stats");
     const e = Object.values(st.edges).reduce((a, b) => a + b, 0);
     el.className = "status ok";
+    const dn = $("#demo-n"); if (dn) dn.textContent = `${st.catalog.tools} demo tools across ${st.catalog.servers} services`;
     $("#status-text").textContent = `HydraDB · ${st.catalog.tools} tools · ${fmt(e)} edges · ${st.learned.intents} learned intents`;
   } catch {
     el.className = "status down";

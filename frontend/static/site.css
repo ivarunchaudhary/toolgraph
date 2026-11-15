@@ -350,6 +350,8 @@ table.tools td .td { font-size: 12.5px; color: var(--muted); margin-top: 2px; ma
 table.tools td .cell { display: flex; flex-wrap: wrap; gap: 4px; }
 table.tools tr.producer td:first-child { box-shadow: inset 3px 0 0 var(--type); }
 .dash .try form { display: flex; gap: 10px; }
+.dash .try-ex { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.dash .try-ex .hint { margin-right: 2px; }
 .dash .try .out { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; margin-top: 8px; }
 .feedback { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
 .feedback p { font-size: 14.5px; color: var(--text-2); }

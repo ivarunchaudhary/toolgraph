@@ -102,6 +102,7 @@
     show("view-dash");
     loadTools();
     loadPresets();
+    if (location.hash === "#try") requestAnimationFrame(() => { $("#try").scrollIntoView(); $("#try-task").focus({ preventScroll: true }); });
   }
 
   function renderHead() {
@@ -139,7 +140,7 @@
         ag.last_seen ? `${esc(ag.client || "An MCP client")} connected ${ago(ag.seconds_ago)}.`
           : "Waiting for your agent. Run the command under Connect your agent, then open a new session in your agent and check /mcp."],
       ["#ss-call", ws.calls > 0,
-        ws.calls > 0 ? `${fmt(ws.calls)} calls so far.` : 'Ask your agent to do something with your tools, e.g. "post a summary of my open PRs to Slack". It calls find_tools first.'],
+        ws.calls > 0 ? `${fmt(ws.calls)} calls so far.` : 'Ask your agent to do something with your tools and to use toolgraph find_tools first, or <a href="#try">try a task on this page</a>.'],
     ];
     let done = 0;
     for (const [sel, ok, text] of steps) {
@@ -313,6 +314,7 @@
     }
     const producers = {};
     (r.types || []).forEach((t) => { if (t.producers && t.producers.length) producers[t.id] = t; });
+    renderExamples(r.tools, producers);
     const chains = Object.values(producers).filter((t) => t.consumers && t.consumers.length);
     $("#chains-wrap").hidden = !chains.length;
     const SHOW = 6;
@@ -339,6 +341,43 @@
       </tr>`).join("")}</tbody></table></div>
       <p class="hint" style="margin-top:10px">Green types have a producer in this workspace. Rows with a green edge produce an input that other tools need.</p>`;
   }
+
+  /* ---------------------------------------------------------------- example tasks from the user's own tools */
+  // One example per server (largest first). Prefer a tool whose input another tool produces, so the result shows a
+  // prerequisite chain, with a common verb and a short, readable name.
+  function humanTool(t) {
+    const srv = new Set(t.server.split("_"));
+    const toks = t.name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    while (toks.length > 1 && srv.has(toks[0])) toks.shift();
+    return toks;
+  }
+  function exampleTasks(tools, producers) {
+    const VERBS = new Set(["get", "list", "send", "create", "post", "update", "search", "find"]);
+    const score = (t) => {
+      const toks = humanTool(t), n = toks.length;
+      return (t.consumes.some((c) => producers[c]) ? 4 : 0) + (VERBS.has(toks[0]) ? 2 : 0) + (n === 3 ? 2 : n === 2 || n === 4 ? 1 : 0);
+    };
+    const by = {};
+    tools.forEach((t) => (by[t.server] = by[t.server] || []).push(t));
+    return Object.entries(by).sort((a, b) => b[1].length - a[1].length).slice(0, 4).map(([server, ts]) => {
+      const best = ts.reduce((a, b) => (score(b) > score(a) ? b : a));
+      const words = humanTool(best).join(" ");
+      return `${words.charAt(0).toUpperCase()}${words.slice(1)} in ${server.replace(/_/g, " ")}`;
+    });
+  }
+  function renderExamples(tools, producers) {
+    const box = $("#try-ex");
+    const ex = tools && tools.length ? exampleTasks(tools, producers) : [];
+    box.hidden = !ex.length;
+    box.innerHTML = ex.length ? `<span class="hint">Examples from your tools:</span> ` +
+      ex.map((t) => `<button type="button" class="chipbtn" data-task="${esc(t)}">${esc(t)}</button>`).join("") : "";
+  }
+  $("#try-ex").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-task]");
+    if (!b || $("#try-go").disabled) return;
+    $("#try-task").value = b.dataset.task;
+    $("#try-form").requestSubmit();
+  });
 
   /* ---------------------------------------------------------------- try + outcome */
   $("#try-form").addEventListener("submit", async (e) => {

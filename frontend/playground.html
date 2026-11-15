@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ToolGraph</title>
-<meta name="description" content="Graph-native tool routing for AI agents, on HydraDB.">
+<title>ToolGraph Benchmark</title>
+<meta name="description" content="ToolGraph research benchmark: tool routing on a demo catalog in HydraDB, with simulated execution.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/style.css">
@@ -31,6 +31,13 @@
 </nav>
 
 <main>
+  <section class="card demo-note" aria-labelledby="demo-note-h">
+    <h2 id="demo-note-h">This is a research benchmark on a demo catalog</h2>
+    <p>It runs on <b id="demo-n">a built-in demo set of tools</b> modelled on well-known services, not on your workspace. Retrieval runs real HydraDB queries, the planner is a real model, and what it learns is written to HydraDB.
+      <b>Execution is simulated:</b> no tool actually runs. A checker marks a task solved when every tool in the plan was handed to the agent, each tool's required inputs (an ID, a channel) were already available, and the task's goal was produced.</p>
+    <p class="demo-note-cta"><a href="/app#try">Try a task on your own tools →</a></p>
+  </section>
+
   <!-- shared task input -->
   <section class="card task-card">
     <div class="examples-head">

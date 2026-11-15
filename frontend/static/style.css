@@ -158,3 +158,9 @@ pre .kw { color: var(--graph); font-weight: 500; }
 .arch path { fill: none; stroke: var(--muted); stroke-width: 1.5; }
 .arch .ah { fill: var(--muted); stroke: none; }
 #panel-how .card + .card, #panel-how .grid2 { margin-top: 16px; }
+
+/* "this is a demo benchmark" notice */
+.demo-note { border-color: rgba(201, 133, 0, 0.45); background: rgba(201, 133, 0, 0.07); }
+.demo-note h2 { font-size: 15px; margin: 0 0 6px; }
+.demo-note p { margin: 0; color: var(--text-2); font-size: 14px; line-height: 1.55; max-width: 980px; }
+.demo-note .demo-note-cta { margin-top: 8px; font-weight: 500; }
