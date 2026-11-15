@@ -12,6 +12,29 @@ On 53 held-out tasks with an LLM planner (`gemini:gemini-3.5-flash-lite`, 3 seed
 
 ![Learning curve](results/plots/learning_curve.png)
 
+## Use it (hosted, free)
+
+1. **Get a workspace key:** [app-production-17690aee.up.railway.app/app](https://app-production-17690aee.up.railway.app/app). It's free, with no card and no LLM key. Routing is LLM-free, and your own agent does the planning.
+2. **Bring your tools**, either of two ways:
+   - `toolgraph sync --key tg_...` uploads the tool definitions of every MCP server already configured in Claude Code, Claude Desktop or Cursor. Only names, descriptions and schemas leave your machine; env vars and tokens don't.
+   - Or, in the dashboard: paste a `tools/list` JSON, give a remote MCP URL, or pick presets.
+3. **Connect your agent** to the hosted MCP endpoint:
+
+```bash
+claude mcp add --transport http toolgraph https://app-production-17690aee.up.railway.app/mcp --header "Authorization: Bearer tg_..."
+# Claude.ai → Settings → Connectors → custom connector URL: https://app-production-17690aee.up.railway.app/mcp/tg_...   (secret URL)
+# Cursor: {"mcpServers": {"toolgraph": {"url": "https://app-production-17690aee.up.railway.app/mcp", "headers": {"Authorization": "Bearer tg_..."}}}}
+```
+
+Your agent calls `find_tools(task)` and gets back only the tools that task needs. Each one comes with *why*: a direct match, or a prerequisite (e.g. `slack_list_channels` because it produces the `channel_id` that `slack_post_message` needs). After the task, the agent calls `report_outcome(task, tools, success)`, and your workspace's graph learns which chains work. The REST API is the same: `POST /v1/find_tools`, `POST /v1/outcome`.
+
+**How your tools become a graph.** Plain MCP schemas carry no types, so ToolGraph infers them (`backend/app/infer.py`):
+- *consumes*: required reference parameters (`channel_id`, `teamId`, `owner`/`repo`, `pull_number`), scoped per server.
+- *produces*: lookup or create verbs on the same entity (`list_channels` → `channel_id`; `create_issue` → `issue_number`), or the parameter appearing in `outputSchema`.
+- *capabilities*: canonical verb.object (`post_message` and `send_message` → `send.message`), shared across servers.
+
+Each workspace lives in its own vertex-id block of the same HydraDB graph, so the retrieval and learning code is the code the benchmark below measures.
+
 ---
 
 ## The problem
@@ -178,7 +201,7 @@ Source: `results/load.json`, hosted deployment, host `https://app-production-176
 ## What's measured, exactly
 
 - **Task success (primary).** A plan succeeds if every step's tool was in the retrieved context, every input was available when the step ran (given by the user or produced by an earlier step), and the goal types exist at the end (`backend/app/simulator.py`). Failure reasons: `tool_not_in_context`, `missing_input:<type>`, `goal_not_reached:<type>`, `empty_plan`, `too_many_steps`.
-- **Planner.** `PLANNER_BACKEND=llm` uses Claude (`claude-haiku-5-5`, temperature 0) with only the retrieved tool definitions. Every call is cached in `.cache/llm/`. `PLANNER_BACKEND=solver` swaps in an LLM-free planner: it finds the shortest valid plan using only the retrieved tools, which isolates whether retrieval put enough in context ("context sufficiency"). Every table says which planner produced it.
+- **Planner.** `PLANNER_BACKEND=llm` uses an LLM at temperature 0 with only the retrieved tool definitions (the published run: `gemini-3.5-flash-lite` via `LLM_PROVIDER=gemini`; Anthropic and Groq are also supported). Every call is cached in `.cache/llm/`. `PLANNER_BACKEND=solver` swaps in an LLM-free planner: it finds the shortest valid plan using only the retrieved tools, which isolates whether retrieval put enough in context ("context sufficiency"). Every table says which planner produced it.
 - **Tasks.** 149 tasks from 47 task families (1–5 steps; 37% have 1–2 steps, 32% have 3, 31% have 4–5). The split is stratified, with a third of each family held out (96 train / 53 test). Gold tool lists come from a shortest-plan solver. They're used only to report recall, never for learning.
 - **Fairness.** Every strategy gets the user's supplied inputs: in words for the planner, appended to the vector query, and as `$known` for the graph.
 
@@ -188,6 +211,7 @@ Source: `results/load.json`, hosted deployment, host `https://app-production-176
 - **Small catalog.** 134 real-shaped tools. The scale test uses synthetic look-alikes, and real fleets are messier.
 - **Learning needs repetition.** Learning helps task families it has seen. A brand-new kind of task gets the static graph.
 - **Not built:** entity memory (remembering resolved ids such as "#incidents → C024") and learned multi-hop skill shortcuts. Both were cut for time.
+- **Workspace typing is heuristic.** For your own tools, types are inferred from parameter names and tool names. It's reliable for id-style parameters (`*_id`, `*_number`, `owner`/`repo`), but it misses outputs that are only described in prose (e.g. a `ts` returned by `post_message`). Tools may carry explicit `consumes`/`produces` to override it. The benchmark numbers come from the hand-typed demo catalog, not from inferred workspaces.
 - **Partial coverage.** Retrieval is ~3.5 HydraDB round trips per task, and tool recall is not 100%.
 
 ## Install from the command line
@@ -239,7 +263,9 @@ Deploying (Railway: two services + a volume): see [`infra/README.md`](infra/READ
 
 - **Buyers:** teams running agents across many MCP servers (internal copilots, support and ops agents), agent-platform companies, and MCP gateway vendors.
 - **Pain:** context bloat (cost and latency), tool-selection errors, and accuracy that degrades as catalogs grow. See the scale table: vector recall falls much faster than the graph's.
-- **Offer:** a drop-in tool router, `retrieve(task, inputs) → tools`, as an API or an MCP meta-tool. Priced per 1k routed calls or by catalog size, and self-hostable on HydraDB for enterprises. The learned state is the moat: it gets better on *your* workload.
+- **Offer:** a hosted MCP meta-tool and API (`find_tools`, `report_outcome`) that any agent adds by URL. The learned state is the moat: it gets better on *your* workload.
+- **Pricing:** **Free** $0 (1 workspace, 300 tools, 10k `find_tools`/month, learning from outcomes). **Team** $29/month (several workspaces, shared team learning, usage analytics; coming soon). **Enterprise:** self-host on your own HydraDB. Free during launch; no billing is wired up yet.
+- **Who saves what:** agent builders paying per token send ~600 tool tokens per task instead of ~8.5k (input $ per 1k tasks is in the results table). Users on flat plans (Claude Pro, Cursor) get a cleaner context and fewer wrong-tool picks. Claude Code already defers MCP tools with its own tool search. ToolGraph adds typed prerequisite chains, learning from outcomes, and one graph for any agent.
 - **Proof points:** the success delta vs all-tools and vector search, the token reduction, and input cost per 1k tasks. All are in the tables above and regenerated from `results/`.
 
 ## Repo map
@@ -247,8 +273,9 @@ Deploying (Railway: two services + a volume): see [`infra/README.md`](infra/READ
 ```
 backend/app/        config, db (HydraDB HTTP client), catalog, ingest, embed, tokens,
                     retrieve/{all_tools,vector,graph}.py, simulator, planner, llm (cached), learner, main (FastAPI)
-toolgraph_cli/      toolgraph CLI + MCP stdio server (stdlib only; thin client of the API)
-frontend/           one page: route a task · compare strategies · results · how it works
+toolgraph_cli/      toolgraph CLI (route/compare/sync/find) + MCP stdio server (stdlib only; thin client of the API)
+                    ctx (active workspace), workspaces (keys, persistence), infer (schema → types), saas (REST + hosted MCP)
+frontend/           index.html (landing) · app.html (workspace dashboard) · playground.html (benchmark: route, compare, results, how it works)
 data/               catalog/<server>.json, taxonomy.json, tasks/{train,test}.jsonl
 eval/               run_benchmark.py, ablations.py, scale_test.py, plots.py
 scripts/            build_catalog.py, generate_tasks.py, smoke_hydradb.py, calibrate_intent.py, readme_results.py
