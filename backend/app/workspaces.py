@@ -38,7 +38,7 @@ WS_Q = (
     "n.key_hash = row.key_hash, n.created = row.created, n.calls = row.calls, n.outcomes = row.outcomes"
 )
 USAGE_Q = (
-    "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Usage, n.key = 'usage', n.signups = row.signups, "
+    "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Usage, n.key = row.key, n.signups = row.signups, "
     "n.find_tools = row.find_tools, n.outcomes = row.outcomes, n.last_ws = row.last_ws"
 )
 SPEC_Q = "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Tool, n.spec = row.spec, n.source = row.source"
@@ -241,7 +241,7 @@ class Registry:
                           {"lo": lo, "hi": lo + ctx.WS_ID_SPAN})[0]["c"]:
                     raise ValueError("workspace id block not empty; refusing to reuse it")
             self.last_ws = n
-            db.run_raw(USAGE_Q, {"rows": [{"id": USAGE_ID, **self.usage, "last_ws": n}]})
+            db.run_raw(USAGE_Q, {"rows": [{"id": USAGE_ID, "key": "usage", **self.usage, "last_ws": n}]})
             base = slugify(name)[:24] or "ws"
             s = f"{base}-{secrets.token_hex(3)}"
             key = new_key()
@@ -315,7 +315,7 @@ class Registry:
         if rows:
             db.batch(WS_Q, rows)
         if usage:
-            db.run_raw(USAGE_Q, {"rows": [{"id": USAGE_ID, **usage}]})
+            db.run_raw(USAGE_Q, {"rows": [{"id": USAGE_ID, "key": "usage", **usage}]})
         return len(rows)
 
     # ---- tools
@@ -453,5 +453,5 @@ def flusher(stop: threading.Event, every_s: float = 20.0) -> None:
     while not stop.wait(every_s):
         try:
             REGISTRY.flush()
-        except Exception:  # never crash the app over a counter
-            pass
+        except Exception as e:  # never crash the app over a counter, but say so
+            print(f"usage flush failed: {e}", flush=True)
