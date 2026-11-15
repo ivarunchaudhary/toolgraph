@@ -7,6 +7,7 @@
   POST /api/demo/reset        restore the published learned state; rate limited per IP
   GET  /api/results           the measured results/*.json (nothing computed here)
   GET  /api/graph/stats       node / edge counts straight from HydraDB
+  GET  /api/datatypes         the typed inputs a task can supply as `given`
   GET  /api/examples          demo tasks (with their goal types, so /api/run can be simulated)
 
 Run: uvicorn backend.app.main:app --port 8000
@@ -160,6 +161,7 @@ class RetrieveReq(BaseModel):
     given: list[str] = []
     strategy: str = "graph"
     budget: int = Field(config.DEFAULT_BUDGET, ge=1, le=30)
+    include_specs: bool = False  # also return each tool's definition (name, description, input_schema) as sent to a planner
 
 
 class RunReq(BaseModel):
@@ -207,6 +209,9 @@ def api_retrieve(req: RetrieveReq):
     out = r.to_dict()
     out["all_tools_tokens"] = all_tools.retrieve(req.task).approx_tokens
     out["debug"] = {k: v for k, v in r.debug.items() if k in ("caps", "intents", "servers", "allowed", "rows", "traversal")}
+    if req.include_specs:
+        cat = get_catalog()
+        out["specs"] = [json.loads(cat.tools[t].definition_text()) for t in r.tools if t in cat.tools]
     return out
 
 
@@ -292,6 +297,13 @@ def api_stats():
     st["catalog"] = {"tools": len(cat.tools), "servers": len(cat.servers), "types": len(cat.datatypes), "capabilities": len(cat.capabilities)}
     st["learned"] = {"intents": len(learner.STATE.intents), "solved_with": len(learner.STATE.solved), "next": len(learner.STATE.next)}
     return st
+
+
+@app.get("/api/datatypes")
+def api_datatypes():
+    """The typed inputs a task can supply as `given` (e.g. a repo path or a Slack channel id)."""
+    cat = get_catalog()
+    return {"datatypes": [{"id": k, "description": v.get("description", "")} for k, v in sorted(cat.datatypes.items())]}
 
 
 @app.get("/api/examples")

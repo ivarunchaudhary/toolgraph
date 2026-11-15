@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "toolgraph"
+version = "0.1.0"
+description = "Graph-native tool routing for MCP agents on HydraDB: CLI + MCP server (find_tools)"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = []  # stdlib only: the CLI talks HTTP to a ToolGraph server; `toolgraph up` runs the server in Docker
+
+[project.urls]
+Repository = "https://github.com/ivarunchaudhary/toolgraph"
+
+[project.scripts]
+toolgraph = "toolgraph_cli.cli:main"
+
+[tool.setuptools]
+packages = ["toolgraph_cli"]

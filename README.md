@@ -174,11 +174,30 @@ Source: `results/load_local.json`, local Docker stack on a laptop (app + HydraDB
 - **Not built:** entity memory (remembering resolved ids such as "#incidents → C024") and learned multi-hop skill shortcuts. Both were cut for time.
 - **Partial coverage.** Retrieval is ~3.5 HydraDB round trips per task, and tool recall is not 100%.
 
+## Install from the command line
+
+```bash
+pipx install git+https://github.com/ivarunchaudhary/toolgraph   # or: pip install git+https://...
+toolgraph up                     # fetches the repo to ~/.toolgraph, starts HydraDB + app in Docker → http://127.0.0.1:8000
+toolgraph route "post the failing CI logs for my repo to the #eng slack channel"
+toolgraph compare "open a linear issue for the newest pagerduty incident"
+toolgraph status                 # server + HydraDB health, node/edge counts
+```
+
+The CLI has no Python dependencies; it talks HTTP to a ToolGraph server (`--url` or `TOOLGRAPH_URL`, default `http://127.0.0.1:8000`). `toolgraph up` needs Docker and git.
+
+**Use it from an agent (MCP).** `toolgraph mcp` runs an MCP server on stdio with a `find_tools(task, given?, budget?)` tool that returns only the tool definitions a task needs, prerequisites included:
+
+```bash
+claude mcp add toolgraph -- toolgraph mcp
+claude mcp add toolgraph -e TOOLGRAPH_URL=https://<host> -- toolgraph mcp   # against a hosted server
+```
+
 ## Run it locally
 
 ```bash
-git clone <this repo> && cd toolgraph
-cp .env.example .env                       # add ANTHROPIC_API_KEY to use the LLM planner
+git clone https://github.com/ivarunchaudhary/toolgraph && cd toolgraph
+cp .env.example .env                       # optional: an LLM key (LLM_PROVIDER=anthropic|gemini|groq) for the LLM planner
 docker compose --profile app up -d --build # HydraDB node + indexer + app → http://localhost:8000
 ```
 
@@ -210,6 +229,7 @@ Deploying (Railway: two services + a volume): see [`infra/README.md`](infra/READ
 ```
 backend/app/        config, db (HydraDB HTTP client), catalog, ingest, embed, tokens,
                     retrieve/{all_tools,vector,graph}.py, simulator, planner, llm (cached), learner, main (FastAPI)
+toolgraph_cli/      toolgraph CLI + MCP stdio server (stdlib only; thin client of the API)
 frontend/           one page: route a task · compare strategies · results · how it works
 data/               catalog/<server>.json, taxonomy.json, tasks/{train,test}.jsonl
 eval/               run_benchmark.py, ablations.py, scale_test.py, plots.py
