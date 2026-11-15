@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Post-deploy smoke test: ./infra/smoke.sh https://<app-host>
-set -euo pipefail
+set -eu  # no pipefail: `curl | grep -q` would fail on SIGPIPE when grep exits early; grep still fails on bad output
 BASE="${1:?usage: infra/smoke.sh https://app-host}"
 pass() { printf '  ok   %s\n' "$1"; }
 fail() { printf '  FAIL %s\n' "$1"; exit 1; }
