@@ -38,8 +38,15 @@ def parse_plan(text: str) -> list[dict]:
     out = []
     for s in steps:
         if isinstance(s, dict) and isinstance(s.get("tool"), str):
-            out.append({"tool": s["tool"].strip(), "why": str(s.get("why", ""))[:200]})
+            out.append({"tool": canonical_tool(s["tool"]), "why": str(s.get("why", ""))[:200]})
     return out
+
+
+def canonical_tool(name: str) -> str:
+    """Models sometimes drop the `tool:` id prefix or wrap names in backticks; map back to the catalog id.
+    A tool that isn't in context still fails in the simulator: this only fixes the spelling."""
+    name = name.strip().strip("`'\" ")
+    return name if name.startswith("tool:") else f"tool:{name}"
 
 
 def solver_plan(given: list[str], goal: list[str], tool_ids: list[str]) -> dict:

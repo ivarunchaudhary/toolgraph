@@ -7,7 +7,7 @@ ingest:        ## catalog -> HydraDB (idempotent)
 	$(PY) -m backend.app.ingest
 test:
 	$(PY) -m pytest -q tests
-bench:         ## LLM planner, 3 seeds x 5 batches -> results/benchmark.json (needs ANTHROPIC_API_KEY)
+bench:         ## LLM planner, 3 seeds x 5 batches -> results/benchmark.json (needs an LLM key: LLM_PROVIDER=anthropic|gemini|groq)
 	cd eval && ../$(PY) run_benchmark.py --seeds 3 --iters 5 && ../$(PY) ablations.py --seeds 3
 sufficiency:   ## LLM-free solver planner (context sufficiency) -> results/sufficiency.json
 	cd eval && PLANNER_BACKEND=solver ../$(PY) run_benchmark.py --seeds 3 --out sufficiency && PLANNER_BACKEND=solver ../$(PY) ablations.py --seeds 3 --out ablations_sufficiency
