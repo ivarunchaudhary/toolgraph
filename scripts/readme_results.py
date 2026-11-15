@@ -52,6 +52,9 @@ if B:
         f"ToolGraph goes from **{pct(s0)} → {pct(sN)} task success** as it learns from outcomes, vs "
         f"**{pct(bl['vector_k15']['success_rate']['mean'])}** for vector top-15, while sending "
         f"**{tok:,.0f} tool tokens per task instead of {tok_all:,.0f}** (−{pct(1 - tok / tok_all)}) with all tools in context."
+        + ("" if bname == "benchmark" else
+           f" (All tools in context scores {pct(bl['all_tools']['success_rate']['mean'])} here by construction: a perfect planner is never "
+           "confused by extra tools, so this setting only shows what extra context *costs*; the LLM-planner run shows what it does to accuracy.)")
     )
     price = bl["all_tools"]["cost_per_1k_tasks_usd"]["mean"] / bl["all_tools"]["context_tokens"]["mean"]
     rows = ["| strategy | task success | tool recall | tool tokens / task | input $ / 1k tasks | DB round trips | retrieval p50 / p95 |",

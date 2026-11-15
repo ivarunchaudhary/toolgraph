@@ -7,7 +7,7 @@ ToolGraph is a tool router for AI agents. It stores MCP tools, the capabilities 
 **Live demo:** _link added after deploy_ · **Walkthrough (Loom):** _link added after recording_ · HydraDB Hackathon, Track 2
 
 <!-- gen:headline -->
-On 53 held-out tasks (3 seeds; context sufficiency: the planner is an LLM-free solver that finds the shortest valid plan using **only the retrieved tools**, so success measures whether retrieval put enough in context): ToolGraph goes from **70% → 91% task success** as it learns from outcomes, vs **70%** for vector top-15, while sending **606 tool tokens per task instead of 8,524** (−93%) with all tools in context.
+On 53 held-out tasks (3 seeds; context sufficiency: the planner is an LLM-free solver that finds the shortest valid plan using **only the retrieved tools**, so success measures whether retrieval put enough in context): ToolGraph goes from **70% → 91% task success** as it learns from outcomes, vs **70%** for vector top-15, while sending **606 tool tokens per task instead of 8,524** (−93%) with all tools in context. (All tools in context scores 100% here by construction: a perfect planner is never confused by extra tools, so this setting only shows what extra context *costs*; the LLM-planner run shows what it does to accuracy.)
 <!-- /gen:headline -->
 
 ![Learning curve](results/plots/learning_curve.png)
