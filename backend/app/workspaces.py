@@ -225,7 +225,7 @@ class Registry:
         return {"workspaces": len(rows), "usage": self.usage}
 
     # ---- create / auth
-    def create(self, name: str, db: HydraDB | None = None) -> tuple[Workspace, str]:
+    def create(self, name: str, db: HydraDB | None = None, count: bool = True) -> tuple[Workspace, str]:
         db = db or get_db()
         with self.lock:
             if len(self.by_slug) >= MAX_WORKSPACES:
@@ -238,8 +238,9 @@ class Registry:
             db.run_raw(WS_Q, {"rows": [self._row(ws)]})
             self.by_hash[ws.key_hash] = ws
             self.by_slug[ws.slug] = ws
-            self.usage["signups"] += 1
-            self.usage_dirty = True
+            if count:
+                self.usage["signups"] += 1
+                self.usage_dirty = True
         return ws, key
 
     def rotate(self, ws: Workspace, db: HydraDB | None = None) -> str:
@@ -252,6 +253,19 @@ class Registry:
             self.by_hash.pop(old, None)
             self.by_hash[ws.key_hash] = ws
         return key
+
+    def delete(self, ws: Workspace, db: HydraDB | None = None) -> None:
+        db = db or get_db()
+        lo, hi = ws.offset, ws.offset + ctx.WS_ID_SPAN
+        with ws.lock, self.lock:
+            for label in ("Intent", "Tool", "Capability", "DataType", "Server"):
+                ids = [r["id"] for r in db.run(f"MATCH (n:{label}) WHERE n.id >= $lo AND n.id < $hi RETURN n.id AS id", {"lo": lo, "hi": hi})]
+                if ids:
+                    db.batch("UNWIND $rows AS row MATCH (n {id: row.id}) DETACH DELETE n", [{"id": i} for i in ids])
+            db.run_raw("UNWIND $rows AS row MATCH (n {id: row.id}) DETACH DELETE n", {"rows": [{"id": META_BASE + ws.n}]})
+            self.by_hash.pop(ws.key_hash, None)
+            self.by_slug.pop(ws.slug, None)
+            ws.runtime, ws.specs = None, {}
 
     def auth(self, key: str | None) -> Workspace | None:
         if not key:

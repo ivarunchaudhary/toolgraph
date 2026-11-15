@@ -95,6 +95,11 @@ def _limit(lim: Limiter, key: str, what: str) -> None:
         raise HTTPException(429, f"rate limit: {lim.limit} {what} per {int(lim.window)} s")
 
 
+def counted(req: Request) -> bool:
+    """Our own smoke tests send x-toolgraph-smoke so the public usage counters only count real use."""
+    return req.headers.get("x-toolgraph-smoke") != "1"
+
+
 def key_from(req: Request, path_key: str | None = None) -> str | None:
     if path_key:
         return path_key
@@ -137,7 +142,8 @@ def _resolve_given(rt, given: list[str]) -> list[str]:
     return list(dict.fromkeys(out))
 
 
-def find_tools(ws: Workspace | None, task: str, given: list[str] | None = None, budget: int | None = None) -> dict:
+def find_tools(ws: Workspace | None, task: str, given: list[str] | None = None, budget: int | None = None,
+               count: bool = True) -> dict:
     task = (task or "").strip()
     if len(task) < 3 or len(task) > 1000:
         raise ValueError("`task` must be 3-1000 characters")
@@ -159,7 +165,8 @@ def find_tools(ws: Workspace | None, task: str, given: list[str] | None = None, 
             t = cat.tools[tid]
             tools.append({"server": t.server, "name": t.name, "description": t.description,
                           "input_schema": t.input_schema, "why": r.debug.get("why", {}).get(tid)})
-    REGISTRY.count(ws, "find_tools")
+    if count:
+        REGISTRY.count(ws, "find_tools")
     return {
         "workspace": ws.slug if ws else "demo",
         "tools": tools,
@@ -193,7 +200,7 @@ def _resolve_tool(cat, name: str) -> str | None:
 
 
 def report_outcome(ws: Workspace | None, task: str, tools: list[str], success: bool, missing: str | None = None,
-                   given: list[str] | None = None) -> dict:
+                   given: list[str] | None = None, count: bool = True) -> dict:
     if ws is None:
         return {"learned": False, "note": "the public demo graph does not learn from anonymous reports; "
                                           "create a free workspace to get a graph that learns from your agent"}
@@ -207,7 +214,8 @@ def report_outcome(ws: Workspace | None, task: str, tools: list[str], success: b
             reason = f"missing_input:{m[0]}" if m else None
         changes = learner.learn(task, g, plan, bool(success), reason, mentioned_servers(task))
         intent = ctx.intent_key(changes["intent"]) if changes.get("intent") is not None else None
-    REGISTRY.count(ws, "outcomes")
+    if count:
+        REGISTRY.count(ws, "outcomes")
     return {"learned": True, "matched_tools": plan, "unmatched": [x for x in tools or [] if not _resolve_tool(rt.catalog, x)],
             "intent": intent,
             "reinforced" if success else "penalised": changes.get("solved"), "gap": changes.get("gap")}
@@ -258,7 +266,7 @@ def connect_info(req: Request, ws: Workspace | None, key: str | None) -> dict:
 def create_workspace(body: CreateWs, request: Request):
     _limit(SIGNUP_LIMIT, client_ip(request), "workspaces")
     try:
-        ws, key = REGISTRY.create(body.name)
+        ws, key = REGISTRY.create(body.name, count=counted(request))
     except ValueError as e:
         raise HTTPException(503, str(e)) from None
     return {"workspace": ws.slug, "name": ws.name, "key": key,
@@ -351,7 +359,7 @@ def api_find_tools(body: FindReq, request: Request):
         raise HTTPException(401, "unknown workspace key")
     _limit(FIND_LIMIT, ws.slug if ws else "ip:" + client_ip(request), "find_tools calls")
     try:
-        return find_tools(ws, body.task, body.given, body.budget)
+        return find_tools(ws, body.task, body.given, body.budget, count=counted(request))
     except ValueError as e:
         raise HTTPException(400, str(e)) from None
 
@@ -360,12 +368,21 @@ def api_find_tools(body: FindReq, request: Request):
 def api_outcome(body: OutcomeReq, request: Request):
     ws = require_ws(request)
     _limit(FIND_LIMIT, ws.slug, "calls")
-    return report_outcome(ws, body.task, body.tools, body.success, body.missing, body.given)
+    return report_outcome(ws, body.task, body.tools, body.success, body.missing, body.given, count=counted(request))
 
 
 @router.get("/v1/usage")
 def usage():
-    return {**REGISTRY.usage, "workspaces": len(REGISTRY.by_slug)}
+    # "workspaces" counts real sign-ups (smoke-test workspaces are excluded and deleted after the test)
+    return {**REGISTRY.usage, "workspaces": REGISTRY.usage.get("signups", 0)}
+
+
+@router.delete("/v1/workspace")
+def delete_workspace(request: Request):
+    """Delete this workspace and everything in it (tools, learned edges, counters). Cannot be undone."""
+    ws = require_ws(request)
+    REGISTRY.delete(ws)
+    return {"deleted": ws.slug}
 
 
 # ---------------------------------------------------------------- MCP (Streamable HTTP, JSON responses)
@@ -420,7 +437,7 @@ def _text(obj, is_error: bool = False) -> dict:
     return out
 
 
-def mcp_handle(ws: Workspace | None, msg: dict, ip: str) -> dict | None:
+def mcp_handle(ws: Workspace | None, msg: dict, ip: str, count: bool = True) -> dict | None:
     mid, method, params = msg.get("id"), msg.get("method"), msg.get("params") or {}
     if mid is None:
         return None
@@ -454,10 +471,10 @@ def mcp_handle(ws: Workspace | None, msg: dict, ip: str) -> dict | None:
             if name == "find_tools":
                 if not FIND_LIMIT.hit(ws.slug if ws else "ip:" + ip):
                     return ok(_text("rate limited: try again in a minute", True))
-                return ok(_text(find_tools(ws, args.get("task", ""), args.get("given"), args.get("budget"))))
+                return ok(_text(find_tools(ws, args.get("task", ""), args.get("given"), args.get("budget"), count=count)))
             if name == "report_outcome":
                 return ok(_text(report_outcome(ws, args.get("task", ""), args.get("tools") or [], bool(args.get("success")),
-                                               args.get("missing"), args.get("given"))))
+                                               args.get("missing"), args.get("given"), count=count)))
             if name == "list_servers":
                 if ws is None:
                     return ok(_text({"workspace": "demo", "servers": [p for p in presets()["presets"]]}))
@@ -483,12 +500,12 @@ async def _mcp(request: Request, path_key: str | None):
     import anyio
 
     if isinstance(body, list):  # JSON-RPC batch (2025-03-26)
-        outs = [await anyio.to_thread.run_sync(mcp_handle, ws, m, ip) for m in body if isinstance(m, dict)]
+        outs = [await anyio.to_thread.run_sync(mcp_handle, ws, m, ip, counted(request)) for m in body if isinstance(m, dict)]
         outs = [o for o in outs if o is not None]
         return JSONResponse(outs) if outs else Response(status_code=202)
     if not isinstance(body, dict):
         return JSONResponse({"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "invalid request"}}, status_code=400)
-    out = await anyio.to_thread.run_sync(mcp_handle, ws, body, ip)
+    out = await anyio.to_thread.run_sync(mcp_handle, ws, body, ip, counted(request))
     if out is None:
         return Response(status_code=202)
     return JSONResponse(out)
