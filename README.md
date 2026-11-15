@@ -7,7 +7,7 @@ ToolGraph is a tool router for AI agents. It stores MCP tools, the capabilities 
 **Live demo:** [app-production-17690aee.up.railway.app](https://app-production-17690aee.up.railway.app) · **Walkthrough (Loom):** _link added after recording_ · HydraDB Hackathon, Track 2
 
 <!-- gen:headline -->
-On 53 held-out tasks (3 seeds; context sufficiency: the planner is an LLM-free solver that finds the shortest valid plan using **only the retrieved tools**, so success measures whether retrieval put enough in context): ToolGraph goes from **70% → 91% task success** as it learns from outcomes, vs **70%** for vector top-15, while sending **606 tool tokens per task instead of 8,524** (−93%) with all tools in context. (All tools in context scores 100% here by construction: a perfect planner is never confused by extra tools, so this setting only shows what extra context *costs*; the LLM-planner run shows what it does to accuracy.)
+On 53 held-out tasks with an LLM planner (`gemini:gemini-3.5-flash-lite`, 3 seeds): ToolGraph goes from **66% → 88% task success** as it learns from outcomes, vs **66%** for vector top-15 and **96%** with every tool in context, while sending **607 tool tokens per task instead of 8,524** (−93%). With a perfect solver planner instead (context sufficiency), on the same 53 held-out tasks (3 seeds; context sufficiency: the planner is an LLM-free solver that finds the shortest valid plan using **only the retrieved tools**, so success measures whether retrieval put enough in context): ToolGraph goes from **70% → 91% task success** as it learns from outcomes, vs **70%** for vector top-15, while sending **606 tool tokens per task instead of 8,524** (−93%) with all tools in context. (All tools in context scores 100% here by construction: a perfect planner is never confused by extra tools, so this setting only shows what extra context *costs*; the LLM-planner run shows what it does to accuracy.)
 <!-- /gen:headline -->
 
 ![Learning curve](results/plots/learning_curve.png)
@@ -134,17 +134,17 @@ Failure reasons, summed over seeds: vector_k15: empty_plan 9, goal_not_reached 3
 **With a real LLM planner.** The same benchmark with the solver swapped for an LLM that writes the plan from the retrieved tool definitions:
 
 <!-- gen:llm -->
-Source: `results/benchmark.json`, LLM planner `gemini:gemini-3.5-flash-lite`, **1 seed only** (the free-tier daily request cap stopped the next seed), same 96 train / 53 test split. Here extra tools can confuse the planner, so all-tools is no longer perfect.
+Source: `results/benchmark.json`, LLM planner `gemini:gemini-3.5-flash-lite`, mean ± std over 3 seeds, same 96 train / 53 test split. Here extra tools can confuse the planner, so all-tools is no longer perfect.
 
 | strategy | task success | tool recall | tool tokens / task |
 |---|---|---|---|
-| `all_tools` | 96.2% | 100.0% | 8,524 |
-| `vector_k8` | 50.9% | 72.1% | 506 |
-| `vector_k15` | 66.0% | 84.0% | 956 |
-| graph, static (iteration 0) | 66.0% | 86.8% | 583 |
-| **graph, after 5 training batches** | 88.7% | 94.1% | 604 |
+| `all_tools` | 96.2% ± 0.0 | 100.0% ± 0.0 | 8,524 |
+| `vector_k8` | 50.9% ± 0.0 | 72.1% ± 0.0 | 506 |
+| `vector_k15` | 66.0% ± 0.0 | 84.0% ± 0.0 | 956 |
+| graph, static (iteration 0) | 66.0% ± 0.0 | 86.8% ± 0.0 | 583 |
+| **graph, after 5 training batches** | 88.1% ± 2.4 | 94.5% ± 0.7 | 607 |
 
-Learning curve: 66.0% → 73.6% → 75.5% → 79.2% → 83.0% → 88.7%.
+Learning curve (mean of seeds): 66.0% → 73.0% → 74.8% → 80.5% → 84.9% → 88.1%.
 <!-- /gen:llm -->
 
 **Scale.** To crowd the catalog, I cloned real servers into look-alike servers: same capabilities, brand-specific id types and shared user-supplied types. The tasks still name the real servers.

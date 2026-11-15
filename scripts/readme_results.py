@@ -29,10 +29,11 @@ def pm(o, d=1):
     return f"{o['mean'] * 100:.{d}f}% ± {o['std'] * 100:.{d}f}"
 
 
-bname, B = load("benchmark", "sufficiency")
-LLM = None
-if bname == "benchmark" and B["config"]["seeds"] < 3:  # partial LLM run: headline stays on the 3-seed solver run
-    LLM, (bname, B) = B, load("sufficiency")
+# Results table = the solver run (it carries latency / round trips / cost); the LLM-planner run gets its own block.
+# The headline leads with the LLM run once it has 3 seeds, and falls back to the solver run otherwise.
+_, LLM = load("benchmark")
+bname, B = load("sufficiency")
+LLM_FULL = bool(LLM) and LLM["config"]["seeds"] >= 3
 aname, A = load("ablations", "ablations_sufficiency")
 _, SC = load("scale")
 lname, L = load("load", "load_local")
@@ -50,8 +51,17 @@ if B:
     gl, bl = B["aggregate"]["graph_learning"], B["aggregate"]["baselines"]
     s0, sN = gl["success_rate"][0]["mean"], gl["success_rate"][-1]["mean"]
     tok, tok_all = gl["context_tokens"][-1]["mean"], bl["all_tools"]["context_tokens"]["mean"]
-    blocks["headline"] = (
-        f"On {B['config']['n_test']} held-out tasks ({B['config']['seeds']} seeds; {planner_note(B, bname)}): "
+    blocks["headline"] = "" if not LLM_FULL else (
+        lambda g, b: f"On {LLM['config']['n_test']} held-out tasks with an LLM planner (`{LLM['config']['planner']}`, "
+        f"{LLM['config']['seeds']} seeds): ToolGraph goes from **{pct(g['success_rate'][0]['mean'])} → "
+        f"{pct(g['success_rate'][-1]['mean'])} task success** as it learns from outcomes, vs **{pct(b['vector_k15']['success_rate']['mean'])}** "
+        f"for vector top-15 and **{pct(b['all_tools']['success_rate']['mean'])}** with every tool in context, while sending "
+        f"**{g['context_tokens'][-1]['mean']:,.0f} tool tokens per task instead of {b['all_tools']['context_tokens']['mean']:,.0f}** "
+        f"(−{pct(1 - g['context_tokens'][-1]['mean'] / b['all_tools']['context_tokens']['mean'])}). "
+    )(LLM["aggregate"]["graph_learning"], LLM["aggregate"]["baselines"])
+    blocks["headline"] += (
+        ("With a perfect solver planner instead (context sufficiency), on the same " if LLM_FULL else "On ")
+        + f"{B['config']['n_test']} held-out tasks ({B['config']['seeds']} seeds; {planner_note(B, bname)}): "
         f"ToolGraph goes from **{pct(s0)} → {pct(sN)} task success** as it learns from outcomes, vs "
         f"**{pct(bl['vector_k15']['success_rate']['mean'])}** for vector top-15, while sending "
         f"**{tok:,.0f} tool tokens per task instead of {tok_all:,.0f}** (−{pct(1 - tok / tok_all)}) with all tools in context."
@@ -89,17 +99,19 @@ if B:
 
 if LLM:
     g, b = LLM["aggregate"]["graph_learning"], LLM["aggregate"]["baselines"]
+    c = LLM["config"]
+    f = pm if c["seeds"] >= 3 else (lambda o: pct(o["mean"], 1))
     rows = ["| strategy | task success | tool recall | tool tokens / task |", "|---|---|---|---|"]
     for k in ("all_tools", "vector_k8", "vector_k15"):
-        rows.append(f"| `{k}` | {pct(b[k]['success_rate']['mean'], 1)} | {pct(b[k]['tool_recall']['mean'], 1)} | {b[k]['context_tokens']['mean']:,.0f} |")
+        rows.append(f"| `{k}` | {f(b[k]['success_rate'])} | {f(b[k]['tool_recall'])} | {b[k]['context_tokens']['mean']:,.0f} |")
     for i, name in ((0, "graph, static (iteration 0)"), (len(g["success_rate"]) - 1, f"**graph, after {len(g['success_rate']) - 1} training batches**")):
-        rows.append(f"| {name} | {pct(g['success_rate'][i]['mean'], 1)} | {pct(g['tool_recall'][i]['mean'], 1)} | {g['context_tokens'][i]['mean']:,.0f} |")
-    c = LLM["config"]
+        rows.append(f"| {name} | {f(g['success_rate'][i])} | {f(g['tool_recall'][i])} | {g['context_tokens'][i]['mean']:,.0f} |")
+    seeds = (f"mean ± std over {c['seeds']} seeds" if c["seeds"] >= 3 else
+             f"**{c['seeds']} seed only** (the free-tier daily request cap stopped the next seed)")
     blocks["llm"] = (
-        f"Source: `results/benchmark.json`, LLM planner `{c['planner']}`, **{c['seeds']} seed only** (the free-tier daily "
-        f"request cap stopped the next seed), same {c['n_train']} train / {c['n_test']} test split. Here extra tools can confuse "
-        "the planner, so all-tools is no longer perfect.\n\n" + "\n".join(rows)
-        + "\n\nLearning curve: " + " → ".join(pct(x["mean"], 1) for x in g["success_rate"]) + "."
+        f"Source: `results/benchmark.json`, LLM planner `{c['planner']}`, {seeds}, same {c['n_train']} train / "
+        f"{c['n_test']} test split. Here extra tools can confuse the planner, so all-tools is no longer perfect.\n\n" + "\n".join(rows)
+        + "\n\nLearning curve (mean of seeds): " + " → ".join(pct(x["mean"], 1) for x in g["success_rate"]) + "."
     )
 
 if A:
