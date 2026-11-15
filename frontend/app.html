@@ -80,8 +80,19 @@
           <div><dt>Tools</dt><dd><span id="st-tools">–</span> <small id="st-tools-lim"></small></dd></div>
           <div><dt>find_tools calls</dt><dd id="st-calls">–</dd></div>
           <div><dt>Outcomes reported</dt><dd id="st-outcomes">–</dd></div>
+          <div><dt>Agent</dt><dd id="st-agent">–</dd></div>
         </dl>
       </div>
+
+      <!-- setup status: tools added, agent connected, first call -->
+      <section class="box setup" id="setup" aria-labelledby="setup-h" style="margin-top:24px">
+        <header><h2 id="setup-h">Get set up</h2><p id="setup-sub">Three steps. This updates live.</p></header>
+        <ol class="setup-steps">
+          <li id="ss-tools"><span class="ss-dot" aria-hidden="true"></span><div><b>Add your tools</b><p></p></div></li>
+          <li id="ss-agent"><span class="ss-dot" aria-hidden="true"></span><div><b>Connect your agent</b><p></p></div></li>
+          <li id="ss-call"><span class="ss-dot" aria-hidden="true"></span><div><b>First find_tools call</b><p></p></div></li>
+        </ol>
+      </section>
 
       <!-- servers -->
       <div class="cols" style="margin-top:24px">
@@ -161,7 +172,7 @@
           <button role="tab" type="button" id="tc-curl" aria-controls="pc-curl" aria-selected="false" tabindex="-1">curl</button>
         </div>
         <div class="tabpanel active" id="pc-cc" role="tabpanel" aria-labelledby="tc-cc">
-          <p class="lead" style="margin:0 0 10px">Run this once in your terminal.</p>
+          <p class="lead" style="margin:0 0 10px">Run this once in your terminal, then start a new Claude Code session (or run <code>/mcp</code>) to see <b>toolgraph</b>. <code>--scope user</code> makes it available in every project; without it, Claude Code only adds it to the folder you ran the command in.</p>
           <div class="code"><pre class="wrapline" id="c-cc"></pre><button class="btn sm copy" type="button" data-copy-from="#c-cc">Copy</button></div>
         </div>
         <div class="tabpanel" id="pc-ca" role="tabpanel" aria-labelledby="tc-ca">

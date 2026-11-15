@@ -115,6 +115,44 @@
     const none = !ws.tools;
     $("#try-empty").hidden = !none;
     $("#try-go").disabled = none;
+    const ag = ws.agent || {};
+    $("#st-agent").textContent = ag.last_seen ? `${ago(ag.seconds_ago)}` : "not yet";
+    renderSetup();
+  }
+
+  function ago(sec) {
+    if (sec == null) return "";
+    if (sec < 60) return "just now";
+    if (sec < 3600) return `${Math.round(sec / 60)} min ago`;
+    if (sec < 86400) return `${Math.round(sec / 3600)} h ago`;
+    return `${Math.round(sec / 86400)} d ago`;
+  }
+
+  let setupTimer = null;
+  function renderSetup() {
+    const ag = ws.agent || {};
+    const steps = [
+      ["#ss-tools", ws.tools > 0,
+        ws.tools > 0 ? `${fmt(ws.tools)} tools from ${fmt((ws.servers || []).length)} servers.`
+          : "Your workspace is empty, so find_tools has nothing to route to. Run toolgraph sync, paste a tool list, or pick presets below."],
+      ["#ss-agent", !!ag.last_seen,
+        ag.last_seen ? `${esc(ag.client || "An MCP client")} connected ${ago(ag.seconds_ago)}.`
+          : "Waiting for your agent. Run the command under Connect your agent, then open a new session in your agent and check /mcp."],
+      ["#ss-call", ws.calls > 0,
+        ws.calls > 0 ? `${fmt(ws.calls)} calls so far.` : 'Ask your agent to do something with your tools, e.g. "post a summary of my open PRs to Slack". It calls find_tools first.'],
+    ];
+    let done = 0;
+    for (const [sel, ok, text] of steps) {
+      const li = $(sel);
+      li.classList.toggle("done", ok);
+      li.querySelector("p").innerHTML = text;
+      done += ok ? 1 : 0;
+    }
+    $("#setup-sub").textContent = done === 3 ? "All set. Your agent is routing through ToolGraph." : `${done} of 3 done. This updates live.`;
+    clearTimeout(setupTimer);
+    if (done < 3) setupTimer = setTimeout(async () => {
+      try { ws = await api("/v1/workspace", { key }); renderHead(); renderServers(); } catch (_) { /* keep polling */ }
+    }, 10000);
   }
 
   const SOURCE = { paste: "pasted", url: "imported from URL", preset: "preset", sync: "synced" };

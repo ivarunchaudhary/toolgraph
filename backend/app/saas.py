@@ -254,7 +254,8 @@ def connect_info(req: Request, ws: Workspace | None, key: str | None) -> dict:
     return {
         "mcp_url": f"{b}/mcp",
         "secret_mcp_url": f"{b}/mcp/{k}",
-        "claude_code": f'claude mcp add --transport http toolgraph {b}/mcp --header "Authorization: Bearer {k}"',
+        # --scope user: available in every project (the default "local" scope only applies to the current folder)
+        "claude_code": f'claude mcp add --transport http --scope user toolgraph {b}/mcp --header "Authorization: Bearer {k}"',
         "claude_ai": f"Settings -> Connectors -> Add custom connector -> URL: {b}/mcp/{k}",
         "cursor": {"mcpServers": {"toolgraph": {"url": f"{b}/mcp", "headers": {"Authorization": f"Bearer {k}"}}}},
         "curl": f"curl -s {b}/v1/find_tools -H 'Authorization: Bearer {k}' -H 'content-type: application/json' "
@@ -448,10 +449,15 @@ def mcp_handle(ws: Workspace | None, msg: dict, ip: str, count: bool = True) -> 
     def err(code, message):
         return {"jsonrpc": "2.0", "id": mid, "error": {"code": code, "message": message}}
 
+    if ws is not None and count:
+        ci = params.get("clientInfo") or {} if method == "initialize" else {}
+        REGISTRY.seen(ws, " ".join(str(x) for x in (ci.get("name"), ci.get("version")) if x) or None)
     if method == "initialize":
         want = params.get("protocolVersion")
         if ws is not None:
-            where = f"workspace '{ws.slug}' ({ws.public()['tools']} tools)"
+            n_tools = ws.public()["tools"]
+            where = f"workspace '{ws.slug}' ({n_tools} tools)" + (
+                "; it has no tools yet: add your MCP servers with `toolgraph sync` or in the dashboard" if not n_tools else "")
         else:
             from .catalog import demo_catalog
 

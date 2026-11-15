@@ -21,7 +21,7 @@ On 53 held-out tasks with an LLM planner (`gemini:gemini-3.5-flash-lite`, 3 seed
 3. **Connect your agent** to the hosted MCP endpoint:
 
 ```bash
-claude mcp add --transport http toolgraph https://app-production-17690aee.up.railway.app/mcp --header "Authorization: Bearer tg_..."
+claude mcp add --transport http --scope user toolgraph https://app-production-17690aee.up.railway.app/mcp --header "Authorization: Bearer tg_..."
 # Claude.ai → Settings → Connectors → custom connector URL: https://app-production-17690aee.up.railway.app/mcp/tg_...   (secret URL)
 # Cursor: {"mcpServers": {"toolgraph": {"url": "https://app-production-17690aee.up.railway.app/mcp", "headers": {"Authorization": "Bearer tg_..."}}}}
 ```

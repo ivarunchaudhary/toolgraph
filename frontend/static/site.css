@@ -398,3 +398,12 @@ section[id], [id].box { scroll-margin-top: 76px; }
 .fb-tool { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); cursor: pointer; }
 .fb-tool input { accent-color: var(--tool); width: 15px; height: 15px; margin: 0; }
 @media (min-width: 961px) { .console #try-meter { position: sticky; top: 84px; } }
+
+/* setup checklist (dashboard) */
+.setup-steps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:14px}
+.setup-steps li{display:flex;gap:12px;align-items:flex-start}
+.setup-steps b{display:block;font-weight:600}
+.setup-steps p{margin:2px 0 0;color:var(--muted, #a1a09a);font-size:14px;line-height:1.5}
+.ss-dot{flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;border:2px solid var(--line, #3a3a36);position:relative}
+.setup-steps li.done .ss-dot{background:#199e70;border-color:#199e70}
+.setup-steps li.done .ss-dot::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}

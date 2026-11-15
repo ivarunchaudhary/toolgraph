@@ -201,7 +201,7 @@ def cmd_sync(a) -> int:
         ok += 1
     if ws is not None and ok:
         print(f"\nonly tool definitions were uploaded (no env vars, headers or tokens). Connect your agent:\n"
-              f"  claude mcp add --transport http toolgraph {ws.url}/mcp --header \"Authorization: Bearer <key>\"")
+              f"  claude mcp add --transport http --scope user toolgraph {ws.url}/mcp --header \"Authorization: Bearer <key>\"")
     return 0 if ok else 1
 
 

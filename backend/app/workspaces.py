@@ -35,7 +35,8 @@ MAX_SERVERS = 25
 
 WS_Q = (
     "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Workspace, n.key = row.key, n.name = row.name, "
-    "n.key_hash = row.key_hash, n.created = row.created, n.calls = row.calls, n.outcomes = row.outcomes"
+    "n.key_hash = row.key_hash, n.created = row.created, n.calls = row.calls, n.outcomes = row.outcomes, "
+    "n.last_seen = row.last_seen, n.client = row.client"
 )
 USAGE_Q = (
     "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Usage, n.key = row.key, n.signups = row.signups, "
@@ -88,6 +89,8 @@ class Workspace:
     loaded: bool = False
     dirty: bool = False
     deleted: bool = False
+    last_seen: float = 0.0  # last MCP request from an agent
+    client: str = ""        # clientInfo from the agent's MCP initialize (e.g. "claude-code 2.1")
     lock: threading.RLock = field(default_factory=threading.RLock)
 
     @property
@@ -97,6 +100,8 @@ class Workspace:
     def public(self) -> dict:
         return {"workspace": self.slug, "name": self.name, "created": self.created, "calls": self.calls,
                 "outcomes": self.outcomes,
+                "agent": {"client": self.client or None, "last_seen": round(self.last_seen) or None,
+                          "seconds_ago": round(time.time() - self.last_seen) if self.last_seen else None},
                 "servers": [{"server": s, "tools": len(t), "source": self.sources.get(s, "paste")} for s, t in sorted(self.specs.items())],
                 "tools": sum(len(t) for t in self.specs.values())}
 
@@ -211,14 +216,16 @@ class Registry:
     def load(self, db: HydraDB | None = None) -> dict:
         db = db or get_db()
         rows = db.run("MATCH (w:Workspace) WHERE w.id >= $lo AND w.id < $hi RETURN w.id AS id, w.key AS slug, "
-                      "w.name AS name, w.key_hash AS kh, w.created AS created, w.calls AS calls, w.outcomes AS outcomes",
+                      "w.name AS name, w.key_hash AS kh, w.created AS created, w.calls AS calls, w.outcomes AS outcomes, "
+                      "w.last_seen AS last_seen, w.client AS client",
                       {"lo": META_BASE, "hi": META_BASE + MAX_WORKSPACES})
         u = db.run("MATCH (u:Usage) WHERE u.id = $id RETURN u.signups AS signups, u.find_tools AS find_tools, "
                    "u.outcomes AS outcomes, u.last_ws AS last_ws", {"id": USAGE_ID})
         with self.lock:
             for r in rows:
                 ws = Workspace(n=r["id"] - META_BASE, slug=r["slug"], name=r["name"] or r["slug"], key_hash=r["kh"],
-                               created=r["created"] or 0, calls=r["calls"] or 0, outcomes=r["outcomes"] or 0)
+                               created=r["created"] or 0, calls=r["calls"] or 0, outcomes=r["outcomes"] or 0,
+                               last_seen=r.get("last_seen") or 0.0, client=r.get("client") or "")
                 self.by_hash[ws.key_hash] = ws
                 self.by_slug[ws.slug] = ws
             if u:
@@ -290,9 +297,20 @@ class Registry:
     @staticmethod
     def _row(ws: Workspace) -> dict:
         return {"id": META_BASE + ws.n, "key": ws.slug, "name": ws.name, "key_hash": ws.key_hash,
-                "created": ws.created, "calls": ws.calls, "outcomes": ws.outcomes}
+                "created": ws.created, "calls": ws.calls, "outcomes": ws.outcomes,
+                "last_seen": float(ws.last_seen), "client": ws.client}
 
     # ---- counters (flushed in the background, not one write per call)
+    def seen(self, ws: Workspace, client: str | None = None) -> None:
+        """An agent talked to this workspace's MCP endpoint (persisted by the background flush)."""
+        if ws.deleted:
+            return
+        with self.lock:
+            ws.last_seen = time.time()
+            if client:
+                ws.client = client[:80]
+            ws.dirty = True
+
     def count(self, ws: Workspace | None, what: str) -> None:
         if ws is not None and ws.deleted:
             return
