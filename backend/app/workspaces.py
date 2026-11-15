@@ -39,7 +39,7 @@ WS_Q = (
 )
 USAGE_Q = (
     "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Usage, n.key = 'usage', n.signups = row.signups, "
-    "n.find_tools = row.find_tools, n.outcomes = row.outcomes"
+    "n.find_tools = row.find_tools, n.outcomes = row.outcomes, n.last_ws = row.last_ws"
 )
 SPEC_Q = "UNWIND $rows AS row MERGE (n {id: row.id}) SET n:Tool, n.spec = row.spec, n.source = row.source"
 
@@ -87,6 +87,7 @@ class Workspace:
     runtime: "Runtime | None" = None
     loaded: bool = False
     dirty: bool = False
+    deleted: bool = False
     lock: threading.RLock = field(default_factory=threading.RLock)
 
     @property
@@ -202,6 +203,7 @@ class Registry:
         self.by_slug: dict[str, Workspace] = {}
         self.usage = {"signups": 0, "find_tools": 0, "outcomes": 0}
         self.usage_dirty = False
+        self.last_ws = 0  # workspace numbers are never reused (persisted high-water mark)
         self.loaded = False
         self.lock = threading.RLock()
 
@@ -212,7 +214,7 @@ class Registry:
                       "w.name AS name, w.key_hash AS kh, w.created AS created, w.calls AS calls, w.outcomes AS outcomes",
                       {"lo": META_BASE, "hi": META_BASE + MAX_WORKSPACES})
         u = db.run("MATCH (u:Usage) WHERE u.id = $id RETURN u.signups AS signups, u.find_tools AS find_tools, "
-                   "u.outcomes AS outcomes", {"id": USAGE_ID})
+                   "u.outcomes AS outcomes, u.last_ws AS last_ws", {"id": USAGE_ID})
         with self.lock:
             for r in rows:
                 ws = Workspace(n=r["id"] - META_BASE, slug=r["slug"], name=r["name"] or r["slug"], key_hash=r["kh"],
@@ -221,6 +223,8 @@ class Registry:
                 self.by_slug[ws.slug] = ws
             if u:
                 self.usage = {k: int(u[0].get(k) or 0) for k in self.usage}
+                self.last_ws = int(u[0].get("last_ws") or 0)
+            self.last_ws = max([self.last_ws] + [w.n for w in self.by_slug.values()])
             self.loaded = True
         return {"workspaces": len(rows), "usage": self.usage}
 
@@ -230,7 +234,14 @@ class Registry:
         with self.lock:
             if len(self.by_slug) >= MAX_WORKSPACES:
                 raise ValueError("workspace limit reached")
-            n = max((w.n for w in self.by_slug.values()), default=0) + 1
+            n = self.last_ws + 1
+            lo = ctx.ws_offset(n)
+            for label in ("Tool", "Intent"):  # a fresh block must be empty
+                if db.run(f"MATCH (x:{label}) WHERE x.id >= $lo AND x.id < $hi RETURN count(*) AS c",
+                          {"lo": lo, "hi": lo + ctx.WS_ID_SPAN})[0]["c"]:
+                    raise ValueError("workspace id block not empty; refusing to reuse it")
+            self.last_ws = n
+            db.run_raw(USAGE_Q, {"rows": [{"id": USAGE_ID, **self.usage, "last_ws": n}]})
             base = slugify(name)[:24] or "ws"
             s = f"{base}-{secrets.token_hex(3)}"
             key = new_key()
@@ -258,6 +269,7 @@ class Registry:
         db = db or get_db()
         lo, hi = ws.offset, ws.offset + ctx.WS_ID_SPAN
         with ws.lock, self.lock:
+            ws.deleted = True  # in-flight requests holding this object now fail instead of writing
             for label in ("Intent", "Tool", "Capability", "DataType", "Server"):
                 ids = [r["id"] for r in db.run(f"MATCH (n:{label}) WHERE n.id >= $lo AND n.id < $hi RETURN n.id AS id", {"lo": lo, "hi": hi})]
                 if ids:
@@ -279,6 +291,8 @@ class Registry:
 
     # ---- counters (flushed in the background, not one write per call)
     def count(self, ws: Workspace | None, what: str) -> None:
+        if ws is not None and ws.deleted:
+            return
         with self.lock:
             self.usage[what] = self.usage.get(what, 0) + 1
             self.usage_dirty = True
@@ -296,7 +310,7 @@ class Registry:
             for w in dirty:
                 w.dirty = False
             rows = [self._row(w) for w in dirty]
-            usage = dict(self.usage) if self.usage_dirty else None
+            usage = {**self.usage, "last_ws": self.last_ws} if self.usage_dirty else None
             self.usage_dirty = False
         if rows:
             db.batch(WS_Q, rows)
@@ -307,6 +321,8 @@ class Registry:
     # ---- tools
     def runtime(self, ws: Workspace, db: HydraDB | None = None) -> Runtime:
         with ws.lock:
+            if ws.deleted:
+                raise ValueError("this workspace was deleted")
             if not ws.loaded:
                 self._load_ws(ws, db or get_db())
             if ws.runtime is None:
