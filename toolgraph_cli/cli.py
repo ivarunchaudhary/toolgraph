@@ -161,12 +161,21 @@ def _key(a) -> str:
 def cmd_sync(a) -> int:
     from . import sync
 
-    servers = sync.discover()
+    servers = sync.discover(project=a.project)
     if a.only:
         servers = {n: c for n, c in servers.items() if n in a.only}
     if not servers:
         print("no MCP servers found in Claude Code / Claude Desktop / Cursor configs")
         return 1
+    print("will list tools from these MCP servers (stdio ones are started locally, exactly as your agent starts them):")
+    for name, cfg in sorted(servers.items()):
+        print(f"  {name:<24} {sync.describe(cfg)}")
+    if not a.yes:
+        if not sys.stdin.isatty():
+            print("not a terminal: re-run with --yes to confirm", file=sys.stderr)
+            return 1
+        if input("continue? [y/N] ").strip().lower() not in ("y", "yes"):
+            return 1
     ws = None if a.dry_run else Workspace(_key(a), a.ws_url)
     ok = 0
     for name, cfg in sorted(servers.items()):
@@ -254,6 +263,8 @@ def build_parser() -> argparse.ArgumentParser:
     sy.add_argument("--only", action="append", help="only this server name (repeatable)")
     sy.add_argument("--dry-run", action="store_true", help="list servers and tool counts, upload nothing")
     sy.add_argument("--timeout", type=float, default=25.0, help="seconds per server")
+    sy.add_argument("--project", action="store_true", help="also read ./.mcp.json and ./.cursor/mcp.json (runs their commands)")
+    sy.add_argument("-y", "--yes", action="store_true", help="don't ask before starting the listed servers")
     sy.set_defaults(fn=cmd_sync)
 
     fd = sub.add_parser("find", help="find_tools against your workspace")

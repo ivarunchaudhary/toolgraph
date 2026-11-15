@@ -1,6 +1,7 @@
 """`toolgraph sync`: read the MCP servers you already use, list their tools, upload them to your workspace.
 
-Looks in Claude Code (~/.claude.json, ./.mcp.json), Claude Desktop and Cursor configs. Each server is started
+Looks in user-level Claude Code (~/.claude.json), Claude Desktop and Cursor configs (project .mcp.json files only
+with --project). Every command it would start is shown first and needs a yes (or --yes). Each server is started
 locally exactly as your agent would start it (stdio) or called at its URL (http), asked for `tools/list`, and
 stopped. Only tool definitions (name, description, input schema) are uploaded; env vars, headers and tokens
 from your config never leave this machine.
@@ -23,10 +24,14 @@ INIT = {"jsonrpc": "2.0", "id": 1, "method": "initialize",
 INITIALIZED = {"jsonrpc": "2.0", "method": "notifications/initialized"}
 
 
-def config_files(cwd: Path | None = None) -> list[Path]:
+def config_files(cwd: Path | None = None, project: bool = False) -> list[Path]:
+    """User-level configs only, unless `project`: a repo's own .mcp.json can name any command, and a freshly
+    cloned repo is not something to execute from without asking."""
     home = Path.home()
     cwd = cwd or Path.cwd()
-    files = [home / ".claude.json", cwd / ".mcp.json", home / ".cursor" / "mcp.json", cwd / ".cursor" / "mcp.json"]
+    files = [home / ".claude.json", home / ".cursor" / "mcp.json"]
+    if project:
+        files += [cwd / ".mcp.json", cwd / ".cursor" / "mcp.json"]
     if platform.system() == "Darwin":
         files.append(home / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json")
     elif os.getenv("APPDATA"):
@@ -36,11 +41,11 @@ def config_files(cwd: Path | None = None) -> list[Path]:
     return [f for f in files if f.exists()]
 
 
-def discover(cwd: Path | None = None) -> dict[str, dict]:
+def discover(cwd: Path | None = None, project: bool = False) -> dict[str, dict]:
     """server name -> config ({command, args, env} or {url, headers}), first definition wins."""
     cwd = cwd or Path.cwd()
     out: dict[str, dict] = {}
-    for f in config_files(cwd):
+    for f in config_files(cwd, project):
         try:
             d = json.loads(f.read_text())
         except (OSError, ValueError):
@@ -142,3 +147,9 @@ def list_tools(cfg: dict, timeout: float = 25.0) -> list[dict]:
 
 def server_slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")[:48] or "server"
+
+
+def describe(cfg: dict) -> str:
+    if cfg.get("command"):
+        return " ".join([str(cfg["command"]), *[str(a) for a in cfg.get("args") or []]])[:160]
+    return str(cfg.get("url", "?"))[:160]

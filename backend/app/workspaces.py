@@ -242,6 +242,17 @@ class Registry:
             self.usage_dirty = True
         return ws, key
 
+    def rotate(self, ws: Workspace, db: HydraDB | None = None) -> str:
+        db = db or get_db()
+        key = new_key()
+        with self.lock:
+            old = ws.key_hash
+            ws.key_hash = hash_key(key)
+            db.run_raw(WS_Q, {"rows": [self._row(ws)]})
+            self.by_hash.pop(old, None)
+            self.by_hash[ws.key_hash] = ws
+        return key
+
     def auth(self, key: str | None) -> Workspace | None:
         if not key:
             return None

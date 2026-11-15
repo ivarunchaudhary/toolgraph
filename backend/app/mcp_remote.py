@@ -33,11 +33,22 @@ def _check_public(url: str) -> None:
             raise RemoteError("that host resolves to a private address")
 
 
-def _parse(resp: httpx.Response) -> dict:
-    if len(resp.content) > MAX_BYTES:
-        raise RemoteError("response too large")
+def _post(c: httpx.Client, url: str, headers: dict, body: dict) -> tuple[httpx.Response, str]:
+    """POST and read at most MAX_BYTES of the body (streamed, so an endless response can't exhaust memory)."""
+    with c.stream("POST", url, headers=headers, json=body) as r:
+        if int(r.headers.get("content-length") or 0) > MAX_BYTES:
+            raise RemoteError("response too large")
+        buf, n = [], 0
+        for chunk in r.iter_bytes():
+            n += len(chunk)
+            if n > MAX_BYTES:
+                raise RemoteError("response too large")
+            buf.append(chunk)
+        return r, b"".join(buf).decode(errors="replace")
+
+
+def _parse(resp: httpx.Response, text: str) -> dict:
     ctype = resp.headers.get("content-type", "")
-    text = resp.text
     if "text/event-stream" in ctype:
         msgs = [json.loads(line[5:].strip()) for line in text.splitlines() if line.startswith("data:") and line[5:].strip()]
         msgs = [m for m in msgs if isinstance(m, dict) and ("result" in m or "error" in m)]
@@ -45,7 +56,7 @@ def _parse(resp: httpx.Response) -> dict:
             raise RemoteError("no JSON-RPC response in the event stream")
         return msgs[-1]
     try:
-        return resp.json()
+        return json.loads(text)
     except ValueError:
         raise RemoteError(f"HTTP {resp.status_code}: not JSON") from None
 
@@ -57,24 +68,24 @@ def fetch_tools(url: str, authorization: str | None = None, timeout: float = 15.
     if authorization:
         headers["Authorization"] = authorization
     with httpx.Client(timeout=timeout, follow_redirects=False) as c:
-        r = c.post(url, headers=headers, json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+        r, text = _post(c, url, headers, {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
             "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "toolgraph-import", "version": "1"}}})
         if r.status_code in (401, 403):
             raise RemoteError("the server needs authorization (add an Authorization header) or uses OAuth; paste its tools/list JSON instead")
         if r.status_code >= 400:
             raise RemoteError(f"initialize failed: HTTP {r.status_code}")
-        init = _parse(r)
+        init = _parse(r, text)
         if "error" in init:
             raise RemoteError(f"initialize failed: {init['error'].get('message')}")
         sid = r.headers.get("mcp-session-id")
         if sid:
             headers["Mcp-Session-Id"] = sid
-        c.post(url, headers=headers, json={"jsonrpc": "2.0", "method": "notifications/initialized"})
+        _post(c, url, headers, {"jsonrpc": "2.0", "method": "notifications/initialized"})
         tools, cursor = [], None
         for page in range(10):
             params = {"cursor": cursor} if cursor else {}
-            r = c.post(url, headers=headers, json={"jsonrpc": "2.0", "id": 2 + page, "method": "tools/list", "params": params})
-            d = _parse(r)
+            r, text = _post(c, url, headers, {"jsonrpc": "2.0", "id": 2 + page, "method": "tools/list", "params": params})
+            d = _parse(r, text)
             if "error" in d:
                 raise RemoteError(f"tools/list failed: {d['error'].get('message')}")
             tools += d.get("result", {}).get("tools", [])

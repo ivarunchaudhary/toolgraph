@@ -17,7 +17,9 @@ routing is LLM-free (graph + local embeddings); their own agent plans and calls 
 """
 from __future__ import annotations
 
+import logging
 import os
+import re
 import threading
 import time
 from collections import deque
@@ -33,6 +35,22 @@ from .retrieve.base import mentioned_servers
 from .workspaces import REGISTRY, Workspace, preset_servers
 
 router = APIRouter()
+
+
+class _RedactKeys(logging.Filter):
+    """The secret /mcp/{key} URL (needed by connector UIs that can't send headers) must not land in access logs."""
+
+    _rx = re.compile(r"(/mcp/)[^\s/\"?]+")
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.args and isinstance(record.args, tuple):
+            record.args = tuple(self._rx.sub(r"\1<redacted>", a) if isinstance(a, str) else a for a in record.args)
+        elif isinstance(record.msg, str):
+            record.msg = self._rx.sub(r"\1<redacted>", record.msg)
+        return True
+
+
+logging.getLogger("uvicorn.access").addFilter(_RedactKeys())
 PUBLIC_URL = os.getenv("PUBLIC_URL", "").rstrip("/")
 
 
@@ -304,6 +322,16 @@ def delete_server(server: str, request: Request):
         return {"removed": server, "workspace": REGISTRY.remove_server(ws, server)}
     except KeyError:
         raise HTTPException(404, f"no server {server}") from None
+
+
+@router.post("/v1/workspace/rotate_key")
+def rotate_key(request: Request):
+    """New key, old one stops working immediately (use if a secret MCP URL leaked)."""
+    ws = require_ws(request)
+    _limit(WRITE_LIMIT, ws.slug, "writes")
+    key = REGISTRY.rotate(ws)
+    return {"workspace": ws.slug, "key": key, "note": "The old key and its secret MCP URL no longer work.",
+            "connect": connect_info(request, ws, key)}
 
 
 @router.get("/v1/presets")

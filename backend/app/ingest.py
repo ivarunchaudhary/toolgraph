@@ -136,17 +136,21 @@ def ingest(db: HydraDB | None = None, reset: bool = False, extra_ids: list[int] 
 
 
 def graph_stats(db: HydraDB | None = None) -> dict:
+    """Counts for the demo/benchmark graph only (user workspaces live above WS_ID_BASE in the same HydraDB graph)."""
+    from .ctx import WS_ID_BASE
+
     db = db or get_db()
+    p = {"hi": WS_ID_BASE}
     nodes = {}
     for label in ("Server", "Tool", "Capability", "DataType", "Intent", "Entity"):
-        nodes[label] = db.run(f"MATCH (n:{label}) RETURN count(*) AS n")[0]["n"]
+        nodes[label] = db.run(f"MATCH (n:{label}) WHERE n.id < $hi RETURN count(*) AS n", p)[0]["n"]
     edges = {
-        "PART_OF": db.run("MATCH (a:Tool)-[:PART_OF]->(b) RETURN count(*) AS n")[0]["n"],
-        "PROVIDES": db.run("MATCH (a:Tool)-[:PROVIDES]->(b) RETURN count(*) AS n")[0]["n"],
-        "CONSUMES": db.run("MATCH (a:Tool)-[:CONSUMES]->(b) RETURN count(*) AS n")[0]["n"],
-        "PRODUCED_BY": db.run("MATCH (a:DataType)-[:PRODUCED_BY]->(b) RETURN count(*) AS n")[0]["n"],
-        "NEXT": db.run("MATCH (a:Tool)-[:NEXT]->(b) RETURN count(*) AS n")[0]["n"],
-        "SOLVED_WITH": db.run("MATCH (a:Intent)-[:SOLVED_WITH]->(b) RETURN count(*) AS n")[0]["n"],
+        "PART_OF": db.run("MATCH (a:Tool)-[:PART_OF]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
+        "PROVIDES": db.run("MATCH (a:Tool)-[:PROVIDES]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
+        "CONSUMES": db.run("MATCH (a:Tool)-[:CONSUMES]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
+        "PRODUCED_BY": db.run("MATCH (a:DataType)-[:PRODUCED_BY]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
+        "NEXT": db.run("MATCH (a:Tool)-[:NEXT]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
+        "SOLVED_WITH": db.run("MATCH (a:Intent)-[:SOLVED_WITH]->(b) WHERE a.id < $hi RETURN count(*) AS n", p)[0]["n"],
     }
     return {"nodes": nodes, "edges": edges}
 
