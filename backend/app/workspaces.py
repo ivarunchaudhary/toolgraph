@@ -29,7 +29,7 @@ from .ingest import IdMap
 
 META_BASE = 8_000_000
 USAGE_ID = 8_999_999
-MAX_WORKSPACES = 5000
+MAX_WORKSPACES = 5000  # must stay < 10_000 (rid encoding) and META_BASE + n < USAGE_ID
 MAX_TOOLS = 300
 MAX_SERVERS = 25
 
@@ -235,6 +235,9 @@ class Registry:
             if len(self.by_slug) >= MAX_WORKSPACES:
                 raise ValueError("workspace limit reached")
             n = self.last_ws + 1
+            # registry ids (META_BASE + n), load()'s range and rid encoding (n * 10**14 < 10**18) all need n < MAX_WORKSPACES
+            if n >= MAX_WORKSPACES:
+                raise ValueError("workspace limit reached")
             lo = ctx.ws_offset(n)
             for label in ("Tool", "Intent"):  # a fresh block must be empty
                 if db.run(f"MATCH (x:{label}) WHERE x.id >= $lo AND x.id < $hi RETURN count(*) AS c",
