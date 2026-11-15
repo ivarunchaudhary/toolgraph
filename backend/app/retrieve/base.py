@@ -56,4 +56,8 @@ _SERVER_RX = {s: [re.compile(p, re.I) for p in pats] for s, pats in SERVER_ALIAS
 
 
 def mentioned_servers(text: str) -> set[str]:
-    return {s for s, rxs in _SERVER_RX.items() if any(r.search(text) for r in rxs)}
+    from ..ctx import current
+
+    ws = current()
+    rx = ws.server_rx if ws is not None else _SERVER_RX
+    return {s for s, rxs in rx.items() if any(r.search(text) for r in rxs)}

@@ -16,7 +16,14 @@ REL_CODE = {"PROVIDES": 1, "NEXT": 2, "SOLVED_WITH": 3, "IS_A": 4, "RESOLVED_BY"
 
 
 def rid(rel: str, src: int, dst: int) -> int:
-    """Deterministic relationship id, far above every vertex id range."""
+    """Deterministic relationship id, far above every vertex id range. Workspace edges get their own
+    space (>= 10**18): code * 10**18 + workspace * 10**14 + local src * 10**7 + local dst."""
+    from .ctx import WS_ID_BASE, WS_ID_SPAN
+
+    if src >= WS_ID_BASE:
+        n = (src - WS_ID_BASE) // WS_ID_SPAN
+        off = WS_ID_BASE + n * WS_ID_SPAN
+        return REL_CODE[rel] * 10**18 + n * 10**14 + (src - off) * 10**7 + (dst - off)
     return REL_CODE[rel] * 10**14 + src * 10**7 + dst
 
 
@@ -51,6 +58,11 @@ _idmap: IdMap | None = None
 
 
 def get_idmap() -> IdMap:
+    from .ctx import current
+
+    ws = current()
+    if ws is not None:
+        return ws.idmap
     global _idmap
     if _idmap is None:
         _idmap = IdMap(get_catalog())
@@ -78,7 +90,8 @@ def wipe(db: HydraDB, ids: list[int]) -> None:
     db.batch("UNWIND $rows AS row MATCH (n {id: row.id}) DETACH DELETE n", [{"id": i} for i in ids])
 
 
-def ingest(db: HydraDB | None = None, reset: bool = False, extra_ids: list[int] | None = None, quiet: bool = False) -> dict:
+def ingest(db: HydraDB | None = None, reset: bool = False, extra_ids: list[int] | None = None, quiet: bool = False,
+           stats: bool = True) -> dict:
     db = db or get_db()
     cat = get_catalog()
     m = get_idmap()
@@ -113,11 +126,13 @@ def ingest(db: HydraDB | None = None, reset: bool = False, extra_ids: list[int] 
     db.batch(EDGE_Q.format(rel="PRODUCED_BY"), produced_by)
     db.batch(PROVIDES_Q, provides)
     ms = (time.perf_counter() - t0) * 1000
-    stats = graph_stats(db)
-    stats["ingest_ms"] = round(ms, 1)
+    if not stats:
+        return {"ingest_ms": round(ms, 1)}
+    out = graph_stats(db)
+    out["ingest_ms"] = round(ms, 1)
     if not quiet:
-        print(f"ingested in {ms:.0f} ms:", stats)
-    return stats
+        print(f"ingested in {ms:.0f} ms:", out)
+    return out
 
 
 def graph_stats(db: HydraDB | None = None) -> dict:

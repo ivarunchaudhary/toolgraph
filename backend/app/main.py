@@ -34,7 +34,9 @@ from .ingest import graph_stats, ingest
 from .retrieve import all_tools, graph, vector
 from .retrieve.base import mentioned_servers
 from .retrieve.graph import GraphOptions
+from .saas import router as saas_router
 from .simulator import simulate
+from .workspaces import REGISTRY, flusher
 
 FRONTEND = config.ROOT / "frontend"
 RATE_LIMIT, RATE_WINDOW_S = int(os.getenv("RUN_RATE_LIMIT", "10")), 60.0
@@ -70,10 +72,22 @@ async def lifespan(_app: FastAPI):
             warm()
         except Exception as e:  # keep serving /health and the results tab even if HydraDB is down
             STATE["warm"] = {"error": str(e)}
+    try:
+        STATE["workspaces"] = REGISTRY.load()
+    except Exception as e:
+        STATE["workspaces"] = {"error": str(e)}
+    stop = threading.Event()
+    threading.Thread(target=flusher, args=(stop,), daemon=True).start()
     yield
+    stop.set()
+    try:
+        REGISTRY.flush()
+    except Exception:
+        pass
 
 
-app = FastAPI(title="ToolGraph", version="1.0", lifespan=lifespan)
+app = FastAPI(title="ToolGraph", version="1.1", lifespan=lifespan)
+app.include_router(saas_router)
 
 
 def client_ip(req: Request) -> str:
@@ -200,7 +214,8 @@ def llm_configured() -> bool:
 @app.get("/health")
 def health():
     ok = get_db().health()
-    return JSONResponse({"ok": ok, "hydradb": ok, "snapshot": STATE["snapshot"], "warm": STATE["warm"]}, status_code=200 if ok else 503)
+    return JSONResponse({"ok": ok, "hydradb": ok, "snapshot": STATE["snapshot"], "warm": STATE["warm"],
+                         "workspaces": len(REGISTRY.by_slug)}, status_code=200 if ok else 503)
 
 
 @app.post("/api/retrieve")
@@ -331,9 +346,27 @@ def api_how():
     }
 
 
+def _page(name: str, fallback: str = "playground.html"):
+    f = FRONTEND / name
+    return FileResponse(f if f.exists() else FRONTEND / fallback)
+
+
 @app.get("/")
 def index():
-    return FileResponse(FRONTEND / "index.html")
+    """Landing page (the product). The benchmark playground lives at /playground."""
+    return _page("index.html")
+
+
+@app.get("/app")
+def dashboard():
+    """Workspace dashboard: sign up, add servers, connect your agent, try find_tools."""
+    return _page("app.html")
+
+
+@app.get("/playground")
+def playground():
+    """The benchmark + simulator: route / compare / results / how it works."""
+    return FileResponse(FRONTEND / "playground.html")
 
 
 if (FRONTEND / "static").exists():

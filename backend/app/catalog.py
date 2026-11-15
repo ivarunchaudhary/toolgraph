@@ -63,8 +63,16 @@ def load_catalog(catalog_dir: Path | None = None, taxonomy_path: Path | None = N
 
 
 @lru_cache(maxsize=1)
-def get_catalog() -> Catalog:
+def demo_catalog() -> Catalog:
     return load_catalog()
+
+
+def get_catalog() -> Catalog:
+    """The active workspace's catalog (ctx.use), else the demo/benchmark catalog."""
+    from .ctx import current
+
+    ws = current()
+    return ws.catalog if ws is not None else demo_catalog()
 
 
 def relevant_tools(cat: Catalog, goal: set[str], tool_ids: set[str] | None = None) -> set[str]:

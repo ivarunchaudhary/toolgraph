@@ -1,0 +1,383 @@
+{
+ "tools": [
+  {
+   "name": "search_repositories",
+   "description": "Search for GitHub repositories",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "query": {
+      "type": "string",
+      "description": "query"
+     }
+    },
+    "required": [
+     "query"
+    ]
+   }
+  },
+  {
+   "name": "create_or_update_file",
+   "description": "Create or update a single file in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "path": {
+      "type": "string",
+      "description": "path"
+     },
+     "content": {
+      "type": "string",
+      "description": "content"
+     },
+     "message": {
+      "type": "string",
+      "description": "message"
+     },
+     "branch": {
+      "type": "string",
+      "description": "branch"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "path",
+     "content",
+     "message",
+     "branch"
+    ]
+   }
+  },
+  {
+   "name": "get_file_contents",
+   "description": "Get the contents of a file or directory from a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "path": {
+      "type": "string",
+      "description": "path"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "path"
+    ]
+   }
+  },
+  {
+   "name": "create_issue",
+   "description": "Create a new issue in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "title": {
+      "type": "string",
+      "description": "title"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "title"
+    ]
+   }
+  },
+  {
+   "name": "list_issues",
+   "description": "List issues in a GitHub repository with filtering options",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     }
+    },
+    "required": [
+     "owner",
+     "repo"
+    ]
+   }
+  },
+  {
+   "name": "get_issue",
+   "description": "Get details of a specific issue in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "issue_number": {
+      "type": "string",
+      "description": "issue number"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "issue_number"
+    ]
+   }
+  },
+  {
+   "name": "add_issue_comment",
+   "description": "Add a comment to an existing issue",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "issue_number": {
+      "type": "string",
+      "description": "issue number"
+     },
+     "body": {
+      "type": "string",
+      "description": "body"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "issue_number",
+     "body"
+    ]
+   }
+  },
+  {
+   "name": "create_pull_request",
+   "description": "Create a new pull request in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "title": {
+      "type": "string",
+      "description": "title"
+     },
+     "head": {
+      "type": "string",
+      "description": "head"
+     },
+     "base": {
+      "type": "string",
+      "description": "base"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "title",
+     "head",
+     "base"
+    ]
+   }
+  },
+  {
+   "name": "list_pull_requests",
+   "description": "List and filter repository pull requests",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     }
+    },
+    "required": [
+     "owner",
+     "repo"
+    ]
+   }
+  },
+  {
+   "name": "get_pull_request",
+   "description": "Get details of a specific pull request",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "pull_number": {
+      "type": "string",
+      "description": "pull number"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "pull_number"
+    ]
+   }
+  },
+  {
+   "name": "get_pull_request_files",
+   "description": "Get the list of files changed in a pull request",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "pull_number": {
+      "type": "string",
+      "description": "pull number"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "pull_number"
+    ]
+   }
+  },
+  {
+   "name": "create_pull_request_review",
+   "description": "Create a review on a pull request",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "pull_number": {
+      "type": "string",
+      "description": "pull number"
+     },
+     "body": {
+      "type": "string",
+      "description": "body"
+     },
+     "event": {
+      "type": "string",
+      "description": "event"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "pull_number",
+     "body",
+     "event"
+    ]
+   }
+  },
+  {
+   "name": "list_commits",
+   "description": "Get list of commits of a branch in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     }
+    },
+    "required": [
+     "owner",
+     "repo"
+    ]
+   }
+  },
+  {
+   "name": "create_branch",
+   "description": "Create a new branch in a GitHub repository",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "owner": {
+      "type": "string",
+      "description": "owner"
+     },
+     "repo": {
+      "type": "string",
+      "description": "repo"
+     },
+     "branch": {
+      "type": "string",
+      "description": "branch"
+     }
+    },
+    "required": [
+     "owner",
+     "repo",
+     "branch"
+    ]
+   }
+  }
+ ]
+}

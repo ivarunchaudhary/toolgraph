@@ -21,6 +21,7 @@ from .. import config, learner, tokens
 from ..catalog import get_catalog
 from ..db import get_db, track
 from ..embed import Index, embed_one
+from ..ctx import intent_key
 from ..ingest import get_idmap
 from .base import Retrieval, mentioned_servers
 
@@ -116,15 +117,28 @@ HOP_Q = (
 )
 
 
-@lru_cache(maxsize=1)
 def cap_index() -> Index:
+    from ..ctx import current
+
+    ws = current()
+    return ws.cap_index() if ws is not None else _demo_cap_index()
+
+
+def _cap_tools() -> dict[str, list[int]]:
+    from ..ctx import current
+
+    ws = current()
+    return ws.cap_tools() if ws is not None else _demo_cap_tools()
+
+
+@lru_cache(maxsize=1)
+def _demo_cap_index() -> Index:
     cat = get_catalog()
     ids = sorted(cat.capabilities)
     return Index(ids, [f"{cat.capabilities[c]['name'].replace('.', ' ')}: {cat.capabilities[c]['description']}" for c in ids])
 
 
-@lru_cache(maxsize=1)
-def _cap_tools() -> dict[str, list[int]]:
+def build_cap_tools() -> dict[str, list[int]]:
     """capability -> row indices (into the tool vector index) of tools that provide it."""
     from .vector import tool_index
 
@@ -134,6 +148,11 @@ def _cap_tools() -> dict[str, list[int]]:
         for c in t.capabilities:
             out[c].append(idx[t.id])
     return out
+
+
+@lru_cache(maxsize=1)
+def _demo_cap_tools() -> dict[str, list[int]]:
+    return build_cap_tools()
 
 
 def local_servers(q, servers: set[str], n: int = LOCAL_TOP_TOOLS) -> set[str]:
@@ -163,23 +182,45 @@ def seed_capabilities(q, servers: set[str], k: int = TOP_CAPS) -> list[tuple[str
     top = sorted(scores.items(), key=lambda x: (-x[1], x[0]))[:k]
     # every server the task names contributes its best-matching capability as an entry point
     chosen = {c for c, _ in top}
-    for srv in sorted(servers):
-        best, best_s = None, -1.0
+    seed_servers = set(servers)
+    if workspace_mode():
+        # user workspaces have no hand-written server aliases ("PRs" -> github): any server whose best tool is
+        # close to the overall best also contributes an entry point, so multi-server tasks reach every server
+        best_by_srv: dict[str, float] = {}
+        for i, tid in enumerate(ti.ids):
+            srv = cat.tools[tid].server
+            best_by_srv[srv] = max(best_by_srv.get(srv, -1.0), float(tool_sims[i]))
+        top_sim = max(best_by_srv.values(), default=0.0)
+        seed_servers |= {srv for srv, sc in best_by_srv.items() if sc >= top_sim - WS_SERVER_MARGIN}
+    per_server = 2 if workspace_mode() else 1
+    for srv in sorted(seed_servers):
+        best: dict[str, float] = {}
         for c, rows in _cap_tools().items():
             for r in rows:
-                if cat.tools[ti.ids[r]].server == srv and tool_sims[r] > best_s:
-                    best, best_s = c, float(tool_sims[r])
-        if best and best not in chosen:
-            top.append((best, scores[best]))
-            chosen.add(best)
+                if cat.tools[ti.ids[r]].server == srv:
+                    best[c] = max(best.get(c, -1.0), float(tool_sims[r]))
+        for c, _ in sorted(best.items(), key=lambda x: (-x[1], x[0]))[:per_server]:
+            if c not in chosen:
+                top.append((c, scores[c]))
+                chosen.add(c)
     return top
 
 
+WS_SERVER_MARGIN = 0.12   # workspace mode: servers within this similarity of the best tool also seed
+WS_MIN_SCORE, WS_REL_SCORE = 0.2, 0.5  # workspace mode: drop matches below max(0.2, 0.5 x best)
+WS_OFF_SERVER = 0.8       # workspace mode: score factor for tools on servers the task does not name (demo: 0.5)
+
+
+def workspace_mode() -> bool:
+    from ..ctx import current
+
+    return current() is not None
+
+
 def _kind(vid: int) -> str:
-    for label, base in config.ID_BASE.items():
-        if base <= vid < base + config.ID_SPAN:
-            return label
-    return "?"
+    from ..ctx import kind
+
+    return kind(vid)
 
 
 def retrieve(
@@ -199,11 +240,18 @@ def retrieve(
     # ---- 1. seed (Python) ----
     q = embed_one(task)
     servers = mentioned_servers(task) if opts.server_filter else set()
+    if opts.server_filter and workspace_mode():
+        servers |= {cat.datatypes[g]["server"] for g in given if g in cat.datatypes and cat.datatypes[g].get("server")}
     cap_hits = seed_capabilities(q, servers)
     cap_sim = {m[c]: s for c, s in cap_hits}
-    intents = learner.STATE.match(task, given, k=2) if opts.learned else []
+    intents = learner.state().match(task, given, k=2) if opts.learned else []
     intent_sim = {vid: s for vid, s in intents}
     known = [m[g] for g in given if g in m.key2id]
+    from ..ctx import current
+
+    _ws = current()
+    if _ws is not None:  # in a user's workspace, inputs no tool can produce must come from the user/agent
+        known += [m[t] for t in _ws.free_types if t in m.key2id]
 
     # ---- 2. traverse (HydraDB) ----
     allowed = sorted(local_servers(q, servers)) if opts.locality else []
@@ -264,10 +312,12 @@ def retrieve(
     def server_of(vid: int) -> str:
         return cat.tools[m.key(vid)].server
 
+    off_server = WS_OFF_SERVER if workspace_mode() else 0.5
+
     def boost(vid: int) -> float:
         if not servers:
             return 1.0
-        return 1.5 if server_of(vid) in servers else 0.5
+        return 1.5 if server_of(vid) in servers else off_server
 
     INF = 99.0
 
@@ -318,26 +368,34 @@ def retrieve(
         return (-base, c, v)
 
     ranked = sorted(primary, key=rank_key)
+    if workspace_mode() and ranked:
+        # user workspaces hold arbitrary tools: return fewer (or none) rather than weak matches.
+        # (learned evidence can push scores past 1, so the relative floor is taken on a capped best score)
+        best = max(primary[v] for v in ranked)
+        floor = max(WS_MIN_SCORE, WS_REL_SCORE * min(best, 0.6))
+        ranked = [v for v in ranked if primary[v] >= floor]
 
     selected: list[int] = []
+    why: dict[int, dict] = {}  # selected tool -> why it is in the context (for agents and the UI)
 
-    def add(vid: int, hop: int) -> None:
+    def add(vid: int, hop: int, reason: dict) -> None:
         if vid in selected or len(selected) >= budget:
             return
         selected.append(vid)
+        why[vid] = reason
         if not opts.prereq:
             return
         _, choice = chain_cost(vid, hop)
         for dtype in sorted(choice):
-            add(choice[dtype], hop + 1)
+            add(choice[dtype], hop + 1, {"role": "prerequisite", "produces": m.key(dtype), "for": m.key(vid)})
 
     for vid in ranked:
         if len(selected) >= budget:
             break
-        add(vid, 0)
+        add(vid, 0, {"role": "match", "score": round(primary[vid], 3)})
         for n, w in sorted(nxt.get(vid, []), key=lambda x: -x[1]):
             if len(selected) < budget and n not in selected:
-                add(n, 1)
+                add(n, 1, {"role": "learned_next", "after": m.key(vid)})
 
     tool_keys = [m.key(v) for v in selected]
     latency = (time.perf_counter() - t0) * 1000
@@ -366,15 +424,15 @@ def retrieve(
     nodes = []
     for v in node_ids:
         kind = _kind(v)
-        key = m.key(v) or (f"intent:{v - config.ID_BASE['Intent']:04d}" if kind == "Intent" else str(v))
+        key = m.key(v) or (intent_key(v) if kind == "Intent" else str(v))
         nodes.append({"id": key, "kind": kind, "selected": v in sel,
                       "score": round(cap_sim.get(v, intent_sim.get(v, primary.get(v, 0.0))), 3)})
-    keyof = lambda v: m.key(v) or f"intent:{v - config.ID_BASE['Intent']:04d}"  # noqa: E731
+    keyof = lambda v: m.key(v) or intent_key(v)  # noqa: E731
     edges = [{"source": keyof(a), "target": keyof(b), "rel": r} for a, b, r in vis_edges]
 
     return Retrieval(
         strategy, tool_keys, tokens.tool_tokens(tool_keys), latency, st.round_trips, st.db_ms,
         {"nodes": nodes, "edges": edges},
         debug={"caps": cap_hits, "intents": intents, "servers": sorted(servers), "allowed": allowed, "rows": len(rows),
-               "traversal": opts.traversal},
+               "traversal": opts.traversal, "why": {m.key(v): r for v, r in why.items()}},
     )

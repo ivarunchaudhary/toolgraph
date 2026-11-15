@@ -118,6 +118,14 @@ class LearnedState:
 STATE = LearnedState()
 
 
+def state() -> LearnedState:
+    """Learned state of the active workspace (ctx.use), else the demo graph's."""
+    from .ctx import current
+
+    ws = current()
+    return ws.state if ws is not None else STATE
+
+
 def reset(db: HydraDB | None = None) -> None:
     """Drop all learned structure: wipe + re-ingest the base catalog (learned edges hang off it)."""
     from .ingest import ingest
@@ -136,11 +144,14 @@ INTENT_Q2 = (
 
 
 def _register_intent(db: HydraDB, vid: int, text: str, servers: frozenset, given: frozenset) -> None:
-    STATE.intents[vid] = text
-    STATE.sig[vid] = (servers, given)
-    STATE.index.add(str(vid), mask_entities(text))
+    from .ctx import intent_key
+
+    st = state()
+    st.intents[vid] = text
+    st.sig[vid] = (servers, given)
+    st.index.add(str(vid), mask_entities(text))
     db.run_raw(INTENT_Q2, {"rows": [{
-        "id": vid, "key": f"intent:{vid - config.ID_BASE['Intent']:04d}", "text": text,
+        "id": vid, "key": intent_key(vid), "text": text,
         "servers": ",".join(sorted(servers)), "given": ",".join(sorted(given)),
     }]})
 
@@ -148,15 +159,18 @@ def _register_intent(db: HydraDB, vid: int, text: str, servers: frozenset, given
 def _intent_for(text: str, given: list[str], db: HydraDB, create: bool = True) -> int | None:
     from .retrieve.base import mentioned_servers
 
-    hits = STATE.match(text, given, k=1)
+    from .ctx import offset
+
+    st = state()
+    hits = st.match(text, given, k=1)
     if hits:
         return hits[0][0]
     if not create:
         return None
-    if len(STATE.intents) >= MAX_INTENTS:  # cap: fold into the closest existing intent
-        near = STATE.match(text, given, k=1, thr=float("-inf"))
+    if len(st.intents) >= MAX_INTENTS:  # cap: fold into the closest existing intent
+        near = st.match(text, given, k=1, thr=float("-inf"))
         return near[0][0] if near else None
-    vid = config.ID_BASE["Intent"] + len(STATE.intents)
+    vid = offset() + config.ID_BASE["Intent"] + len(st.intents)
     _register_intent(db, vid, text, frozenset(mentioned_servers(text)), frozenset(given))
     return vid
 
@@ -207,6 +221,7 @@ def learn(
     cat = get_catalog()
     plan_ids = [m[t] for t in plan if t in cat.tools]
     changes: dict = {"intent": None, "solved": {}, "next": {}, "gap": None}
+    STATE = state()
     with STATE.lock:
         intent = _intent_for(task_text, given, db, create=True)
         changes["intent"] = intent

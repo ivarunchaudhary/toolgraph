@@ -14,8 +14,17 @@ def tool_doc(tool) -> str:
     return f"{tool.server.replace('_', ' ')} {tool.name.replace('_', ' ')}: {tool.description}"
 
 
-@lru_cache(maxsize=1)
 def tool_index() -> Index:
+    from ..ctx import current
+
+    ws = current()
+    if ws is not None:
+        return ws.tool_index()
+    return _demo_tool_index()
+
+
+@lru_cache(maxsize=1)
+def _demo_tool_index() -> Index:
     cat = get_catalog()
     ids = sorted(cat.tools)
     return Index(ids, [tool_doc(cat.tools[i]) for i in ids])

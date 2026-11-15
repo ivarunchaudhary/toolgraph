@@ -22,11 +22,12 @@ def tools_text(tool_ids: list[str]) -> str:
     return "\n".join(cat.tools[t].definition_text() for t in tool_ids)
 
 
-@lru_cache(maxsize=4096)
-def _tool_tokens(tool_id: str) -> int:
-    return count(get_catalog().tools[tool_id].definition_text())
+@lru_cache(maxsize=65536)
+def _text_tokens(text: str) -> int:
+    return count(text)
 
 
 def tool_tokens(tool_ids: list[str]) -> int:
     # per-tool counts + 1 newline token each; matches count(tools_text(ids)) to within a few tokens
-    return sum(_tool_tokens(t) for t in tool_ids) + max(0, len(tool_ids) - 1)
+    cat = get_catalog()
+    return sum(_text_tokens(cat.tools[t].definition_text()) for t in tool_ids) + max(0, len(tool_ids) - 1)
