@@ -155,8 +155,8 @@ Source: `results/load_local.json`, local Docker stack on a laptop (app + HydraDB
 
 | concurrent users | duration | retrieve RPS | p50 | p95 | p99 | errors |
 |---|---|---|---|---|---|---|
-| 50 | 3m | 57.1 | 370 ms | 1100 ms | 2200 ms | 0.00% |
-| 200 | 3m | 4.1 | 2700 ms | 9400 ms | 14000 ms | 0.00% |
+| 50 | 3m | 68.6 | 340 ms | 1700 ms | 3100 ms | 0.00% |
+| 200 | 3m | 83.2 | 1700 ms | 3200 ms | 4000 ms | 0.00% |
 <!-- /gen:load -->
 
 ## What's measured, exactly
