@@ -1,0 +1,1473 @@
+{
+ "intents": [
+  {
+   "id": 6000000,
+   "text": "Read ./reports/weekly.csv and post its contents in the Discord channel #backend.",
+   "servers": [
+    "discord",
+    "filesystem"
+   ],
+   "given": [
+    "type:channel_name",
+    "type:local_path"
+   ]
+  },
+  {
+   "id": 6000001,
+   "text": "Email our main contact at Northwind that the renewal quote is ready.",
+   "servers": [
+    "gmail"
+   ],
+   "given": [
+    "type:company_name"
+   ]
+  },
+  {
+   "id": 6000002,
+   "text": "Create a Linear issue for the Mobile team: the export button is broken on Safari.",
+   "servers": [
+    "linear"
+   ],
+   "given": [
+    "type:team_name"
+   ]
+  },
+  {
+   "id": 6000003,
+   "text": "Give wei.zhang@acme.io access to the pricing proposal in Drive.",
+   "servers": [
+    "google_drive"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000004,
+   "text": "Post the failure output of the newest GitHub workflow run for acme/payments into #eng-alerts in Slack.",
+   "servers": [
+    "github",
+    "slack"
+   ],
+   "given": [
+    "type:channel_name",
+    "type:repo_path"
+   ]
+  },
+  {
+   "id": 6000005,
+   "text": "Open a GitHub issue in acme/web saying the README install steps are outdated.",
+   "servers": [
+    "github"
+   ],
+   "given": [
+    "type:repo_path"
+   ]
+  },
+  {
+   "id": 6000006,
+   "text": "Email wei.zhang@acme.io that the contract is signed.",
+   "servers": [
+    "gmail"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000007,
+   "text": "Ask Wei Zhang to review the latest MR in initech/billing on GitLab.",
+   "servers": [
+    "gitlab"
+   ],
+   "given": [
+    "type:person_name",
+    "type:repo_path"
+   ]
+  },
+  {
+   "id": 6000008,
+   "text": "Assign the Linear issue about the flaky upload test to sam.lee@northwind.com.",
+   "servers": [
+    "linear"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000009,
+   "text": "Put the local file ~/Desktop/q3-plan.md into our shared Drive folder for reports.",
+   "servers": [
+    "filesystem",
+    "google_drive"
+   ],
+   "given": [
+    "type:local_path"
+   ]
+  },
+  {
+   "id": 6000010,
+   "text": "How many rows in users have a null email? Run the query.",
+   "servers": [
+    "gmail"
+   ],
+   "given": [
+    "type:table_name"
+   ]
+  },
+  {
+   "id": 6000011,
+   "text": "Export this month's events rows from Postgres into the local file ./reports/weekly.csv.",
+   "servers": [
+    "filesystem",
+    "postgres"
+   ],
+   "given": [
+    "type:local_path",
+    "type:table_name"
+   ]
+  },
+  {
+   "id": 6000012,
+   "text": "Add ana.ruiz@initech.com as a new contact in HubSpot.",
+   "servers": [
+    "hubspot"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000013,
+   "text": "Copy the contents of the launch checklist from Google Drive into a new Notion page under Projects.",
+   "servers": [
+    "google_drive",
+    "notion"
+   ],
+   "given": []
+  },
+  {
+   "id": 6000014,
+   "text": "Resend the latest Stripe invoice to jordan@globex.dev.",
+   "servers": [
+    "stripe"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000015,
+   "text": "Give jordan@globex.dev their money back for the last payment.",
+   "servers": [],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000016,
+   "text": "Log a note on Jordan Kim's HubSpot contact that they want a demo next month.",
+   "servers": [
+    "hubspot"
+   ],
+   "given": [
+    "type:person_name"
+   ]
+  },
+  {
+   "id": 6000017,
+   "text": "Turn the recent discussion in Slack #release into a Jira ticket in MOB.",
+   "servers": [
+    "jira",
+    "slack"
+   ],
+   "given": [
+    "type:channel_name",
+    "type:project_key"
+   ]
+  },
+  {
+   "id": 6000018,
+   "text": "DM Wei Zhang on Discord that the stream starts in 10 minutes.",
+   "servers": [
+    "discord"
+   ],
+   "given": [
+    "type:person_name"
+   ]
+  },
+  {
+   "id": 6000019,
+   "text": "Post in Slack #support that the release is done.",
+   "servers": [
+    "slack"
+   ],
+   "given": [
+    "type:channel_name"
+   ]
+  },
+  {
+   "id": 6000020,
+   "text": "Mark the notifications incident resolved and announce it in #support on Slack.",
+   "servers": [
+    "pagerduty",
+    "slack"
+   ],
+   "given": [
+    "type:channel_name",
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000021,
+   "text": "Set the Globex opportunity to Closed Lost in the CRM.",
+   "servers": [
+    "hubspot"
+   ],
+   "given": [
+    "type:company_name"
+   ]
+  },
+  {
+   "id": 6000022,
+   "text": "Transition a ticket from WEB's current sprint to Done in Jira.",
+   "servers": [
+    "jira"
+   ],
+   "given": [
+    "type:project_key"
+   ]
+  },
+  {
+   "id": 6000023,
+   "text": "Schedule a 30 minute sync with wei.zhang@acme.io this Friday when we're both free.",
+   "servers": [],
+   "given": [
+    "type:date_range",
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000024,
+   "text": "Acknowledge the open PagerDuty incident on payments-api.",
+   "servers": [
+    "pagerduty"
+   ],
+   "given": [
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000025,
+   "text": "Add the details of the most recent auth-service outage to the Notion postmortems doc.",
+   "servers": [
+    "notion"
+   ],
+   "given": [
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000026,
+   "text": "Find the Jira issue about slow search and assign it to sam.lee@northwind.com.",
+   "servers": [
+    "jira"
+   ],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000027,
+   "text": "Read the log of the latest failed GitLab pipeline in northwind/mobile and share it on Discord in #eng-alerts.",
+   "servers": [
+    "discord",
+    "gitlab"
+   ],
+   "given": [
+    "type:channel_name",
+    "type:repo_path"
+   ]
+  },
+  {
+   "id": 6000028,
+   "text": "Find the search-indexer on-call engineer and schedule a review with them next Tuesday afternoon.",
+   "servers": [
+    "pagerduty"
+   ],
+   "given": [
+    "type:date_range",
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000029,
+   "text": "Query Postgres for yesterday's entries in invoices.",
+   "servers": [
+    "postgres"
+   ],
+   "given": [
+    "type:table_name"
+   ]
+  },
+  {
+   "id": 6000030,
+   "text": "Move my meeting next Tuesday afternoon to another time when all attendees are free.",
+   "servers": [
+    "google_calendar"
+   ],
+   "given": [
+    "type:date_range"
+   ]
+  },
+  {
+   "id": 6000031,
+   "text": "Reschedule the event this Friday to a slot that works for everyone invited.",
+   "servers": [],
+   "given": [
+    "type:date_range"
+   ]
+  },
+  {
+   "id": 6000032,
+   "text": "Turn off recurring billing for customer priya@acme.io.",
+   "servers": [],
+   "given": [
+    "type:email_address"
+   ]
+  },
+  {
+   "id": 6000033,
+   "text": "Backfill the missing region column in the events table.",
+   "servers": [
+    "postgres"
+   ],
+   "given": [
+    "type:table_name"
+   ]
+  },
+  {
+   "id": 6000034,
+   "text": "File a ticket in Linear for Billing about flaky login tests.",
+   "servers": [
+    "linear"
+   ],
+   "given": [
+    "type:team_name"
+   ]
+  },
+  {
+   "id": 6000035,
+   "text": "Open a new Linear issue in the Infra team to track the onboarding email typo.",
+   "servers": [
+    "gmail",
+    "linear"
+   ],
+   "given": [
+    "type:team_name"
+   ]
+  },
+  {
+   "id": 6000036,
+   "text": "Look up who we know at Hooli in HubSpot and email them the onboarding checklist.",
+   "servers": [
+    "gmail",
+    "hubspot"
+   ],
+   "given": [
+    "type:company_name"
+   ]
+  },
+  {
+   "id": 6000037,
+   "text": "Dump the latest refunds data to ~/notes/standup.md on disk.",
+   "servers": [
+    "filesystem"
+   ],
+   "given": [
+    "type:local_path",
+    "type:table_name"
+   ]
+  },
+  {
+   "id": 6000038,
+   "text": "Who's carrying the pager for ledger? DM that person on Slack so they know a deploy is going out.",
+   "servers": [
+    "pagerduty",
+    "slack"
+   ],
+   "given": [
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000039,
+   "text": "Add a note to the Linear ticket for API rate limits saying it's blocked on infra.",
+   "servers": [
+    "linear"
+   ],
+   "given": []
+  },
+  {
+   "id": 6000040,
+   "text": "Create a Linear ticket for Billing from the latest failed GitHub Actions run of hooli/search, including the log.",
+   "servers": [
+    "github",
+    "linear"
+   ],
+   "given": [
+    "type:repo_path",
+    "type:team_name"
+   ]
+  },
+  {
+   "id": 6000041,
+   "text": "Send Sam Lee a Slack DM asking for the slide deck.",
+   "servers": [
+    "slack"
+   ],
+   "given": [
+    "type:person_name"
+   ]
+  },
+  {
+   "id": 6000042,
+   "text": "Send ana.ruiz@initech.com the timeline of the newest search-indexer outage by email.",
+   "servers": [
+    "gmail"
+   ],
+   "given": [
+    "type:email_address",
+    "type:service_name"
+   ]
+  },
+  {
+   "id": 6000043,
+   "text": "Mark the top issue in the active CORE sprint as in progress.",
+   "servers": [],
+   "given": [
+    "type:project_key"
+   ]
+  }
+ ],
+ "solved_with": [
+  {
+   "intent": 6000000,
+   "tool": "tool:filesystem.read_file",
+   "w": 0.8
+  },
+  {
+   "intent": 6000000,
+   "tool": "tool:discord.send_message",
+   "w": 0.75
+  },
+  {
+   "intent": 6000001,
+   "tool": "tool:hubspot.list_company_contacts",
+   "w": 0.09999999999999998
+  },
+  {
+   "intent": 6000002,
+   "tool": "tool:linear.find_team",
+   "w": 0.5
+  },
+  {
+   "intent": 6000002,
+   "tool": "tool:linear.create_issue",
+   "w": 0.5
+  },
+  {
+   "intent": 6000003,
+   "tool": "tool:google_drive.search_files",
+   "w": 1.5
+  },
+  {
+   "intent": 6000003,
+   "tool": "tool:google_drive.share_file",
+   "w": 1.5
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:github.get_workflow_run_logs",
+   "w": 2.25
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:github.list_workflow_runs",
+   "w": 1.1
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:slack.find_channel",
+   "w": 1.0
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:slack.post_message",
+   "w": 1.1
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.create_issue",
+   "w": 1.0
+  },
+  {
+   "intent": 6000006,
+   "tool": "tool:gmail.send_email",
+   "w": 0.5
+  },
+  {
+   "intent": 6000007,
+   "tool": "tool:gitlab.list_merge_requests",
+   "w": 2.0
+  },
+  {
+   "intent": 6000007,
+   "tool": "tool:gitlab.find_user",
+   "w": 1.5
+  },
+  {
+   "intent": 6000007,
+   "tool": "tool:gitlab.assign_reviewer",
+   "w": 1.5
+  },
+  {
+   "intent": 6000007,
+   "tool": "tool:gitlab.create_merge_request_note",
+   "w": 0.5
+  },
+  {
+   "intent": 6000008,
+   "tool": "tool:linear.assign_issue",
+   "w": 1.75
+  },
+  {
+   "intent": 6000008,
+   "tool": "tool:linear.search_issues",
+   "w": 1.5
+  },
+  {
+   "intent": 6000008,
+   "tool": "tool:linear.find_user",
+   "w": 1.5
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.list_pull_requests",
+   "w": 2.0
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.search_users",
+   "w": 1.5
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.request_reviewers",
+   "w": 1.5
+  },
+  {
+   "intent": 6000009,
+   "tool": "tool:google_drive.find_folder",
+   "w": 0.5
+  },
+  {
+   "intent": 6000009,
+   "tool": "tool:google_drive.upload_file",
+   "w": 0.5
+  },
+  {
+   "intent": 6000011,
+   "tool": "tool:postgres.run_select",
+   "w": 1.25
+  },
+  {
+   "intent": 6000011,
+   "tool": "tool:postgres.list_tables",
+   "w": 0.5
+  },
+  {
+   "intent": 6000011,
+   "tool": "tool:postgres.describe_table",
+   "w": 1.0
+  },
+  {
+   "intent": 6000011,
+   "tool": "tool:filesystem.write_file",
+   "w": 1.0
+  },
+  {
+   "intent": 6000012,
+   "tool": "tool:hubspot.create_contact",
+   "w": 0.5
+  },
+  {
+   "intent": 6000013,
+   "tool": "tool:google_drive.read_file",
+   "w": 0.75
+  },
+  {
+   "intent": 6000013,
+   "tool": "tool:google_drive.search_files",
+   "w": 0.5
+  },
+  {
+   "intent": 6000013,
+   "tool": "tool:notion.search",
+   "w": 0.5
+  },
+  {
+   "intent": 6000013,
+   "tool": "tool:notion.create_page",
+   "w": 0.5
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.find_customer",
+   "w": 3.0
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.list_invoices",
+   "w": 1.5
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.send_invoice",
+   "w": 1.5
+  },
+  {
+   "intent": 6000015,
+   "tool": "tool:stripe.find_customer",
+   "w": 0.5
+  },
+  {
+   "intent": 6000015,
+   "tool": "tool:stripe.list_charges",
+   "w": 0.5
+  },
+  {
+   "intent": 6000015,
+   "tool": "tool:stripe.create_refund",
+   "w": 0.5
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.merge_pull_request",
+   "w": 0.5
+  },
+  {
+   "intent": 6000016,
+   "tool": "tool:hubspot.search_contacts",
+   "w": 1.0
+  },
+  {
+   "intent": 6000016,
+   "tool": "tool:hubspot.create_note",
+   "w": 1.0
+  },
+  {
+   "intent": 6000017,
+   "tool": "tool:slack.get_channel_history",
+   "w": 0.09999999999999998
+  },
+  {
+   "intent": 6000018,
+   "tool": "tool:discord.search_members",
+   "w": 0.5
+  },
+  {
+   "intent": 6000018,
+   "tool": "tool:discord.send_dm",
+   "w": 0.5
+  },
+  {
+   "intent": 6000019,
+   "tool": "tool:slack.find_channel",
+   "w": 1.5
+  },
+  {
+   "intent": 6000019,
+   "tool": "tool:slack.post_message",
+   "w": 1.0
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:github.get_pull_request_diff",
+   "w": 0.09999999999999998
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.resolve_incident",
+   "w": 1.3
+  },
+  {
+   "intent": 6000017,
+   "tool": "tool:jira.create_issue",
+   "w": 0.5
+  },
+  {
+   "intent": 6000021,
+   "tool": "tool:hubspot.find_company",
+   "w": 1.5
+  },
+  {
+   "intent": 6000021,
+   "tool": "tool:hubspot.list_company_deals",
+   "w": 1.5
+  },
+  {
+   "intent": 6000021,
+   "tool": "tool:hubspot.update_deal_stage",
+   "w": 1.5
+  },
+  {
+   "intent": 6000022,
+   "tool": "tool:jira.get_project",
+   "w": 2.0
+  },
+  {
+   "intent": 6000022,
+   "tool": "tool:jira.get_active_sprint",
+   "w": 0.5
+  },
+  {
+   "intent": 6000022,
+   "tool": "tool:jira.list_sprint_issues",
+   "w": 0.5
+  },
+  {
+   "intent": 6000022,
+   "tool": "tool:jira.transition_issue",
+   "w": 0.5
+  },
+  {
+   "intent": 6000000,
+   "tool": "tool:discord.find_channel",
+   "w": 0.5
+  },
+  {
+   "intent": 6000023,
+   "tool": "tool:google_calendar.create_event",
+   "w": 0.75
+  },
+  {
+   "intent": 6000023,
+   "tool": "tool:google_calendar.find_free_slot",
+   "w": 0.5
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.create_branch",
+   "w": 0.5
+  },
+  {
+   "intent": 6000005,
+   "tool": "tool:github.create_pull_request",
+   "w": 0.5
+  },
+  {
+   "intent": 6000022,
+   "tool": "tool:jira.create_issue",
+   "w": 1.5
+  },
+  {
+   "intent": 6000024,
+   "tool": "tool:pagerduty.get_service",
+   "w": 1.5
+  },
+  {
+   "intent": 6000024,
+   "tool": "tool:pagerduty.list_incidents",
+   "w": 1.5
+  },
+  {
+   "intent": 6000024,
+   "tool": "tool:pagerduty.acknowledge_incident",
+   "w": 1.5
+  },
+  {
+   "intent": 6000025,
+   "tool": "tool:pagerduty.get_incident",
+   "w": 0.8
+  },
+  {
+   "intent": 6000004,
+   "tool": "tool:github.list_pull_requests",
+   "w": 0.5
+  },
+  {
+   "intent": 6000026,
+   "tool": "tool:jira.assign_issue",
+   "w": 1.5
+  },
+  {
+   "intent": 6000027,
+   "tool": "tool:gitlab.list_pipelines",
+   "w": 1.0
+  },
+  {
+   "intent": 6000027,
+   "tool": "tool:gitlab.get_pipeline_job_log",
+   "w": 1.0
+  },
+  {
+   "intent": 6000027,
+   "tool": "tool:discord.find_channel",
+   "w": 1.0
+  },
+  {
+   "intent": 6000027,
+   "tool": "tool:discord.send_message",
+   "w": 1.0
+  },
+  {
+   "intent": 6000028,
+   "tool": "tool:google_calendar.create_event",
+   "w": 1.0
+  },
+  {
+   "intent": 6000029,
+   "tool": "tool:postgres.run_select",
+   "w": 0.75
+  },
+  {
+   "intent": 6000029,
+   "tool": "tool:postgres.describe_table",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.get_service",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.list_oncalls",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.get_user",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:slack.lookup_user_by_email",
+   "w": 0.09999999999999998
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:slack.send_dm",
+   "w": 0.09999999999999998
+  },
+  {
+   "intent": 6000030,
+   "tool": "tool:google_calendar.update_event",
+   "w": 0.5
+  },
+  {
+   "intent": 6000031,
+   "tool": "tool:google_calendar.list_events",
+   "w": 0.5
+  },
+  {
+   "intent": 6000031,
+   "tool": "tool:google_calendar.get_event",
+   "w": 0.5
+  },
+  {
+   "intent": 6000031,
+   "tool": "tool:google_calendar.find_free_slot",
+   "w": 0.5
+  },
+  {
+   "intent": 6000031,
+   "tool": "tool:google_calendar.update_event",
+   "w": 0.5
+  },
+  {
+   "intent": 6000032,
+   "tool": "tool:stripe.find_customer",
+   "w": 0.5
+  },
+  {
+   "intent": 6000032,
+   "tool": "tool:stripe.list_subscriptions",
+   "w": 0.5
+  },
+  {
+   "intent": 6000032,
+   "tool": "tool:stripe.cancel_subscription",
+   "w": 0.5
+  },
+  {
+   "intent": 6000033,
+   "tool": "tool:postgres.run_update",
+   "w": 0.5
+  },
+  {
+   "intent": 6000028,
+   "tool": "tool:pagerduty.get_service",
+   "w": 0.5
+  },
+  {
+   "intent": 6000028,
+   "tool": "tool:pagerduty.list_oncalls",
+   "w": 0.5
+  },
+  {
+   "intent": 6000028,
+   "tool": "tool:pagerduty.get_user",
+   "w": 0.5
+  },
+  {
+   "intent": 6000028,
+   "tool": "tool:google_calendar.find_free_slot",
+   "w": 0.5
+  },
+  {
+   "intent": 6000001,
+   "tool": "tool:gmail.read_message",
+   "w": 0.5
+  },
+  {
+   "intent": 6000034,
+   "tool": "tool:linear.create_issue",
+   "w": 0.75
+  },
+  {
+   "intent": 6000034,
+   "tool": "tool:linear.find_team",
+   "w": 0.5
+  },
+  {
+   "intent": 6000026,
+   "tool": "tool:jira.search_issues",
+   "w": 1.0
+  },
+  {
+   "intent": 6000026,
+   "tool": "tool:jira.find_user",
+   "w": 1.0
+  },
+  {
+   "intent": 6000035,
+   "tool": "tool:linear.find_team",
+   "w": 0.5
+  },
+  {
+   "intent": 6000035,
+   "tool": "tool:linear.create_issue",
+   "w": 0.5
+  },
+  {
+   "intent": 6000036,
+   "tool": "tool:gmail.send_draft",
+   "w": 0.5
+  },
+  {
+   "intent": 6000019,
+   "tool": "tool:slack.set_channel_topic",
+   "w": 0.5
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.list_subscriptions",
+   "w": 1.0
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.cancel_subscription",
+   "w": 1.0
+  },
+  {
+   "intent": 6000038,
+   "tool": "tool:pagerduty.get_service",
+   "w": 1.0
+  },
+  {
+   "intent": 6000038,
+   "tool": "tool:pagerduty.list_oncalls",
+   "w": 1.0
+  },
+  {
+   "intent": 6000038,
+   "tool": "tool:pagerduty.get_user",
+   "w": 1.0
+  },
+  {
+   "intent": 6000038,
+   "tool": "tool:slack.lookup_user_by_email",
+   "w": 1.0
+  },
+  {
+   "intent": 6000038,
+   "tool": "tool:slack.send_dm",
+   "w": 1.0
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.get_incident",
+   "w": 0.04999999999999999
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:gmail.send_email",
+   "w": 0.25
+  },
+  {
+   "intent": 6000039,
+   "tool": "tool:linear.search_issues",
+   "w": 0.5
+  },
+  {
+   "intent": 6000039,
+   "tool": "tool:linear.add_comment",
+   "w": 0.5
+  },
+  {
+   "intent": 6000030,
+   "tool": "tool:google_calendar.find_free_slot",
+   "w": 0.5
+  },
+  {
+   "intent": 6000030,
+   "tool": "tool:google_calendar.create_event",
+   "w": 0.5
+  },
+  {
+   "intent": 6000030,
+   "tool": "tool:google_calendar.list_events",
+   "w": 0.5
+  },
+  {
+   "intent": 6000030,
+   "tool": "tool:google_calendar.delete_event",
+   "w": 0.5
+  },
+  {
+   "intent": 6000040,
+   "tool": "tool:github.list_workflow_runs",
+   "w": 0.5
+  },
+  {
+   "intent": 6000040,
+   "tool": "tool:github.get_workflow_run_logs",
+   "w": 0.5
+  },
+  {
+   "intent": 6000040,
+   "tool": "tool:linear.find_team",
+   "w": 0.5
+  },
+  {
+   "intent": 6000040,
+   "tool": "tool:linear.create_issue",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:slack.post_message",
+   "w": 0.75
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:pagerduty.list_incidents",
+   "w": 0.5
+  },
+  {
+   "intent": 6000020,
+   "tool": "tool:slack.find_channel",
+   "w": 0.5
+  },
+  {
+   "intent": 6000019,
+   "tool": "tool:discord.find_channel",
+   "w": 0.5
+  },
+  {
+   "intent": 6000019,
+   "tool": "tool:discord.send_message",
+   "w": 0.5
+  },
+  {
+   "intent": 6000025,
+   "tool": "tool:notion.append_blocks",
+   "w": 0.75
+  },
+  {
+   "intent": 6000025,
+   "tool": "tool:pagerduty.get_service",
+   "w": 0.5
+  },
+  {
+   "intent": 6000025,
+   "tool": "tool:pagerduty.list_incidents",
+   "w": 0.5
+  },
+  {
+   "intent": 6000025,
+   "tool": "tool:notion.search",
+   "w": 0.5
+  },
+  {
+   "intent": 6000041,
+   "tool": "tool:slack.search_users",
+   "w": 0.5
+  },
+  {
+   "intent": 6000041,
+   "tool": "tool:slack.send_dm",
+   "w": 0.5
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.list_charges",
+   "w": 0.5
+  },
+  {
+   "intent": 6000014,
+   "tool": "tool:stripe.create_refund",
+   "w": 0.5
+  },
+  {
+   "intent": 6000042,
+   "tool": "tool:pagerduty.get_incident",
+   "w": 0.5
+  },
+  {
+   "intent": 6000043,
+   "tool": "tool:jira.transition_issue",
+   "w": 0.75
+  },
+  {
+   "intent": 6000043,
+   "tool": "tool:jira.get_project",
+   "w": 0.5
+  },
+  {
+   "intent": 6000043,
+   "tool": "tool:jira.get_active_sprint",
+   "w": 0.5
+  },
+  {
+   "intent": 6000043,
+   "tool": "tool:jira.list_sprint_issues",
+   "w": 0.5
+  }
+ ],
+ "next": [
+  {
+   "src": "tool:linear.find_team",
+   "dst": "tool:linear.create_issue",
+   "w": 1.8000000000000003
+  },
+  {
+   "src": "tool:google_drive.search_files",
+   "dst": "tool:google_drive.share_file",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:github.list_workflow_runs",
+   "dst": "tool:github.get_workflow_run_logs",
+   "w": 2.2
+  },
+  {
+   "src": "tool:github.get_workflow_run_logs",
+   "dst": "tool:slack.find_channel",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:slack.find_channel",
+   "dst": "tool:slack.post_message",
+   "w": 2.0000000000000004
+  },
+  {
+   "src": "tool:gitlab.list_merge_requests",
+   "dst": "tool:gitlab.find_user",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:gitlab.find_user",
+   "dst": "tool:gitlab.assign_reviewer",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:gitlab.list_merge_requests",
+   "dst": "tool:gitlab.create_merge_request_note",
+   "w": 1.3
+  },
+  {
+   "src": "tool:linear.search_issues",
+   "dst": "tool:linear.find_user",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:linear.find_user",
+   "dst": "tool:linear.assign_issue",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:github.list_pull_requests",
+   "dst": "tool:github.search_users",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:github.search_users",
+   "dst": "tool:github.request_reviewers",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:google_drive.find_folder",
+   "dst": "tool:google_drive.upload_file",
+   "w": 1.3
+  },
+  {
+   "src": "tool:postgres.list_tables",
+   "dst": "tool:postgres.describe_table",
+   "w": 1.3
+  },
+  {
+   "src": "tool:postgres.describe_table",
+   "dst": "tool:postgres.run_select",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:postgres.run_select",
+   "dst": "tool:filesystem.write_file",
+   "w": 1.6
+  },
+  {
+   "src": "tool:google_drive.search_files",
+   "dst": "tool:notion.search",
+   "w": 1.3
+  },
+  {
+   "src": "tool:notion.search",
+   "dst": "tool:google_drive.read_file",
+   "w": 1.3
+  },
+  {
+   "src": "tool:google_drive.read_file",
+   "dst": "tool:notion.create_page",
+   "w": 1.3
+  },
+  {
+   "src": "tool:stripe.find_customer",
+   "dst": "tool:stripe.list_invoices",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:stripe.list_invoices",
+   "dst": "tool:stripe.send_invoice",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:stripe.find_customer",
+   "dst": "tool:stripe.list_charges",
+   "w": 1.6
+  },
+  {
+   "src": "tool:stripe.list_charges",
+   "dst": "tool:stripe.create_refund",
+   "w": 1.6
+  },
+  {
+   "src": "tool:github.list_pull_requests",
+   "dst": "tool:github.merge_pull_request",
+   "w": 1.3
+  },
+  {
+   "src": "tool:hubspot.search_contacts",
+   "dst": "tool:hubspot.create_note",
+   "w": 1.6
+  },
+  {
+   "src": "tool:discord.search_members",
+   "dst": "tool:discord.send_dm",
+   "w": 1.3
+  },
+  {
+   "src": "tool:hubspot.find_company",
+   "dst": "tool:hubspot.list_company_deals",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:hubspot.list_company_deals",
+   "dst": "tool:hubspot.update_deal_stage",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:jira.get_project",
+   "dst": "tool:jira.get_active_sprint",
+   "w": 1.4000000000000001
+  },
+  {
+   "src": "tool:jira.get_active_sprint",
+   "dst": "tool:jira.list_sprint_issues",
+   "w": 1.4000000000000001
+  },
+  {
+   "src": "tool:jira.list_sprint_issues",
+   "dst": "tool:jira.transition_issue",
+   "w": 1.6
+  },
+  {
+   "src": "tool:filesystem.read_file",
+   "dst": "tool:discord.find_channel",
+   "w": 1.3
+  },
+  {
+   "src": "tool:discord.find_channel",
+   "dst": "tool:discord.send_message",
+   "w": 2.2
+  },
+  {
+   "src": "tool:google_calendar.find_free_slot",
+   "dst": "tool:google_calendar.create_event",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:github.create_branch",
+   "dst": "tool:github.create_pull_request",
+   "w": 1.3
+  },
+  {
+   "src": "tool:jira.get_project",
+   "dst": "tool:jira.create_issue",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:pagerduty.get_service",
+   "dst": "tool:pagerduty.list_incidents",
+   "w": 1.7000000000000004
+  },
+  {
+   "src": "tool:pagerduty.list_incidents",
+   "dst": "tool:pagerduty.acknowledge_incident",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:gitlab.list_pipelines",
+   "dst": "tool:gitlab.get_pipeline_job_log",
+   "w": 1.6
+  },
+  {
+   "src": "tool:gitlab.get_pipeline_job_log",
+   "dst": "tool:discord.find_channel",
+   "w": 1.6
+  },
+  {
+   "src": "tool:pagerduty.get_service",
+   "dst": "tool:pagerduty.list_oncalls",
+   "w": 2.2
+  },
+  {
+   "src": "tool:pagerduty.list_oncalls",
+   "dst": "tool:pagerduty.get_user",
+   "w": 2.2
+  },
+  {
+   "src": "tool:pagerduty.get_user",
+   "dst": "tool:slack.lookup_user_by_email",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:slack.lookup_user_by_email",
+   "dst": "tool:slack.send_dm",
+   "w": 1.5000000000000002
+  },
+  {
+   "src": "tool:google_calendar.list_events",
+   "dst": "tool:google_calendar.get_event",
+   "w": 1.3
+  },
+  {
+   "src": "tool:google_calendar.get_event",
+   "dst": "tool:google_calendar.find_free_slot",
+   "w": 1.3
+  },
+  {
+   "src": "tool:google_calendar.find_free_slot",
+   "dst": "tool:google_calendar.update_event",
+   "w": 1.3
+  },
+  {
+   "src": "tool:stripe.find_customer",
+   "dst": "tool:stripe.list_subscriptions",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:stripe.list_subscriptions",
+   "dst": "tool:stripe.cancel_subscription",
+   "w": 1.9000000000000001
+  },
+  {
+   "src": "tool:pagerduty.get_user",
+   "dst": "tool:google_calendar.find_free_slot",
+   "w": 1.3
+  },
+  {
+   "src": "tool:jira.search_issues",
+   "dst": "tool:jira.find_user",
+   "w": 1.6
+  },
+  {
+   "src": "tool:jira.find_user",
+   "dst": "tool:jira.assign_issue",
+   "w": 1.6
+  },
+  {
+   "src": "tool:slack.find_channel",
+   "dst": "tool:slack.set_channel_topic",
+   "w": 1.3
+  },
+  {
+   "src": "tool:linear.search_issues",
+   "dst": "tool:linear.add_comment",
+   "w": 1.3
+  },
+  {
+   "src": "tool:google_calendar.list_events",
+   "dst": "tool:google_calendar.delete_event",
+   "w": 1.3
+  },
+  {
+   "src": "tool:github.get_workflow_run_logs",
+   "dst": "tool:linear.find_team",
+   "w": 1.3
+  },
+  {
+   "src": "tool:pagerduty.list_incidents",
+   "dst": "tool:pagerduty.resolve_incident",
+   "w": 1.3
+  },
+  {
+   "src": "tool:pagerduty.resolve_incident",
+   "dst": "tool:slack.find_channel",
+   "w": 1.3
+  },
+  {
+   "src": "tool:pagerduty.list_incidents",
+   "dst": "tool:pagerduty.get_incident",
+   "w": 1.3
+  },
+  {
+   "src": "tool:pagerduty.get_incident",
+   "dst": "tool:notion.search",
+   "w": 1.3
+  },
+  {
+   "src": "tool:notion.search",
+   "dst": "tool:notion.append_blocks",
+   "w": 1.3
+  },
+  {
+   "src": "tool:slack.search_users",
+   "dst": "tool:slack.send_dm",
+   "w": 1.3
+  }
+ ]
+}

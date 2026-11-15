@@ -1,0 +1,661 @@
+{
+ "config": {
+  "seeds": 1,
+  "iters": 5,
+  "n_train": 96,
+  "n_test": 53,
+  "planner": "gemini:gemini-3.5-flash-lite",
+  "intent_threshold": 0.825
+ },
+ "baselines": {
+  "all_tools": [
+   {
+    "n": 53,
+    "success_rate": 0.9622641509433962,
+    "tool_recall": 1.0,
+    "context_tokens": 8524,
+    "cost_per_1k_tasks_usd": 8.524,
+    "db_round_trips": 0,
+    "latency_p50_ms": 0.08229099330492318,
+    "latency_p95_ms": 617.3013749939855,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "goal_not_reached": 1,
+     "missing_input": 1
+    },
+    "steps_per_success": 2.8627450980392157
+   }
+  ],
+  "vector_k8": [
+   {
+    "n": 53,
+    "success_rate": 0.5094339622641509,
+    "tool_recall": 0.7210691823899371,
+    "context_tokens": 506.49056603773585,
+    "cost_per_1k_tasks_usd": 0.5064905660377358,
+    "db_round_trips": 0,
+    "latency_p50_ms": 3.0524169851560146,
+    "latency_p95_ms": 125.6818330148235,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "goal_not_reached": 12,
+     "missing_input": 13,
+     "tool_not_in_context": 1
+    },
+    "steps_per_success": 2.3703703703703702
+   }
+  ],
+  "vector_k15": [
+   {
+    "n": 53,
+    "success_rate": 0.660377358490566,
+    "tool_recall": 0.8402515723270441,
+    "context_tokens": 956.1698113207547,
+    "cost_per_1k_tasks_usd": 0.9561698113207547,
+    "db_round_trips": 0,
+    "latency_p50_ms": 0.5922089912928641,
+    "latency_p95_ms": 0.9760420070961118,
+    "db_ms_p50": 0.0,
+    "failures": {
+     "missing_input": 7,
+     "goal_not_reached": 10,
+     "empty_plan": 1
+    },
+    "steps_per_success": 2.4
+   }
+  ]
+ },
+ "graph_learning": [
+  [
+   {
+    "n": 53,
+    "success_rate": 0.660377358490566,
+    "tool_recall": 0.8682389937106918,
+    "context_tokens": 583.377358490566,
+    "cost_per_1k_tasks_usd": 0.583377358490566,
+    "db_round_trips": 3.509433962264151,
+    "latency_p50_ms": 64.48850000742823,
+    "latency_p95_ms": 213.41016600490548,
+    "db_ms_p50": 61.65016695740633,
+    "failures": {
+     "goal_not_reached": 17,
+     "missing_input": 1
+    },
+    "steps_per_success": 2.3714285714285714
+   },
+   {
+    "n": 53,
+    "success_rate": 0.7358490566037735,
+    "tool_recall": 0.9154088050314465,
+    "context_tokens": 591.6415094339623,
+    "cost_per_1k_tasks_usd": 0.5916415094339623,
+    "db_round_trips": 3.4339622641509435,
+    "latency_p50_ms": 27.707959001418203,
+    "latency_p95_ms": 71.96087500778958,
+    "db_ms_p50": 25.866457988740876,
+    "failures": {
+     "goal_not_reached": 12,
+     "missing_input": 2
+    },
+    "steps_per_success": 2.4871794871794872
+   },
+   {
+    "n": 53,
+    "success_rate": 0.7547169811320755,
+    "tool_recall": 0.9216981132075471,
+    "context_tokens": 595.7358490566038,
+    "cost_per_1k_tasks_usd": 0.5957358490566038,
+    "db_round_trips": 3.358490566037736,
+    "latency_p50_ms": 33.00983298686333,
+    "latency_p95_ms": 120.08408401743509,
+    "db_ms_p50": 27.822164993267506,
+    "failures": {
+     "goal_not_reached": 11,
+     "missing_input": 2
+    },
+    "steps_per_success": 2.5
+   },
+   {
+    "n": 53,
+    "success_rate": 0.7924528301886793,
+    "tool_recall": 0.9424528301886792,
+    "context_tokens": 598.6415094339623,
+    "cost_per_1k_tasks_usd": 0.5986415094339623,
+    "db_round_trips": 3.339622641509434,
+    "latency_p50_ms": 40.794541011564434,
+    "latency_p95_ms": 79.68187500955537,
+    "db_ms_p50": 39.61616600281559,
+    "failures": {
+     "goal_not_reached": 9,
+     "empty_plan": 1,
+     "missing_input": 1
+    },
+    "steps_per_success": 2.6666666666666665
+   },
+   {
+    "n": 53,
+    "success_rate": 0.8301886792452831,
+    "tool_recall": 0.9330188679245283,
+    "context_tokens": 602.5849056603773,
+    "cost_per_1k_tasks_usd": 0.6025849056603774,
+    "db_round_trips": 3.3207547169811322,
+    "latency_p50_ms": 48.28400001861155,
+    "latency_p95_ms": 102.81870799371973,
+    "db_ms_p50": 46.95129199535586,
+    "failures": {
+     "goal_not_reached": 8,
+     "missing_input": 1
+    },
+    "steps_per_success": 2.6818181818181817
+   },
+   {
+    "n": 53,
+    "success_rate": 0.8867924528301887,
+    "tool_recall": 0.940566037735849,
+    "context_tokens": 604.3962264150944,
+    "cost_per_1k_tasks_usd": 0.6043962264150944,
+    "db_round_trips": 3.30188679245283,
+    "latency_p50_ms": 36.98633299791254,
+    "latency_p95_ms": 118.92512498889118,
+    "db_ms_p50": 35.94087599776685,
+    "failures": {
+     "goal_not_reached": 5,
+     "missing_input": 1
+    },
+    "steps_per_success": 2.8085106382978724
+   }
+  ]
+ ],
+ "train_log": [
+  {
+   "n": 20,
+   "first_try_success": 13,
+   "retries": 7,
+   "retry_success": 4,
+   "seed": 0,
+   "iteration": 1
+  },
+  {
+   "n": 20,
+   "first_try_success": 11,
+   "retries": 9,
+   "retry_success": 2,
+   "seed": 0,
+   "iteration": 2
+  },
+  {
+   "n": 20,
+   "first_try_success": 13,
+   "retries": 7,
+   "retry_success": 1,
+   "seed": 0,
+   "iteration": 3
+  },
+  {
+   "n": 20,
+   "first_try_success": 14,
+   "retries": 6,
+   "retry_success": 1,
+   "seed": 0,
+   "iteration": 4
+  },
+  {
+   "n": 16,
+   "first_try_success": 12,
+   "retries": 4,
+   "retry_success": 3,
+   "seed": 0,
+   "iteration": 5
+  }
+ ],
+ "aggregate": {
+  "graph_learning": {
+   "success_rate": [
+    {
+     "mean": 0.660377358490566,
+     "std": 0.0,
+     "values": [
+      0.660377358490566
+     ]
+    },
+    {
+     "mean": 0.7358490566037735,
+     "std": 0.0,
+     "values": [
+      0.7358490566037735
+     ]
+    },
+    {
+     "mean": 0.7547169811320755,
+     "std": 0.0,
+     "values": [
+      0.7547169811320755
+     ]
+    },
+    {
+     "mean": 0.7924528301886793,
+     "std": 0.0,
+     "values": [
+      0.7924528301886793
+     ]
+    },
+    {
+     "mean": 0.8301886792452831,
+     "std": 0.0,
+     "values": [
+      0.8301886792452831
+     ]
+    },
+    {
+     "mean": 0.8867924528301887,
+     "std": 0.0,
+     "values": [
+      0.8867924528301887
+     ]
+    }
+   ],
+   "tool_recall": [
+    {
+     "mean": 0.8682389937106918,
+     "std": 0.0,
+     "values": [
+      0.8682389937106918
+     ]
+    },
+    {
+     "mean": 0.9154088050314465,
+     "std": 0.0,
+     "values": [
+      0.9154088050314465
+     ]
+    },
+    {
+     "mean": 0.9216981132075471,
+     "std": 0.0,
+     "values": [
+      0.9216981132075471
+     ]
+    },
+    {
+     "mean": 0.9424528301886792,
+     "std": 0.0,
+     "values": [
+      0.9424528301886792
+     ]
+    },
+    {
+     "mean": 0.9330188679245283,
+     "std": 0.0,
+     "values": [
+      0.9330188679245283
+     ]
+    },
+    {
+     "mean": 0.940566037735849,
+     "std": 0.0,
+     "values": [
+      0.940566037735849
+     ]
+    }
+   ],
+   "context_tokens": [
+    {
+     "mean": 583.377358490566,
+     "std": 0.0,
+     "values": [
+      583.377358490566
+     ]
+    },
+    {
+     "mean": 591.6415094339623,
+     "std": 0.0,
+     "values": [
+      591.6415094339623
+     ]
+    },
+    {
+     "mean": 595.7358490566038,
+     "std": 0.0,
+     "values": [
+      595.7358490566038
+     ]
+    },
+    {
+     "mean": 598.6415094339623,
+     "std": 0.0,
+     "values": [
+      598.6415094339623
+     ]
+    },
+    {
+     "mean": 602.5849056603773,
+     "std": 0.0,
+     "values": [
+      602.5849056603773
+     ]
+    },
+    {
+     "mean": 604.3962264150944,
+     "std": 0.0,
+     "values": [
+      604.3962264150944
+     ]
+    }
+   ],
+   "latency_p50_ms": [
+    {
+     "mean": 64.48850000742823,
+     "std": 0.0,
+     "values": [
+      64.48850000742823
+     ]
+    },
+    {
+     "mean": 27.707959001418203,
+     "std": 0.0,
+     "values": [
+      27.707959001418203
+     ]
+    },
+    {
+     "mean": 33.00983298686333,
+     "std": 0.0,
+     "values": [
+      33.00983298686333
+     ]
+    },
+    {
+     "mean": 40.794541011564434,
+     "std": 0.0,
+     "values": [
+      40.794541011564434
+     ]
+    },
+    {
+     "mean": 48.28400001861155,
+     "std": 0.0,
+     "values": [
+      48.28400001861155
+     ]
+    },
+    {
+     "mean": 36.98633299791254,
+     "std": 0.0,
+     "values": [
+      36.98633299791254
+     ]
+    }
+   ],
+   "latency_p95_ms": [
+    {
+     "mean": 213.41016600490548,
+     "std": 0.0,
+     "values": [
+      213.41016600490548
+     ]
+    },
+    {
+     "mean": 71.96087500778958,
+     "std": 0.0,
+     "values": [
+      71.96087500778958
+     ]
+    },
+    {
+     "mean": 120.08408401743509,
+     "std": 0.0,
+     "values": [
+      120.08408401743509
+     ]
+    },
+    {
+     "mean": 79.68187500955537,
+     "std": 0.0,
+     "values": [
+      79.68187500955537
+     ]
+    },
+    {
+     "mean": 102.81870799371973,
+     "std": 0.0,
+     "values": [
+      102.81870799371973
+     ]
+    },
+    {
+     "mean": 118.92512498889118,
+     "std": 0.0,
+     "values": [
+      118.92512498889118
+     ]
+    }
+   ],
+   "db_round_trips": [
+    {
+     "mean": 3.509433962264151,
+     "std": 0.0,
+     "values": [
+      3.509433962264151
+     ]
+    },
+    {
+     "mean": 3.4339622641509435,
+     "std": 0.0,
+     "values": [
+      3.4339622641509435
+     ]
+    },
+    {
+     "mean": 3.358490566037736,
+     "std": 0.0,
+     "values": [
+      3.358490566037736
+     ]
+    },
+    {
+     "mean": 3.339622641509434,
+     "std": 0.0,
+     "values": [
+      3.339622641509434
+     ]
+    },
+    {
+     "mean": 3.3207547169811322,
+     "std": 0.0,
+     "values": [
+      3.3207547169811322
+     ]
+    },
+    {
+     "mean": 3.30188679245283,
+     "std": 0.0,
+     "values": [
+      3.30188679245283
+     ]
+    }
+   ],
+   "steps_per_success": [
+    {
+     "mean": 2.3714285714285714,
+     "std": 0.0,
+     "values": [
+      2.3714285714285714
+     ]
+    },
+    {
+     "mean": 2.4871794871794872,
+     "std": 0.0,
+     "values": [
+      2.4871794871794872
+     ]
+    },
+    {
+     "mean": 2.5,
+     "std": 0.0,
+     "values": [
+      2.5
+     ]
+    },
+    {
+     "mean": 2.6666666666666665,
+     "std": 0.0,
+     "values": [
+      2.6666666666666665
+     ]
+    },
+    {
+     "mean": 2.6818181818181817,
+     "std": 0.0,
+     "values": [
+      2.6818181818181817
+     ]
+    },
+    {
+     "mean": 2.8085106382978724,
+     "std": 0.0,
+     "values": [
+      2.8085106382978724
+     ]
+    }
+   ]
+  },
+  "baselines": {
+   "all_tools": {
+    "success_rate": {
+     "mean": 0.9622641509433962,
+     "std": 0.0,
+     "values": [
+      0.9622641509433962
+     ]
+    },
+    "tool_recall": {
+     "mean": 1.0,
+     "std": 0.0,
+     "values": [
+      1.0
+     ]
+    },
+    "context_tokens": {
+     "mean": 8524,
+     "std": 0.0,
+     "values": [
+      8524
+     ]
+    },
+    "cost_per_1k_tasks_usd": {
+     "mean": 8.524,
+     "std": 0.0,
+     "values": [
+      8.524
+     ]
+    },
+    "latency_p50_ms": {
+     "mean": 0.08229099330492318,
+     "std": 0.0,
+     "values": [
+      0.08229099330492318
+     ]
+    }
+   },
+   "vector_k8": {
+    "success_rate": {
+     "mean": 0.5094339622641509,
+     "std": 0.0,
+     "values": [
+      0.5094339622641509
+     ]
+    },
+    "tool_recall": {
+     "mean": 0.7210691823899371,
+     "std": 0.0,
+     "values": [
+      0.7210691823899371
+     ]
+    },
+    "context_tokens": {
+     "mean": 506.49056603773585,
+     "std": 0.0,
+     "values": [
+      506.49056603773585
+     ]
+    },
+    "cost_per_1k_tasks_usd": {
+     "mean": 0.5064905660377358,
+     "std": 0.0,
+     "values": [
+      0.5064905660377358
+     ]
+    },
+    "latency_p50_ms": {
+     "mean": 3.0524169851560146,
+     "std": 0.0,
+     "values": [
+      3.0524169851560146
+     ]
+    }
+   },
+   "vector_k15": {
+    "success_rate": {
+     "mean": 0.660377358490566,
+     "std": 0.0,
+     "values": [
+      0.660377358490566
+     ]
+    },
+    "tool_recall": {
+     "mean": 0.8402515723270441,
+     "std": 0.0,
+     "values": [
+      0.8402515723270441
+     ]
+    },
+    "context_tokens": {
+     "mean": 956.1698113207547,
+     "std": 0.0,
+     "values": [
+      956.1698113207547
+     ]
+    },
+    "cost_per_1k_tasks_usd": {
+     "mean": 0.9561698113207547,
+     "std": 0.0,
+     "values": [
+      0.9561698113207547
+     ]
+    },
+    "latency_p50_ms": {
+     "mean": 0.5922089912928641,
+     "std": 0.0,
+     "values": [
+      0.5922089912928641
+     ]
+    }
+   }
+  }
+ },
+ "graph_static": [
+  {
+   "n": 53,
+   "success_rate": 0.660377358490566,
+   "tool_recall": 0.8682389937106918,
+   "context_tokens": 583.377358490566,
+   "cost_per_1k_tasks_usd": 0.583377358490566,
+   "db_round_trips": 3.509433962264151,
+   "latency_p50_ms": 64.48850000742823,
+   "latency_p95_ms": 213.41016600490548,
+   "db_ms_p50": 61.65016695740633,
+   "failures": {
+    "goal_not_reached": 17,
+    "missing_input": 1
+   },
+   "steps_per_success": 2.3714285714285714
+  }
+ ],
+ "llm_usage": {
+  "calls": 423,
+  "cache_hits": 183,
+  "input_tokens": 777406,
+  "output_tokens": 44881
+ },
+ "wall_clock_s": 1834.1
+}

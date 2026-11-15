@@ -30,6 +30,9 @@ def pm(o, d=1):
 
 
 bname, B = load("benchmark", "sufficiency")
+LLM = None
+if bname == "benchmark" and B["config"]["seeds"] < 3:  # partial LLM run: headline stays on the 3-seed solver run
+    LLM, (bname, B) = B, load("sufficiency")
 aname, A = load("ablations", "ablations_sufficiency")
 _, SC = load("scale")
 lname, L = load("load", "load_local")
@@ -82,6 +85,21 @@ if B:
         + "\n".join(rows)
         + f"\n\nLearning curve (held-out success after each of {B['config']['iters']} training batches, mean of seeds): {curve}.\n\n"
         + "Failure reasons, summed over seeds: " + "; ".join(f"{k}: {v}" for k, v in fails.items()) + "."
+    )
+
+if LLM:
+    g, b = LLM["aggregate"]["graph_learning"], LLM["aggregate"]["baselines"]
+    rows = ["| strategy | task success | tool recall | tool tokens / task |", "|---|---|---|---|"]
+    for k in ("all_tools", "vector_k8", "vector_k15"):
+        rows.append(f"| `{k}` | {pct(b[k]['success_rate']['mean'], 1)} | {pct(b[k]['tool_recall']['mean'], 1)} | {b[k]['context_tokens']['mean']:,.0f} |")
+    for i, name in ((0, "graph, static (iteration 0)"), (len(g["success_rate"]) - 1, f"**graph, after {len(g['success_rate']) - 1} training batches**")):
+        rows.append(f"| {name} | {pct(g['success_rate'][i]['mean'], 1)} | {pct(g['tool_recall'][i]['mean'], 1)} | {g['context_tokens'][i]['mean']:,.0f} |")
+    c = LLM["config"]
+    blocks["llm"] = (
+        f"Source: `results/benchmark.json`, LLM planner `{c['planner']}`, **{c['seeds']} seed only** (the free-tier daily "
+        f"request cap stopped the next seed), same {c['n_train']} train / {c['n_test']} test split. Here extra tools can confuse "
+        "the planner, so all-tools is no longer perfect.\n\n" + "\n".join(rows)
+        + "\n\nLearning curve: " + " → ".join(pct(x["mean"], 1) for x in g["success_rate"]) + "."
     )
 
 if A:

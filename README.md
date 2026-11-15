@@ -131,6 +131,22 @@ Failure reasons, summed over seeds: vector_k15: empty_plan 9, goal_not_reached 3
 
 ![Tokens vs success](results/plots/tokens_vs_success.png) ![Failures](results/plots/failures.png)
 
+**With a real LLM planner.** The same benchmark with the solver swapped for an LLM that writes the plan from the retrieved tool definitions:
+
+<!-- gen:llm -->
+Source: `results/benchmark.json`, LLM planner `gemini:gemini-3.5-flash-lite`, **1 seed only** (the free-tier daily request cap stopped the next seed), same 96 train / 53 test split. Here extra tools can confuse the planner, so all-tools is no longer perfect.
+
+| strategy | task success | tool recall | tool tokens / task |
+|---|---|---|---|
+| `all_tools` | 96.2% | 100.0% | 8,524 |
+| `vector_k8` | 50.9% | 72.1% | 506 |
+| `vector_k15` | 66.0% | 84.0% | 956 |
+| graph, static (iteration 0) | 66.0% | 86.8% | 583 |
+| **graph, after 5 training batches** | 88.7% | 94.1% | 604 |
+
+Learning curve: 66.0% → 73.6% → 75.5% → 79.2% → 83.0% → 88.7%.
+<!-- /gen:llm -->
+
 **Scale.** To crowd the catalog, I cloned real servers into look-alike servers: same capabilities, brand-specific id types and shared user-supplied types. The tasks still name the real servers.
 
 <!-- gen:scale -->
